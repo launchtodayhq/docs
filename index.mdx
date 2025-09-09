@@ -1,97 +1,131 @@
 ---
-title: "Introduction"
-description: "Welcome to the new home for your documentation"
+title: "Launch Platform"
+description: "A comprehensive cross-platform development starter kit"
 ---
 
-## Setting up
+## Overview
 
-Get your documentation site up and running in minutes.
+Launch is a modern, production-ready starter kit that helps developers build cross-platform applications quickly and efficiently. The platform combines React Native mobile apps, Next.js web applications, and a robust tRPC API backend—all with seamless type safety and beautiful design systems.
 
-<Card
-  title="Start here"
-  icon="rocket"
-  href="/quickstart"
-  horizontal
->
-  Follow our three step quickstart guide.
+<Card title="Quick Start" icon="rocket" href="/quickstart" horizontal>
+  Get your development environment running in under 5 minutes.
 </Card>
 
-## Make it yours
+## Platform Architecture
 
-Design a docs site that looks great and empowers your users.
+Launch uses a monorepo structure with three core applications that share type definitions and work together seamlessly.
 
-<Columns cols={2}>
-  <Card
-    title="Edit locally"
-    icon="pen-to-square"
-    href="/development"
-  >
-    Edit your docs locally and preview them in real time.
+<Columns cols={3}>
+  <Card title="Mobile App" icon="mobile" href="/mobile/overview">
+    React Native with Expo Router, HeroUI Native components, and Apple Sign-In
+    authentication.
   </Card>
-  <Card
-    title="Customize your site"
-    icon="palette"
-    href="/essentials/settings"
-  >
-    Customize the design and colors of your site to match your brand.
+  <Card title="Web App" icon="globe" href="/web/overview">
+    Next.js 15 with App Router, HeroUI React components, and modern Tailwind CSS
+    styling.
   </Card>
-    <Card
-    title="Set up navigation"
-    icon="map"
-    href="/essentials/navigation"
-  >
-    Organize your docs to help users find what they need and succeed with your product.
-  </Card>
-  <Card
-    title="API documentation"
-    icon="terminal"
-    href="/api-reference/introduction"
-  >
-    Auto-generate API documentation from OpenAPI specifications.
+  <Card title="API Backend" icon="server" href="/api-reference/introduction">
+    tRPC server with Koa.js, Better Auth integration, and Docker
+    containerization.
   </Card>
 </Columns>
 
-## Create beautiful pages
+## Current Implementation Status
 
-Everything you need to create world-class documentation.
+The platform includes several key features that are ready for development:
+
+**Authentication System**
+
+- Better Auth integration with Expo plugin for seamless mobile authentication
+- Apple Sign-In with social provider configuration and OAuth flow handling
+- Session persistence using Expo SecureStore for native security on device
+- Protected route guards with Expo Router Stack.Protected for declarative auth flows
+- Deep linking support with custom `launch://` scheme for OAuth callbacks
+- Instant authentication state transitions without navigation animations
+- Custom fetch implementation with device headers for API authentication
+
+**Type-Safe API Communication**
+
+- tRPC server running on Koa.js with automatic type generation across platforms
+- Custom fetch middleware injecting device information headers (platform, version, model)
+- Comprehensive request/response logging with device metadata and performance tracking
+- Error handling with structured validation using Zod schemas
+- CORS configuration for secure cross-platform development environment
+
+**Backend Architecture**
+
+- Koa.js server framework with modular middleware architecture
+- Better Auth handler mounted at `/api/auth` with Expo integration plugin
+- tRPC router mounted at `/trpc` for type-safe API endpoint definitions
+- Prisma ORM with PostgreSQL database integration and migration management
+- Docker containerization with docker-compose for consistent development environment
+- Environment-based configuration supporting staging and production deployments
+- Structured logging with request tracing and device information capture
+
+**UI Design System**
+
+- HeroUI Native components for mobile with custom theming and pastel color schemes
+- HeroUI React components for web applications with consistent design tokens
+- Custom pastel theme system with dark/light mode variants
+- Cross-platform styling with NativeWind for React Native and Tailwind CSS for web
+- Consistent spacing, typography, and color systems across all platforms
+
+**Development Infrastructure**
+
+- Turborepo monorepo with workspace management and efficient build caching
+- Hot reload across all platforms during development with instant feedback
+- Comprehensive TypeScript configuration with strict mode and shared type definitions
+- Automated database migrations with Prisma CLI integration
+- Device information collection system for debugging and user analytics
+- Docker containerization for API deployment with multi-stage builds
+
+## Key Features
 
 <Columns cols={2}>
-  <Card
-    title="Write with MDX"
-    icon="pen-fancy"
-    href="/essentials/markdown"
-  >
-    Use MDX to style your docs pages.
+  <Card title="Cross-Platform Design" icon="devices" href="/development">
+    Shared design tokens and components across mobile and web platforms.
+  </Card>
+  <Card title="Type Safety" icon="shield-check" href="/essentials/typescript">
+    End-to-end type safety from database to UI with tRPC and TypeScript.
   </Card>
   <Card
-    title="Code samples"
-    icon="code"
-    href="/essentials/code"
+    title="Modern Authentication"
+    icon="lock"
+    href="/authentication/overview"
   >
-    Add sample code to demonstrate how to use your product.
+    Secure authentication flows with session persistence and social login.
   </Card>
-  <Card
-    title="Images"
-    icon="image"
-    href="/essentials/images"
-  >
-    Display images and other media.
-  </Card>
-  <Card
-    title="Reusable snippets"
-    icon="recycle"
-    href="/essentials/reusable-snippets"
-  >
-    Write once and reuse across your docs.
+  <Card title="Developer Experience" icon="code" href="/development">
+    Fast development cycles with hot reload, TypeScript, and comprehensive
+    tooling.
   </Card>
 </Columns>
 
-## Need inspiration?
+## Technology Stack
 
-<Card
-  title="See complete examples"
-  icon="stars"
-  href="https://mintlify.com/customers"
->
-  Browse our showcase of exceptional documentation sites.
-</Card>
+**Frontend Frameworks**
+
+- React Native with Expo SDK 53
+- Next.js 15 with App Router
+- Expo Router 5 for mobile navigation
+
+**Backend & API**
+
+- tRPC 11 for type-safe APIs
+- Koa.js server framework
+- Better Auth for authentication
+- Prisma for database management
+
+**Design & Styling**
+
+- HeroUI component libraries
+- NativeWind for React Native
+- Tailwind CSS 4 for web
+- Custom theme system
+
+**Development Tools**
+
+- Turborepo for monorepo management
+- TypeScript for type safety
+- Docker for containerization
+- pnpm for package management

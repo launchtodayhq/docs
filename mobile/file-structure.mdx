@@ -1,0 +1,210 @@
+---
+title: "Mobile App File Structure"
+description: "Understanding the organization and patterns used in the mobile app"
+---
+
+## Overview
+
+The Launch mobile app follows a well-organized structure that makes it easy for developers to find components, understand data flow, and maintain the codebase.
+
+## Directory Structure
+
+```
+apps/mobile/
+├── app/                    # Expo Router screens
+│   ├── (app)/             # Protected app screens
+│   ├── _layout.tsx        # Root layout with auth
+│   ├── index.tsx          # Landing page
+│   └── login.tsx          # Authentication screen
+├── components/            # Reusable UI components
+│   ├── auth/              # Authentication components
+│   ├── ui/                # General UI elements
+│   ├── layout/            # Layout components
+│   ├── theme/             # Theme-related components
+│   ├── platform/          # Platform-specific components
+│   └── hooks/             # Custom React hooks
+├── config/                # App configuration
+│   └── launch.config.ts   # Centralized app settings
+├── constants/             # Design system constants
+│   ├── Colors.ts          # Color palette
+│   ├── Spacing.ts         # Spacing tokens
+│   └── Typography.ts      # Font definitions
+├── contexts/              # React contexts
+│   └── app-theme-context.tsx
+├── lib/                   # Utilities and clients
+│   ├── auth-client.ts     # Authentication client
+│   ├── device-info.ts     # Device information
+│   ├── trpc.ts           # API client
+│   └── useFormFactor.ts   # Device type detection
+└── themes/                # Theme definitions
+    └── pastel-themes.ts
+```
+
+## Key Patterns
+
+### Component Organization
+
+Components are organized by purpose into logical folders:
+
+- **`auth/`** - Authentication-related components (AuthButton, SignOutButton)
+- **`ui/`** - Reusable UI elements (AppText, LoadingState, SimpleCard)
+- **`layout/`** - Layout and navigation components (ScreenScrollView, IPadComingSoon)
+- **`theme/`** - Theme and styling components (ThemeToggle, ThemeSelector)
+- **`platform/`** - Platform-specific components (AnimatedCarousel, CyclingText, Logo)
+- **`hooks/`** - Custom React hooks (useColorScheme, useClientOnlyValue)
+
+### Import Strategy
+
+Each component folder has an `index.ts` file for clean imports:
+
+```typescript
+// Instead of multiple imports
+import { AuthButton } from "@/components/auth/auth-button";
+import { SignOutButton } from "@/components/auth/sign-out-button";
+
+// Use category imports
+import { AuthButton, SignOutButton } from "@/components/auth";
+
+// Or use the main index for everything
+import { AuthButton, LoadingState, ThemeToggle } from "@/components";
+```
+
+### Configuration-Driven Development
+
+The `launch.config.ts` file serves as a single source of truth for:
+
+- **App metadata** (name, version, description)
+- **Screen copy** - All text content in one place
+- **Styling constants** (colors, border radius, animations)
+- **Feature flags** (enable/disable features)
+- **Provider configuration** (auth providers, API endpoints)
+
+### Copy Management System
+
+Text content is centralized using helper functions:
+
+```typescript
+// Get copy for specific screen
+const loginTitle = getCopy("login", "title");
+
+// Get copy with variables
+const welcome = getCopy("dashboard", "welcome", { name: "John" });
+
+// Get all copy for a screen
+const loginCopy = getScreenCopy("login");
+```
+
+## Screen Patterns
+
+### Authentication Flow
+
+```typescript
+// _layout.tsx - Route protection
+<Stack.Protected guard={!isLoggedIn}>
+  <Stack.Screen name="index" />
+  <Stack.Screen name="login" />
+</Stack.Protected>
+
+<Stack.Protected guard={isLoggedIn}>
+  <Stack.Screen name="(app)" />
+</Stack.Protected>
+```
+
+### Component Composition
+
+```typescript
+// Dashboard screen using reusable components
+export default function Dashboard() {
+  const { data: session, isPending } = authClient.useSession();
+
+  if (isPending) return <LoadingState />;
+
+  return (
+    <View>
+      <AppText>{getCopy("dashboard", "welcome")}</AppText>
+      <AppText>{session?.user?.email}</AppText>
+      <SignOutButton />
+    </View>
+  );
+}
+```
+
+## Design System Integration
+
+### Spacing
+
+Use predefined spacing tokens instead of arbitrary values:
+
+```typescript
+// Good
+paddingTop: insets.top + Spacing.screen.headerSpacing,
+paddingBottom: insets.bottom + Spacing.md,
+
+// Avoid
+paddingTop: 60,
+paddingBottom: 16,
+```
+
+### Colors
+
+Colors are defined in the theme system and accessed consistently:
+
+```typescript
+// Theme colors (dynamic)
+const { colors, isDark } = useTheme();
+
+// Static colors from constants
+backgroundColor: ButtonColors.grayButton,
+```
+
+### Typography
+
+Font families are configured in the design system:
+
+```typescript
+// Tailwind classes
+className = "font-sans-bold text-4xl";
+
+// Maps to Manrope-Bold font family
+```
+
+## Best Practices
+
+### Component Creation
+
+1. **Reusable components** go in appropriate `components/` subfolders
+2. **Screen-specific components** can stay in the screen file if they won't be reused
+3. **Always export** from the folder's `index.ts` file
+4. **Use TypeScript interfaces** for props
+
+### State Management
+
+1. **Authentication state** - Use `authClient.useSession()`
+2. **Theme state** - Use `useTheme()` hook
+3. **Form factor detection** - Use `useFormFactor()` for device types
+4. **Local state** - Use React's `useState` and `useEffect`
+
+### Styling Approach
+
+1. **NativeWind classes** for most styling
+2. **Style objects** when dynamic values are needed
+3. **Theme system** for colors and fonts
+4. **Spacing tokens** for consistent layout
+
+## Adding New Features
+
+### New Screen
+
+1. Create screen file in `app/` directory
+2. Add route to `_layout.tsx` if protected
+3. Update copy in `launch.config.ts`
+4. Extract reusable components to `components/`
+
+### New Component
+
+1. Create component in appropriate `components/` subfolder
+2. Add export to subfolder's `index.ts`
+3. Write TypeScript interface for props
+4. Use copy system for any text content
+
+This structure ensures the codebase remains organized, scalable, and easy to understand for new developers.

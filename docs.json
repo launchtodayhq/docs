@@ -1,11 +1,11 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "maple",
-  "name": "Mint Starter Kit",
+  "name": "Launch",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#1447E6",
+    "light": "#3B82F6",
+    "dark": "#1E40AF"
   },
   "favicon": "/favicon.svg",
   "navigation": {
@@ -15,18 +15,20 @@
         "groups": [
           {
             "group": "Getting started",
+            "pages": ["index", "quickstart", "development"]
+          },
+          {
+            "group": "Mobile App",
             "pages": [
-              "index",
-              "quickstart",
-              "development"
+              "mobile/environment-setup",
+              "mobile/authentication",
+              "mobile/file-structure",
+              "mobile/components"
             ]
           },
           {
             "group": "Customization",
-            "pages": [
-              "essentials/settings",
-              "essentials/navigation"
-            ]
+            "pages": ["essentials/settings", "essentials/navigation"]
           },
           {
             "group": "Writing content",
@@ -52,9 +54,7 @@
         "groups": [
           {
             "group": "API documentation",
-            "pages": [
-              "api-reference/introduction"
-            ]
+            "pages": ["api-reference/introduction"]
           },
           {
             "group": "Endpoint examples",
@@ -95,33 +95,33 @@
   "navbar": {
     "links": [
       {
-        "label": "Support",
-        "href": "mailto:hi@mintlify.com"
+        "label": "GitHub",
+        "href": "https://github.com/your-repo/launch"
       }
     ],
     "primary": {
       "type": "button",
-      "label": "Dashboard",
-      "href": "https://dashboard.mintlify.com"
+      "label": "Get Started",
+      "href": "https://github.com/your-repo/launch"
     }
   },
   "contextual": {
     "options": [
-     "copy",
-     "view",
-     "chatgpt",
-     "claude",
-     "perplexity",
-     "mcp",
-     "cursor",
-     "vscode"
-   ]
+      "copy",
+      "view",
+      "chatgpt",
+      "claude",
+      "perplexity",
+      "mcp",
+      "cursor",
+      "vscode"
+    ]
   },
   "footer": {
     "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
+      "x": "https://x.com/launchhq",
+      "github": "https://github.com/your-repo/launch",
+      "linkedin": "https://linkedin.com/company/launchhq"
     }
   }
 }

@@ -1,0 +1,491 @@
+---
+title: "Component Development"
+description: "Guide to creating and using reusable components in the mobile app"
+---
+
+## Component Architecture
+
+The Launch mobile app uses a well-organized component system that promotes reusability, consistency, and maintainability.
+
+## Component Categories
+
+### Authentication Components (`components/auth/`)
+
+Components related to user authentication and session management.
+
+<CodeGroup>
+```typescript AuthButton
+import { AuthButton } from "@/components/auth";
+
+// Apple Sign-In
+
+<AuthButton
+  provider="apple"
+  text="Continue with Apple"
+  onPress={handleAppleSignIn}
+/>
+
+// Google Sign-In
+
+<AuthButton
+  provider="google"
+  text="Continue with Google"
+  onPress={handleGoogleSignIn}
+/>
+
+// Email buttons
+
+<AuthButton provider="email-signup" text="Sign up" onPress={handleSignUp} />
+```
+
+```typescript SignOutButton
+import { SignOutButton } from "@/components/auth";
+
+// Basic usage
+<SignOutButton />
+
+// With custom styling
+<SignOutButton
+  className="custom-styles"
+  onSignOut={() => console.log("Signed out")}
+  onError={(error) => console.error(error)}
+/>
+```
+
+</CodeGroup>
+
+### UI Components (`components/ui/`)
+
+General-purpose UI elements used throughout the app.
+
+<CodeGroup>
+```typescript AppText
+import { AppText } from "@/components/ui";
+
+<AppText className="text-lg font-bold text-center">Hello World</AppText>
+```
+
+```typescript LoadingState
+import { LoadingState } from "@/components/ui";
+
+// Full screen loading
+<LoadingState />
+
+// Inline loading
+<LoadingState
+  fullScreen={false}
+  text="Loading data..."
+  className="p-4"
+/>
+```
+
+```typescript SimpleCard
+import { SimpleCard } from "@/components/ui";
+
+<SimpleCard
+  data={{
+    id: "1",
+    image: require("./assets/card-image.png"),
+    color: "#FF6B6B"
+  }}
+/>
+```
+
+</CodeGroup>
+
+### Layout Components (`components/layout/`)
+
+Components that handle layout and navigation structure.
+
+<CodeGroup>
+```typescript ScreenScrollView
+import { ScreenScrollView } from "@/components/layout";
+
+export default function MyScreen() {
+  return (
+    <ScreenScrollView>
+      <View>
+        {/* Your screen content */}
+      </View>
+    </ScreenScrollView>
+  );
+}
+```
+
+```typescript IPadComingSoon
+import { IPadComingSoon } from "@/components/layout";
+
+// Shown automatically on tablet devices
+// No manual usage needed - handled in _layout.tsx
+```
+
+</CodeGroup>
+
+### Theme Components (`components/theme/`)
+
+Components for theme management and styling.
+
+<CodeGroup>
+```typescript ThemeToggle
+import { ThemeToggle } from "@/components/theme";
+
+// Usually placed in headers
+
+<Stack.Screen
+  options={{
+    headerRight: () => <ThemeToggle />,
+  }}
+/>
+```
+
+```typescript ThemeSelector
+import { ThemeSelectorBar } from "@/components/theme";
+
+<ThemeSelectorBar />
+```
+
+</CodeGroup>
+
+### Platform Components (`components/platform/`)
+
+Platform-specific or complex interactive components.
+
+<CodeGroup>
+```typescript AnimatedCarousel
+import { AnimatedCarousel } from "@/components/platform";
+
+<AnimatedCarousel data={carouselItems} marginLeft={20} marginRight={0} />
+```
+
+```typescript CyclingText
+import { CyclingText } from "@/components/platform";
+
+<CyclingText
+  appTypes={["social app", "e-commerce app"]}
+  typingSpeed={30}
+  pauseDuration={1500}
+  className="text-2xl font-bold"
+/>
+```
+
+```typescript Logo
+import { Logo } from "@/components/platform";
+
+<Logo width={100} />
+```
+
+</CodeGroup>
+
+## Creating New Components
+
+### Component Template
+
+```typescript
+// components/ui/my-component.tsx
+import { View } from "react-native";
+import { AppText } from "./app-text";
+import { getCopy } from "@/config/launch.config";
+
+interface MyComponentProps {
+  title: string;
+  variant?: "primary" | "secondary";
+  onPress?: () => void;
+  className?: string;
+}
+
+export function MyComponent({
+  title,
+  variant = "primary",
+  onPress,
+  className = "",
+}: MyComponentProps) {
+  const variantStyles = {
+    primary: "bg-blue-500 text-white",
+    secondary: "bg-gray-200 text-gray-800",
+  };
+
+  return (
+    <View className={`p-4 rounded-lg ${variantStyles[variant]} ${className}`}>
+      <AppText className="font-bold">{title}</AppText>
+    </View>
+  );
+}
+```
+
+### Export Pattern
+
+Always export from the folder's index file:
+
+```typescript
+// components/ui/index.ts
+export { AppText } from "./app-text";
+export { LoadingState } from "./loading-state";
+export { MyComponent } from "./my-component"; // Add new component
+```
+
+### TypeScript Best Practices
+
+```typescript
+// Define clear interfaces
+interface ButtonProps {
+  children: React.ReactNode;
+  variant: "primary" | "secondary" | "danger";
+  size?: "sm" | "md" | "lg";
+  disabled?: boolean;
+  onPress: () => void; // Required callback
+  className?: string; // Optional styling
+}
+
+// Use union types for variants
+type AlertType = "success" | "warning" | "error" | "info";
+
+// Export types for reuse
+export type { ButtonProps, AlertType };
+```
+
+## Styling Guidelines
+
+### NativeWind Classes
+
+Use Tailwind CSS classes through NativeWind:
+
+```typescript
+// Good - Semantic classes
+<View className="flex-1 bg-background p-4 gap-2">
+  <AppText className="text-2xl font-bold text-foreground">
+    Title
+  </AppText>
+</View>
+
+// Avoid - Arbitrary values
+<View style={{ flex: 1, backgroundColor: '#fff', padding: 16 }}>
+```
+
+### Theme Integration
+
+Components should respect the theme system:
+
+```typescript
+import { useTheme } from "heroui-native";
+
+export function ThemedComponent() {
+  const { colors, isDark } = useTheme();
+
+  return (
+    <View
+      className="p-4 rounded-lg"
+      style={{
+        backgroundColor: isDark ? colors.background : colors.card
+      }}
+    >
+      <AppText className="text-foreground">Themed content</AppText>
+    </View>
+  );
+}
+```
+
+### Responsive Design
+
+Handle different screen sizes and form factors:
+
+```typescript
+import { useFormFactor } from "@/lib/useFormFactor";
+
+export function ResponsiveComponent() {
+  const formFactor = useFormFactor();
+  const isTablet = formFactor.includes("tablet");
+
+  return (
+    <View className={`p-4 ${isTablet ? "max-w-md mx-auto" : "w-full"}`}>
+      {/* Component content */}
+    </View>
+  );
+}
+```
+
+## Copy Integration
+
+### Using the Copy System
+
+Components should use the centralized copy system:
+
+```typescript
+import { getCopy, getScreenCopy } from "@/config/launch.config";
+
+export function LoginForm() {
+  // Single copy item
+  const submitText = getCopy("login", "submitButton");
+
+  // Copy with variables
+  const welcomeText = getCopy("login", "welcome", { name: "John" });
+
+  // All copy for a screen
+  const allLoginCopy = getScreenCopy("login");
+
+  return (
+    <View>
+      <AppText>{welcomeText}</AppText>
+      <Button>{submitText}</Button>
+    </View>
+  );
+}
+```
+
+### Adding New Copy
+
+Update the config file when adding new components:
+
+```typescript
+// config/launch.config.ts
+export const LaunchConfig = {
+  copy: {
+    // Add new screen copy
+    settings: {
+      title: "Settings",
+      saveButton: "Save Changes",
+      resetButton: "Reset to Default",
+    },
+
+    // Add to common copy
+    common: {
+      loading: "Loading...",
+      error: "Something went wrong",
+      // Add new common copy
+      cancel: "Cancel",
+      confirm: "Confirm",
+    },
+  },
+};
+```
+
+## Testing Components
+
+### Component Testing
+
+```typescript
+// __tests__/my-component.test.tsx
+import { render, fireEvent } from "@testing-library/react-native";
+import { MyComponent } from "../my-component";
+
+describe("MyComponent", () => {
+  it("renders correctly", () => {
+    const { getByText } = render(
+      <MyComponent title="Test Title" />
+    );
+
+    expect(getByText("Test Title")).toBeTruthy();
+  });
+
+  it("handles press events", () => {
+    const mockOnPress = jest.fn();
+    const { getByText } = render(
+      <MyComponent title="Test" onPress={mockOnPress} />
+    );
+
+    fireEvent.press(getByText("Test"));
+    expect(mockOnPress).toHaveBeenCalled();
+  });
+});
+```
+
+### Visual Testing
+
+Use Storybook or component galleries for visual testing:
+
+```typescript
+// stories/MyComponent.stories.tsx
+export default {
+  title: "UI/MyComponent",
+  component: MyComponent,
+};
+
+export const Primary = {
+  args: {
+    title: "Primary Button",
+    variant: "primary",
+  },
+};
+
+export const Secondary = {
+  args: {
+    title: "Secondary Button",
+    variant: "secondary",
+  },
+};
+```
+
+## Performance Considerations
+
+### Memoization
+
+Use React.memo for expensive components:
+
+```typescript
+import React from "react";
+
+interface ExpensiveComponentProps {
+  data: ComplexDataType[];
+  onItemPress: (id: string) => void;
+}
+
+export const ExpensiveComponent = React.memo<ExpensiveComponentProps>(
+  ({ data, onItemPress }) => {
+    return (
+      <View>
+        {data.map(item => (
+          <ExpensiveItem
+            key={item.id}
+            item={item}
+            onPress={() => onItemPress(item.id)}
+          />
+        ))}
+      </View>
+    );
+  }
+);
+```
+
+### Lazy Loading
+
+Use lazy loading for heavy components:
+
+```typescript
+import { lazy, Suspense } from "react";
+import { LoadingState } from "@/components/ui";
+
+const HeavyComponent = lazy(() => import("./heavy-component"));
+
+export function ParentComponent() {
+  return (
+    <Suspense fallback={<LoadingState />}>
+      <HeavyComponent />
+    </Suspense>
+  );
+}
+```
+
+## Best Practices
+
+### Component Design
+
+1. **Single Responsibility** - Each component should have one clear purpose
+2. **Composition over Inheritance** - Build complex components from simpler ones
+3. **Props Interface** - Always define TypeScript interfaces for props
+4. **Default Props** - Provide sensible defaults for optional props
+5. **Error Boundaries** - Handle errors gracefully
+
+### Code Organization
+
+1. **Logical Grouping** - Place components in appropriate category folders
+2. **Index Exports** - Always export from folder index files
+3. **Consistent Naming** - Use PascalCase for components, camelCase for props
+4. **File Naming** - Use kebab-case for file names
+
+### Documentation
+
+1. **Props Documentation** - Document complex props with JSDoc
+2. **Usage Examples** - Provide clear usage examples
+3. **Component Stories** - Create Storybook stories for visual components
+4. **README Updates** - Keep component documentation current
+
+This component system ensures consistency, reusability, and maintainability across the entire mobile application.

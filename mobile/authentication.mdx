@@ -1,0 +1,314 @@
+---
+title: "Mobile Authentication"
+description: "Complete guide to authentication implementation in the mobile app"
+---
+
+## Overview
+
+The Launch mobile app uses [Better Auth](https://better-auth.com) with Expo integration for a secure, seamless authentication experience. This guide explains how authentication works throughout the app.
+
+## Architecture
+
+### Authentication Flow
+
+```mermaid
+graph LR
+    A[User Opens App] --> B{Session Check}
+    B -->|No Session| C[Landing Page]
+    B -->|Valid Session| D[Protected App]
+    C --> E[Login Screen]
+    E --> F[Social/Email Auth]
+    F --> G[Better Auth API]
+    G --> H[Session Created]
+    H --> D
+```
+
+### Key Components
+
+<Card title="Auth Client" icon="key">
+  **Location**: `lib/auth-client.ts` Central authentication client that handles
+  all auth operations, session management, and device tracking.
+</Card>
+
+<Card title="Route Protection" icon="shield">
+  **Location**: `app/_layout.tsx` Uses Expo Router's `Stack.Protected` to
+  declaratively protect routes based on authentication state.
+</Card>
+
+<Card title="Device Tracking" icon="mobile">
+  **Location**: `lib/device-info.ts` Automatically captures device information
+  for security and analytics purposes.
+</Card>
+
+## Implementation Details
+
+### 1. Auth Client Setup
+
+The authentication client is configured in `lib/auth-client.ts`:
+
+```typescript
+export const authClient = createAuthClient({
+  baseURL: "http://192.168.0.46:3001/api/auth",
+  plugins: [
+    expoClient({
+      scheme: "launch", // Deep link scheme
+      storagePrefix: "launch", // SecureStore prefix
+      storage: SecureStore, // Native secure storage
+    }),
+  ],
+  fetchOptions: {
+    customFetchImpl: async (url, init) => {
+      const deviceHeaders = getDeviceHeaders();
+      // Automatically inject device info in all requests
+      return fetch(url, {
+        ...init,
+        headers: { ...init?.headers, ...deviceHeaders },
+        credentials: "omit",
+      });
+    },
+  },
+});
+```
+
+**Key Features:**
+
+- **Secure Storage**: Uses Expo SecureStore for session persistence
+- **Device Headers**: Automatically includes device information in all requests
+- **Deep Linking**: Handles OAuth callbacks via `launch://` scheme
+- **Type Safety**: Full TypeScript support with session hooks
+
+### 2. Route Protection
+
+Authentication state determines which screens users can access:
+
+```typescript
+function RootLayoutNav() {
+  const { data: session, isPending } = authClient.useSession();
+  const isLoggedIn = !!session;
+
+  return (
+    <Stack>
+      {/* Public routes - only when NOT logged in */}
+      <Stack.Protected guard={!isLoggedIn}>
+        <Stack.Screen name="index" />      {/* Landing page */}
+        <Stack.Screen name="login" />      {/* Login screen */}
+      </Stack.Protected>
+
+      {/* Protected routes - only when logged in */}
+      <Stack.Protected guard={isLoggedIn}>
+        <Stack.Screen name="(app)" />      {/* Main app */}
+      </Stack.Protected>
+    </Stack>
+  );
+}
+```
+
+**Benefits:**
+
+- **Declarative**: Clear separation of public vs protected routes
+- **Automatic**: No manual navigation logic needed
+- **Type Safe**: Expo Router provides full TypeScript support
+
+### 3. Session Management
+
+Sessions are handled automatically with the following behavior:
+
+- **Persistence**: Sessions survive app restarts via SecureStore
+- **Auto-refresh**: Sessions refresh automatically before expiration
+- **Instant Updates**: Auth state changes trigger immediate UI updates
+- **Error Handling**: Network errors gracefully handled with retry logic
+
+### 4. Device Information Tracking
+
+Every authentication request includes device metadata:
+
+```typescript
+export const getDeviceHeaders = (): Record<string, string> => {
+  const deviceInfo = getDeviceInfo();
+
+  return {
+    "X-Device-Name": deviceInfo.deviceName || "unknown",
+    "X-Device-Model": deviceInfo.deviceModel || "unknown",
+    "X-OS-Version": deviceInfo.osVersion || "unknown",
+    "X-App-Version": deviceInfo.appVersion || "unknown",
+    "X-App-Platform": deviceInfo.platform,
+    "X-Device-Type": deviceInfo.deviceType,
+  };
+};
+```
+
+**Use Cases:**
+
+- **Security**: Detect suspicious login patterns
+- **Analytics**: Understand user device distribution
+- **Support**: Debug issues specific to device types
+- **Features**: Enable/disable features based on device capabilities
+
+## Authentication Providers
+
+### Apple Sign-In
+
+Configured for iOS devices with automatic availability detection:
+
+```typescript
+// Check if Apple Sign-In is available
+const isAvailable = await AppleAuthentication.isAvailableAsync();
+
+// Handle Apple authentication
+await authClient.signIn.social({
+  provider: "apple",
+  idToken: {
+    token: credential.identityToken,
+    nonce,
+  },
+  callbackURL: "/",
+});
+```
+
+**Features:**
+
+- **Native UI**: Uses Apple's native sign-in button
+- **Secure**: Implements proper nonce generation for security
+- **Graceful Fallback**: Shows standard button when unavailable
+
+### Google Sign-In
+
+Prepared for future implementation with consistent UI patterns.
+
+### Email/Password
+
+Supports traditional email authentication with the following features:
+
+- Password validation
+- Account creation
+- Password reset (when email is configured)
+
+## Security Features
+
+### Session Security
+
+- **Secure Storage**: All tokens stored in device keychain/keystore
+- **HTTPS Only**: All network requests use secure connections
+- **Token Rotation**: Automatic token refresh prevents long-lived sessions
+- **Device Binding**: Sessions tied to specific device characteristics
+
+### Request Security
+
+- **CORS Protection**: Configured trusted origins prevent unauthorized access
+- **Request Signing**: Device headers provide request authenticity
+- **Rate Limiting**: Backend prevents brute force attacks
+- **Error Logging**: Comprehensive error tracking for security monitoring
+
+## Usage Examples
+
+### Checking Authentication State
+
+```typescript
+import { authClient } from "@/lib/auth-client";
+
+function MyComponent() {
+  const { data: session, isPending } = authClient.useSession();
+
+  if (isPending) return <LoadingSpinner />;
+
+  if (session) {
+    return <WelcomeMessage user={session.user} />;
+  }
+
+  return <LoginPrompt />;
+}
+```
+
+### Manual Sign Out
+
+```typescript
+const handleSignOut = async () => {
+  try {
+    await authClient.signOut();
+    // User automatically redirected to public routes
+  } catch (error) {
+    console.error("Sign out error:", error);
+  }
+};
+```
+
+### Accessing User Data
+
+```typescript
+const { data: session } = authClient.useSession();
+
+if (session?.user) {
+  const { name, email, image } = session.user;
+  // Use user data in your components
+}
+```
+
+## Troubleshooting
+
+### Common Issues
+
+<AccordionGroup>
+  <Accordion title="Session not persisting across app restarts">
+    **Cause**: SecureStore permissions or configuration issue
+    
+    **Solution**: 
+    1. Check that `expo-secure-store` is properly installed
+    2. Verify the storage prefix matches your app configuration
+    3. Test on a physical device (simulator may have limitations)
+  </Accordion>
+
+<Accordion title="Apple Sign-In not working">
+  **Cause**: Missing Apple Developer configuration **Solution**: 1. Ensure
+  `usesAppleSignIn: true` in app.config.ts 2. Add Apple Sign-In capability in
+  Xcode 3. Configure Apple App ID with Sign-In capability 4. Set up proper
+  environment variables (see Environment Setup)
+</Accordion>
+
+  <Accordion title="Auth state not updating UI">
+    **Cause**: Component not subscribed to auth state changes
+    
+    **Solution**:
+    1. Use `authClient.useSession()` hook in your components
+    2. Ensure components are wrapped in proper providers
+    3. Check that React Query is configured correctly
+  </Accordion>
+</AccordionGroup>
+
+### Debug Mode
+
+Enable detailed auth logging by setting:
+
+```typescript
+// In development
+if (__DEV__) {
+  console.log("Auth Debug Mode Enabled");
+  // Additional logging will appear in console
+}
+```
+
+## Environment Variables
+
+The following environment variables are required in your API backend:
+
+```bash
+# Better Auth Configuration
+BETTER_AUTH_SECRET=your-secret-key
+BETTER_AUTH_URL=http://localhost:3001
+
+# Apple Sign-In (iOS)
+APPLE_CLIENT_ID=your.app.bundle.id
+APPLE_TEAM_ID=YOUR_TEAM_ID
+APPLE_KEY_ID=YOUR_KEY_ID
+APPLE_PRIVATE_KEY_BASE64=base64_encoded_private_key
+
+# Database
+DATABASE_URL=postgresql://user:password@localhost:5432/launch
+```
+
+See the [Environment Setup Guide](/mobile/environment-setup) for complete configuration details.
+
+## Next Steps
+
+- [Environment Setup](/mobile/environment-setup) - Configure your development environment
+- [File Structure](/mobile/file-structure) - Understand the mobile app organization
+- [API Reference](/api-reference/introduction) - Backend authentication endpoints

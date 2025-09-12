@@ -1,0 +1,430 @@
+---
+title: "Backend Authentication Setup"
+description: "Configure Better Auth on the API backend for secure authentication"
+---
+
+## Overview
+
+The Launch API backend uses [Better Auth](https://better-auth.com) to provide secure, production-ready authentication with support for multiple providers and seamless mobile integration.
+
+## Better Auth Configuration
+
+### Core Setup
+
+The authentication system is configured in `apps/api/src/auth.ts`:
+
+```typescript
+import { betterAuth } from "better-auth";
+import { prismaAdapter } from "better-auth/adapters/prisma";
+import { expo } from "@better-auth/expo";
+import { PrismaClient } from "./generated/client";
+
+export const auth = betterAuth({
+  secret: process.env.BETTER_AUTH_SECRET,
+  baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3001",
+  
+  database: prismaAdapter(prisma, {
+    provider: "postgresql",
+  }),
+
+  plugins: [
+    expo(), // Enable Expo/React Native integration
+  ],
+
+  socialProviders: {
+    apple: {
+      clientId: process.env.APPLE_CLIENT_ID!,
+      teamId: process.env.APPLE_TEAM_ID!,
+      keyId: process.env.APPLE_KEY_ID!,
+      privateKey: process.env.APPLE_PRIVATE_KEY_BASE64
+        ? Buffer.from(process.env.APPLE_PRIVATE_KEY_BASE64, "base64").toString("utf8")
+        : process.env.APPLE_PRIVATE_KEY!,
+    },
+  },
+
+  trustedOrigins: [
+    "http://localhost:3000",
+    "http://localhost:19006", 
+    "launch://",
+    ...(process.env.TRUSTED_ORIGINS?.split(",") || []),
+  ],
+});
+```
+
+### Key Features
+
+- **Database Integration**: Uses Prisma with PostgreSQL
+- **Mobile Support**: Expo plugin for React Native apps
+- **Social Providers**: Apple Sign-In (Google can be added)
+- **Security**: Configurable trusted origins and session management
+- **Device Tracking**: Custom middleware for device information
+
+## Environment Variables
+
+### Required Variables
+
+```bash
+# Core Authentication
+BETTER_AUTH_SECRET="your-super-secret-key-minimum-32-characters"
+BETTER_AUTH_URL="http://localhost:3001"
+
+# Database
+DATABASE_URL="postgresql://user:password@localhost:5432/launch"
+
+# Apple Sign-In
+APPLE_CLIENT_ID="com.yourapp.bundleid"
+APPLE_TEAM_ID="ABCD123456"
+APPLE_KEY_ID="XYZ9876543"
+APPLE_PRIVATE_KEY_BASE64="base64_encoded_private_key"
+
+# Security & CORS
+TRUSTED_ORIGINS="http://localhost:3000,http://localhost:19006,launch://"
+```
+
+### Generating BETTER_AUTH_SECRET
+
+```bash
+# Generate a secure random secret
+node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
+```
+
+## Database Schema
+
+### User Model
+
+Better Auth automatically manages user data with this schema:
+
+```prisma
+model User {
+  id            String   @id @default(cuid())
+  name          String   @db.VarChar(255)
+  email         String   @unique @db.VarChar(320)
+  emailVerified Boolean  @default(false)
+  image         String?  @db.Text
+  password      String?  @db.VarChar(255)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  accounts Account[]
+  sessions Session[]
+
+  @@map("users")
+}
+
+model Account {
+  id           String    @id @default(cuid())
+  accountId    String    @db.VarChar(255)
+  providerId   String    @db.VarChar(100)
+  userId       String
+  accessToken  String?   @db.Text
+  refreshToken String?   @db.Text
+  idToken      String?   @db.Text
+  expiresAt    DateTime?
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("accounts")
+  @@unique([providerId, accountId])
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+```
+
+### Running Migrations
+
+```bash
+cd apps/api
+
+# Generate Prisma client
+pnpm prisma generate
+
+# Run database migrations
+pnpm prisma migrate dev
+
+# View database
+pnpm prisma studio
+```
+
+## API Integration
+
+### Route Handler
+
+The authentication routes are integrated in `apps/api/src/index.ts`:
+
+```typescript
+import { auth } from "./auth";
+
+// Better Auth handler
+const authHandler = async (ctx: Context) => {
+  return auth.handler(ctx.req);
+};
+
+// Route handlers
+app.use(async (ctx, next) => {
+  if (ctx.path.startsWith("/api/auth")) {
+    const response = await authHandler(ctx);
+    ctx.status = response.status;
+    ctx.set(Object.fromEntries(response.headers.entries()));
+    ctx.body = await response.text();
+  } else {
+    await next();
+  }
+});
+```
+
+### tRPC Integration
+
+Protected procedures use Better Auth for session validation:
+
+```typescript
+import { auth } from "./auth";
+import type { User } from "./auth";
+
+interface Context {
+  session: Session | null;
+  user: User | null;
+}
+
+export async function createContext(
+  opts: FetchCreateContextFnOptions
+): Promise<Context> {
+  const session = await auth.api.getSession({
+    headers: opts.req.headers,
+  });
+
+  return {
+    session: session,
+    user: session?.user || null,
+  };
+}
+
+// Protected procedure
+export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
+  if (!ctx.session || !ctx.user) {
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "You must be logged in to access this resource",
+    });
+  }
+
+  return next({ ctx: { ...ctx, session: ctx.session, user: ctx.user } });
+});
+```
+
+## Device Information Tracking
+
+### Custom Middleware
+
+The backend captures device information for security and analytics:
+
+```typescript
+// apps/api/src/device-middleware.ts
+export const captureDeviceInfo = async (request: Request, sessionToken: string) => {
+  const deviceInfo = {
+    deviceName: request.headers.get("X-Device-Name"),
+    deviceModel: request.headers.get("X-Device-Model"),
+    osVersion: request.headers.get("X-OS-Version"),
+    appVersion: request.headers.get("X-App-Version"),
+    platform: request.headers.get("X-App-Platform"),
+    deviceType: request.headers.get("X-Device-Type"),
+  };
+
+  // Store or log device information
+  console.log("Device Info:", deviceInfo);
+};
+```
+
+### Integration with Auth Events
+
+```typescript
+export const auth = betterAuth({
+  // ... other config
+  api: {
+    signInSocial: {
+      onSuccess: async (context) => {
+        const { session, request } = context;
+        if (session?.token) {
+          await captureDeviceInfo(request, session.token);
+        }
+      },
+      onError: async (context) => {
+        console.error("Social Sign-In Error:", context.error);
+      },
+    },
+  },
+});
+```
+
+## Security Configuration
+
+### Session Management
+
+```typescript
+export const auth = betterAuth({
+  session: {
+    updateAge: 24 * 60 * 60, // Update session every 24 hours
+    expiresIn: 60 * 60 * 24 * 7, // Sessions expire after 7 days
+  },
+
+  advanced: {
+    sessionCookie: {
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+    },
+  },
+});
+```
+
+### CORS Configuration
+
+```typescript
+trustedOrigins: [
+  "http://localhost:3000",    // Web app development
+  "http://localhost:19006",   // Expo development
+  "launch://",                // Mobile app scheme
+  "https://yourapp.com",      // Production web app
+  "https://api.yourapp.com",  // Production API
+],
+```
+
+## Email/Password Authentication
+
+### Enable Email Auth
+
+```typescript
+export const auth = betterAuth({
+  emailAndPassword: {
+    enabled: true,
+    requireEmailVerification: false, // Set to true when email is configured
+  },
+});
+```
+
+### Email Configuration (Optional)
+
+When ready to enable email verification:
+
+```typescript
+emailAndPassword: {
+  enabled: true,
+  requireEmailVerification: true,
+  sendResetPasswordEmail: async ({ user, url }) => {
+    // Implement email sending logic
+    await sendEmail({
+      to: user.email,
+      subject: "Reset your password",
+      html: `Click <a href="${url}">here</a> to reset your password.`,
+    });
+  },
+}
+```
+
+## Testing Authentication
+
+### Manual Testing
+
+```bash
+# Test authentication endpoint
+curl -X POST http://localhost:3001/api/auth/sign-in/social \
+  -H "Content-Type: application/json" \
+  -d '{
+    "provider": "apple",
+    "idToken": "your-test-token"
+  }'
+```
+
+### Integration Testing
+
+```typescript
+// Test protected tRPC procedures
+const { data } = await trpc.user.profile.useQuery();
+```
+
+## Production Deployment
+
+### Environment Setup
+
+```bash
+# Production environment variables
+BETTER_AUTH_SECRET="production-secret-key"
+BETTER_AUTH_URL="https://api.yourapp.com"
+DATABASE_URL="postgresql://user:pass@prod-db:5432/launch"
+
+# Update trusted origins for production
+TRUSTED_ORIGINS="https://yourapp.com,launch://"
+```
+
+### Security Checklist
+
+- [ ] Strong `BETTER_AUTH_SECRET` (32+ characters)
+- [ ] HTTPS enabled in production
+- [ ] Database connection secured
+- [ ] Trusted origins configured for production domains
+- [ ] Session cookies marked as secure
+- [ ] Rate limiting implemented
+- [ ] Monitoring and logging configured
+
+## Monitoring & Logging
+
+### Authentication Events
+
+```typescript
+// Log authentication events
+api: {
+  signInSocial: {
+    onSuccess: async (context) => {
+      console.log("Successful social sign-in:", {
+        provider: context.provider,
+        userId: context.session?.user?.id,
+        timestamp: new Date().toISOString(),
+      });
+    },
+    onError: async (context) => {
+      console.error("Authentication error:", {
+        error: context.error?.message,
+        provider: context.provider,
+        timestamp: new Date().toISOString(),
+      });
+    },
+  },
+}
+```
+
+### Health Checks
+
+```typescript
+// Add authentication health check
+app.use(async (ctx, next) => {
+  if (ctx.path === "/health") {
+    ctx.body = {
+      status: "healthy",
+      timestamp: new Date().toISOString(),
+      auth: {
+        configured: !!process.env.BETTER_AUTH_SECRET,
+        database: "connected", // Check DB connection
+      },
+    };
+  } else {
+    await next();
+  }
+});
+```
+
+## Next Steps
+
+- [Apple Sign-In Setup](/authentication/apple-signin) - Configure Apple authentication
+- [Google Sign-In Setup](/authentication/google-signin) - Add Google authentication
+- [Mobile Integration](/mobile/authentication) - Connect mobile app to backend

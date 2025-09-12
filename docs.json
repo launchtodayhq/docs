@@ -27,6 +27,15 @@
             ]
           },
           {
+            "group": "Authentication",
+            "pages": [
+              "authentication/backend-setup",
+              "authentication/apple-signin",
+              "authentication/google-signin",
+              "authentication/email-signin"
+            ]
+          },
+          {
             "group": "Customization",
             "pages": ["essentials/settings", "essentials/navigation"]
           },

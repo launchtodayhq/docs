@@ -1,0 +1,261 @@
+---
+title: "Google Sign-In Setup"
+description: "Step-by-step guide to configuring Google Cloud Console for OAuth and understanding the mobile authentication flow"
+---
+
+# Google Sign-In Setup
+
+This guide covers the **manual configuration steps** required to set up Google Sign-In. The Launch template includes all the necessary code - you just need to configure Google Cloud Console and understand how the OAuth flow works.
+
+## Why This OAuth Flow?
+
+Launch uses **Authorization Code + PKCE** because:
+
+- ✅ **Google mandates it** for native mobile apps (implicit flow is deprecated)
+- ✅ **More secure** - no client secrets stored on mobile devices
+- ✅ **OAuth 2.0 compliant** - follows current security standards
+- ✅ **No proxy dependency** - uses native deep links directly
+
+<Warning>
+  You must use a **development build** (not Expo Go) because custom URL schemes
+  are required for OAuth redirects.
+</Warning>
+
+## Step 1: Google Cloud Console Setup
+
+### Create a New Project (if needed)
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Click **Select a project** → **New Project**
+3. Enter your project name (e.g., "Launch Mobile App")
+4. Click **Create**
+
+### Enable Google+ API
+
+1. In your project, go to **APIs & Services** → **Library**
+2. Search for "Google+ API"
+3. Click **Enable**
+
+<Tip>
+  Even though Google+ is deprecated, the API is still required for OAuth sign-in
+  to work properly.
+</Tip>
+
+### Configure OAuth Consent Screen
+
+1. Go to **APIs & Services** → **OAuth consent screen**
+2. Choose **External** (unless you have a Google Workspace)
+3. Fill in required fields:
+   - **App name**: Your app name (e.g., "Launch")
+   - **User support email**: Your email
+   - **Developer contact email**: Your email
+4. Click **Save and Continue**
+5. **Scopes**: Skip this step (click **Save and Continue**)
+6. **Test users**: Add your email for testing
+7. Click **Save and Continue**
+
+## Step 2: Create OAuth Client IDs
+
+You need **two separate client IDs** for different purposes:
+
+### iOS Client ID (for mobile app)
+
+1. Go to **APIs & Services** → **Credentials**
+2. Click **Create Credentials** → **OAuth client ID**
+3. Select **iOS** as application type
+4. **Bundle ID**: Enter `com.launchhq.launch` (or your bundle identifier)
+5. Click **Create**
+
+**Important**: iOS clients don't have redirect URIs - they use bundle identifier-based authentication.
+
+### Web Client ID (for server token exchange)
+
+1. Click **Create Credentials** → **OAuth client ID** again
+2. Select **Web application** as application type
+3. **Name**: "Launch Server" (or similar)
+4. **Authorized JavaScript origins**: Leave empty (not needed for this flow)
+5. **Authorized redirect URIs**: Leave empty (not needed for this flow)
+6. Click **Create**
+
+## Step 3: Download Configuration Files
+
+### iOS Configuration
+
+1. Find your iOS client in the credentials list
+2. Click the **Download** button (⬇️)
+3. Save the `.plist` file (you don't need to add it to your project)
+
+### Web Configuration
+
+1. Find your Web client in the credentials list
+2. Click the **Download** button (⬇️)
+3. Save the `.json` file
+
+<Tip>
+  Keep these files secure - they contain your OAuth credentials. The template
+  code references these values via environment variables.
+</Tip>
+
+## Step 4: Environment Configuration
+
+### Extract Your Client IDs
+
+From your downloaded files, you need these values:
+
+**iOS Client ID** (from `.plist` file):
+
+```
+343340270525-xxxxxxx.apps.googleusercontent.com
+```
+
+**Web Client ID and Secret** (from `.json` file):
+
+```json
+{
+  "client_id": "343340270525-xxxxxxx.apps.googleusercontent.com",
+  "client_secret": "GOCSPX-xxxxxxxxxxxxxxx"
+}
+```
+
+### Update Environment Variables
+
+Add these to your `/apps/api/.env` file:
+
+```bash
+# Google OAuth Configuration
+GOOGLE_CLIENT_ID=your-web-client-id.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=GOCSPX-your-web-client-secret
+GOOGLE_IOS_CLIENT_ID=your-ios-client-id.apps.googleusercontent.com
+```
+
+<Warning>
+  Never commit these values to version control. Keep your `.env` file in
+  `.gitignore`.
+</Warning>
+
+## How the OAuth Flow Works
+
+Understanding the flow helps with troubleshooting:
+
+### 1. User Taps Google Sign-In Button
+
+- App creates OAuth request with **iOS client ID**
+- Uses **Authorization Code** flow (not deprecated implicit flow)
+- **PKCE challenge** generated for security
+
+### 2. Safari Opens for Authentication
+
+- User sees Google's consent screen
+- Authenticates with their Google account
+- Google redirects back to app via **custom URL scheme**
+
+### 3. App Receives Authorization Code
+
+- Custom scheme: `com.googleusercontent.apps.YOUR_IOS_CLIENT_ID:/oauth2redirect`
+- App extracts the **authorization code** from redirect
+- **PKCE verifier** ready for exchange
+
+### 4. Server Exchanges Code for Tokens
+
+- App sends code + verifier to your server
+- Server exchanges with Google using **iOS client ID** (no secret needed)
+- Server receives **ID token** with user info
+
+### 5. Better Auth Creates Session
+
+- Server returns ID token to app
+- App calls Better Auth with the token
+- Better Auth validates token **audience** matches iOS client ID
+- Session stored securely in device keychain
+
+## Code References
+
+The template includes these pre-configured files:
+
+**Mobile App**:
+
+- `/apps/mobile/lib/google-auth.ts` - OAuth flow implementation
+- `/apps/mobile/app/login.tsx` - Sign-in button handler
+- `/apps/mobile/app.config.ts` - URL scheme configuration
+
+**API Server**:
+
+- `/apps/api/src/config/app.ts` - Environment variable loading
+- `/apps/api/src/services/auth.ts` - Better Auth configuration
+- `/apps/api/src/routes/auth/google-exchange-native.ts` - Token exchange endpoint
+
+## Troubleshooting Common Issues
+
+### "App doesn't comply with Google's OAuth 2.0 policy"
+
+**Cause**: Usually means wrong client ID type or invalid redirect URI
+**Solution**: Ensure you're using the iOS client ID in the mobile app
+
+### "Invalid token" from Better Auth
+
+**Cause**: Token audience doesn't match Better Auth configuration
+**Solution**: Verify Better Auth uses the same iOS client ID that issued the token
+
+### "Something went wrong" during sign-in
+
+**Cause**: Often related to URL scheme configuration or development build issues
+**Solution**: Ensure you're using a development build (not Expo Go) and URL scheme is correctly configured
+
+### "Redirect URI mismatch"
+
+**Cause**: The redirect URI format is incorrect
+**Solution**: Use Google's standard format: `com.googleusercontent.apps.CLIENT_ID:/oauth2redirect`
+
+## Testing Your Setup
+
+### Build Development Version
+
+```bash
+# Install EAS CLI if needed
+npm install -g @expo/eas-cli
+
+# Create development build
+cd apps/mobile
+eas build --platform ios --profile development
+```
+
+### Test Sign-In Flow
+
+1. Install development build on your device
+2. Tap Google Sign-In button
+3. Complete authentication in Safari
+4. Verify app receives redirect and creates session
+
+<Check>
+  **Success**: User should be signed in and see the authenticated app interface
+</Check>
+
+## Security Considerations
+
+<Check>**PKCE Protocol**: Protects against code interception attacks</Check>
+
+<Check>
+  **Server-side validation**: Tokens are verified on your secure server
+</Check>
+
+<Check>
+  **No client secrets on mobile**: PKCE eliminates need for secrets on device
+</Check>
+
+<Check>
+  **Secure session storage**: Better Auth uses iOS Keychain via SecureStore
+</Check>
+
+## Next Steps
+
+Once Google Sign-In is working:
+
+- **Add Android support**: Create Android client ID and add platform detection
+- **Implement error handling**: Show user-friendly error messages
+- **Add analytics**: Track sign-in conversion rates
+- **Test edge cases**: Network failures, cancelled sign-ins, etc.
+
+<Tip>
+  For production deployment, ensure your bundle identifier matches between your
+  app configuration and Google Cloud Console exactly.
+</Tip>

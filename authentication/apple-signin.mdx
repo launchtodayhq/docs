@@ -1,0 +1,357 @@
+---
+title: "Apple Sign-In Setup"
+description: "Complete guide to configuring Apple Sign-In for iOS apps"
+---
+
+## Overview
+
+Apple Sign-In provides a secure and privacy-focused authentication method for iOS users. This guide walks you through the complete setup process, from Apple Developer Console configuration to mobile app integration.
+
+## Prerequisites
+
+- **Apple Developer Account** (paid membership required)
+- **iOS App** with unique Bundle Identifier
+- **Access to Apple Developer Console**
+
+## Step 1: Apple Developer Console Setup
+
+### 1.1 Create/Configure App ID
+
+1. Log in to [Apple Developer Console](https://developer.apple.com)
+2. Navigate to **Certificates, Identifiers & Profiles**
+3. Go to **Identifiers** → **App IDs**
+4. Select your app or create a new one
+5. Enable **Sign In with Apple** capability
+6. Click **Save**
+
+### 1.2 Configure Sign In with Apple
+
+1. In your App ID configuration, click **Sign In with Apple**
+2. Click **Configure**
+3. Choose **Enable as a primary App ID**
+4. Add your domains and return URLs (for web integration)
+5. Click **Save**
+
+### 1.3 Create Service ID (Optional for Web)
+
+If you plan to support web authentication:
+
+1. Go to **Identifiers** → **Services IDs**
+2. Click the **+** button
+3. Select **Services IDs**
+4. Fill in Description and Identifier
+5. Enable **Sign In with Apple**
+6. Configure domains and return URLs
+7. Click **Save**
+
+## Step 2: Generate Private Key
+
+### 2.1 Create Authentication Key
+
+1. Go to **Keys** section in Apple Developer Console
+2. Click the **+** button
+3. Enter a **Key Name** (e.g., "Launch App Sign In")
+4. Enable **Sign In with Apple**
+5. Click **Configure** next to Sign In with Apple
+6. Select your **Primary App ID**
+7. Click **Save**
+8. Click **Continue** and then **Register**
+
+### 2.2 Download Private Key
+
+1. **Download the `.p8` file** immediately (you can only download it once)
+2. Note the **Key ID** (10-character string)
+3. Save the file securely
+
+<Warning>
+The `.p8` file can only be downloaded once. Store it securely and never commit it to version control.
+</Warning>
+
+## Step 3: Get Required Information
+
+You'll need these values for your environment configuration:
+
+### Required Values
+
+<CodeGroup>
+```bash Environment Variables
+# Apple Developer Account Information
+APPLE_CLIENT_ID="com.yourapp.bundleid"     # Your app's Bundle Identifier
+APPLE_TEAM_ID="ABCD123456"                 # 10-character Team ID
+APPLE_KEY_ID="XYZ9876543"                  # 10-character Key ID from step 2.2
+APPLE_PRIVATE_KEY_BASE64="LS0tLS1CRUd..."  # Base64 encoded .p8 file content
+```
+
+```typescript App Configuration
+// apps/mobile/app.config.ts
+ios: {
+  bundleIdentifier: "com.yourapp.bundleid", // Must match APPLE_CLIENT_ID
+  usesAppleSignIn: true,
+}
+```
+</CodeGroup>
+
+### Finding Your Team ID
+
+1. Go to [Apple Developer Console](https://developer.apple.com)
+2. Click on your name in the top right
+3. Your **Team ID** is displayed next to your name
+
+### Finding Your Bundle Identifier
+
+1. In Apple Developer Console, go to **Identifiers** → **App IDs**
+2. Select your app
+3. The **Identifier** field shows your Bundle ID
+
+## Step 4: Convert Private Key to Base64
+
+### Option 1: Command Line (macOS/Linux)
+
+```bash
+# Convert .p8 file to base64 (single line, no breaks)
+base64 -i AuthKey_KEYID.p8 | tr -d '\n'
+```
+
+### Option 2: Node.js Script
+
+```javascript
+// convert-p8.js
+const fs = require('fs');
+
+const keyPath = './AuthKey_KEYID.p8';
+const keyContent = fs.readFileSync(keyPath, 'utf8');
+const base64Key = Buffer.from(keyContent).toString('base64');
+
+console.log('APPLE_PRIVATE_KEY_BASE64="' + base64Key + '"');
+```
+
+Run with: `node convert-p8.js`
+
+### Option 3: Online Tool (Not Recommended)
+
+For security reasons, avoid online base64 converters for private keys.
+
+## Step 5: Environment Configuration
+
+### Backend Environment Variables
+
+Add to your `apps/api/.env` file:
+
+```bash
+# Better Auth Configuration
+BETTER_AUTH_SECRET="your-super-secret-key-here"
+BETTER_AUTH_URL="http://localhost:3001"
+
+# Apple Sign-In Configuration
+APPLE_CLIENT_ID="com.yourapp.bundleid"
+APPLE_TEAM_ID="ABCD123456"
+APPLE_KEY_ID="XYZ9876543"
+APPLE_PRIVATE_KEY_BASE64="LS0tLS1CRUdJTi0tLS0tCk1JSUMu..."
+
+# Alternative: Raw private key (if not using base64)
+# APPLE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG...\n-----END PRIVATE KEY-----"
+
+# Security
+TRUSTED_ORIGINS="http://localhost:3000,http://localhost:19006,launch://"
+```
+
+### Mobile App Configuration
+
+In `apps/mobile/app.config.ts`:
+
+```typescript
+export default ({ config }: ConfigContext): ExpoConfig => ({
+  // ... other config
+  ios: {
+    bundleIdentifier: "com.yourapp.bundleid", // Must match APPLE_CLIENT_ID
+    usesAppleSignIn: true,
+    // ... other iOS config
+  },
+  plugins: [
+    "expo-router", 
+    "expo-apple-authentication", // Required for Apple Sign-In
+    "expo-secure-store"
+  ],
+});
+```
+
+## Step 6: Code Implementation
+
+The Launch template already includes the Apple Sign-In implementation. Here's how it works:
+
+### Authentication Client
+
+```typescript
+// apps/mobile/lib/auth-client.ts
+export const authClient = createAuthClient({
+  baseURL: "http://your-api-url:3001/api/auth",
+  plugins: [
+    expoClient({
+      scheme: "launch",
+      storagePrefix: "launch",
+      storage: SecureStore,
+    }),
+  ],
+});
+```
+
+### Apple Sign-In Implementation
+
+```typescript
+// apps/mobile/app/login.tsx
+const handleAppleSignIn = async () => {
+  try {
+    const nonce = await Crypto.digestStringAsync(
+      Crypto.CryptoDigestAlgorithm.SHA256,
+      Crypto.getRandomBytes(32).toString() + Date.now().toString(),
+      { encoding: Crypto.CryptoEncoding.HEX }
+    );
+
+    const AppleAuthentication = await import("expo-apple-authentication");
+    const credential = await AppleAuthentication.signInAsync({
+      requestedScopes: [
+        AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+        AppleAuthentication.AppleAuthenticationScope.EMAIL,
+      ],
+      nonce,
+    });
+
+    if (credential.identityToken) {
+      await authClient.signIn.social({
+        provider: "apple",
+        idToken: {
+          token: credential.identityToken,
+          nonce,
+        },
+        callbackURL: "/",
+      });
+    }
+  } catch (error) {
+    console.error("Apple Sign-In error:", error);
+  }
+};
+```
+
+## Step 7: Testing
+
+### Development Testing
+
+1. **iOS Simulator**: Works with any Apple ID
+2. **Physical Device**: Requires real Apple ID
+3. **Check Console**: Monitor for authentication errors
+
+### Common Test Scenarios
+
+<CodeGroup>
+```typescript Test Flow
+// 1. User taps Apple Sign-In button
+// 2. Native Apple authentication popup appears
+// 3. User authenticates with Face ID/Touch ID/Password
+// 4. App receives identity token
+// 5. Token sent to backend for verification
+// 6. User session created and stored securely
+```
+
+```bash Debug Commands
+# Check if Apple Sign-In is available
+console.log(await AppleAuthentication.isAvailableAsync());
+
+# Monitor authentication flow
+console.log("Starting Apple Sign-In...");
+console.log("Received credential:", credential);
+console.log("Identity token present:", !!credential.identityToken);
+```
+</CodeGroup>
+
+## Troubleshooting
+
+### Common Issues
+
+<AccordionGroup>
+  <Accordion title="Apple Sign-In button not appearing">
+    **Causes:**
+    - App not built for iOS device/simulator
+    - `usesAppleSignIn: true` not set in app.config.ts
+    - Apple Sign-In not available on device
+    
+    **Solutions:**
+    1. Ensure running on iOS
+    2. Check app.config.ts configuration
+    3. Test on physical device or iOS Simulator
+  </Accordion>
+
+  <Accordion title="Authentication fails with 'invalid_client'">
+    **Causes:**
+    - Bundle identifier mismatch
+    - Incorrect Team ID or Key ID
+    - Invalid private key
+    
+    **Solutions:**
+    1. Verify `APPLE_CLIENT_ID` matches bundle identifier
+    2. Double-check Team ID and Key ID
+    3. Re-download and convert private key
+  </Accordion>
+
+  <Accordion title="Backend validation errors">
+    **Causes:**
+    - Environment variables not loaded
+    - Private key format issues
+    - Clock synchronization problems
+    
+    **Solutions:**
+    1. Restart API server after adding environment variables
+    2. Verify private key is valid base64
+    3. Check server system time is accurate
+  </Accordion>
+
+  <Accordion title="Development vs Production differences">
+    **Issues:**
+    - TestFlight requires production Apple Sign-In setup
+    - Sandbox vs production environment differences
+    
+    **Solutions:**
+    1. Use same configuration for development and production
+    2. Test authentication flow in TestFlight before App Store submission
+  </Accordion>
+</AccordionGroup>
+
+### Debug Mode
+
+Enable detailed logging in development:
+
+```typescript
+// In your auth handler
+if (__DEV__) {
+  console.log("Apple Sign-In Debug Info:", {
+    teamId: process.env.APPLE_TEAM_ID,
+    keyId: process.env.APPLE_KEY_ID,
+    clientId: process.env.APPLE_CLIENT_ID,
+    hasPrivateKey: !!process.env.APPLE_PRIVATE_KEY_BASE64,
+  });
+}
+```
+
+## Production Deployment
+
+### Pre-Deployment Checklist
+
+- [ ] App ID configured with Sign In with Apple capability
+- [ ] Private key securely stored and base64 encoded
+- [ ] Environment variables set in production
+- [ ] Bundle identifier matches across all configurations
+- [ ] TestFlight testing completed
+- [ ] Terms of Service and Privacy Policy links added
+
+### Security Best Practices
+
+1. **Never commit private keys** to version control
+2. **Use environment variables** for all sensitive data
+3. **Rotate keys periodically** (Apple recommends annually)
+4. **Monitor authentication logs** for suspicious activity
+5. **Implement rate limiting** to prevent abuse
+
+## Next Steps
+
+- [Backend Authentication Setup](/authentication/backend-setup) - Configure the API backend
+- [Google Sign-In Setup](/authentication/google-signin) - Add Google authentication
+- [Email Authentication](/authentication/email-auth) - Set up email/password auth

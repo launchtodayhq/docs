@@ -1,0 +1,261 @@
+---
+title: "Email Sign-in with OTP"
+description: "Set up passwordless email authentication using one-time passwords (OTP)"
+---
+
+## Overview
+
+Launch includes a complete email authentication system using one-time passwords (OTP). This provides a passwordless, secure sign-in experience that works seamlessly with the existing social authentication flows.
+
+## Features
+
+- **Passwordless Authentication**: Users sign in with just their email address
+- **6-digit OTP Codes**: Secure verification codes sent via email
+- **Auto-verification**: Automatically verifies when the 6th digit is entered
+- **Resend Functionality**: 30-second countdown with resend capability
+- **React Query Integration**: Optimistic loading states and error handling
+- **Haptic Feedback**: Success and error vibrations on mobile devices
+- **Dark Mode Support**: Fully themed for light and dark modes
+
+## Backend Setup
+
+### 1. Install Resend
+
+The email system uses [Resend](https://resend.com/) for reliable email delivery:
+
+```bash
+cd apps/api
+npm install resend
+```
+
+### 2. Configure Environment Variables
+
+Add your Resend API key to your environment variables:
+
+```env
+# apps/api/.env
+RESEND_API_KEY=your_resend_api_key_here
+```
+
+<Note>
+  Get your API key from [Resend Dashboard](https://resend.com/api-keys) after
+  creating an account.
+</Note>
+
+### 3. Verify Domain (Production)
+
+For production use, verify your sending domain in Resend:
+
+1. Go to [Resend Domains](https://resend.com/domains)
+2. Add your domain (e.g., `yourdomain.com`)
+3. Configure DNS records as provided
+4. Update the `from` email in `apps/api/src/services/auth.ts`
+
+```typescript
+// apps/api/src/services/auth.ts
+sendVerificationOTP: async ({ email, otp, type }) => {
+  await resend.emails.send({
+    from: "Launch <auth@yourdomain.com>", // Update this
+    to: email,
+    subject: "Your verification code",
+    text: `Your verification code is: ${otp}`,
+  });
+};
+```
+
+## Authentication Flow
+
+### 1. Email Input
+
+Users enter their email address on the signup screen:
+
+- **Validation**: Basic email format validation
+- **Loading State**: Shows "Sending..." with disabled button
+- **Error Handling**: Console logging (TODO: User-facing errors)
+
+### 2. OTP Verification
+
+Users receive a 6-digit code via email:
+
+- **Auto-focus**: First input field focuses automatically
+- **Auto-progression**: Moves to next field on digit entry
+- **Auto-verification**: Submits when 6th digit is entered
+- **Error Animation**: Red border shake on incorrect code
+- **Success Feedback**: Haptic vibration and navigation
+
+### 3. Resend Functionality
+
+If code isn't received:
+
+- **30-second Countdown**: Prevents spam with timer
+- **Visual Feedback**: Shows countdown and loading states
+- **Automatic Restart**: Timer restarts after successful resend
+
+## Code Structure
+
+### Mutations (React Query)
+
+All email authentication logic is organized in domain-specific mutations:
+
+```
+📁 apps/mobile/lib/mutations/auth/
+├── email-otp.ts              # OTP mutations
+└── index.ts                  # Auth exports
+```
+
+**Available Mutations:**
+
+- `useSendEmailOtpMutation` - Send OTP to email
+- `useVerifyEmailOtpMutation` - Verify OTP code
+- `useResendEmailOtpMutation` - Resend OTP code
+
+### Usage Example
+
+```typescript
+import { useSendEmailOtpMutation } from "@/lib/mutations";
+
+function SignUpScreen() {
+  const sendEmailOtpMutation = useSendEmailOtpMutation();
+
+  const handleEmailSignUp = () => {
+    sendEmailOtpMutation.mutate(email);
+  };
+
+  return (
+    <Button
+      disabled={sendEmailOtpMutation.isPending}
+      onPress={handleEmailSignUp}
+    >
+      {sendEmailOtpMutation.isPending ? "Sending..." : "Continue"}
+    </Button>
+  );
+}
+```
+
+## UI Components
+
+### OTP Input Component
+
+Custom 6-digit input with advanced features:
+
+```typescript
+<OtpInput
+  value={otp}
+  onChangeText={setOtp}
+  isLoading={verifyOtpMutation.isPending}
+  isVerified={isVerified}
+  onComplete={handleVerifyOtp}
+/>
+```
+
+**Features:**
+
+- Individual input fields with proper focus management
+- Loading spinner in last field during verification
+- Error state with red borders and shake animation
+- Disabled state when verified
+- One-step backspace deletion
+- Theme-aware cursor colors
+
+### Countdown Component
+
+Reusable countdown hook for resend functionality:
+
+```typescript
+const countdown = useCountdown({
+  initialSeconds: 30,
+  autoStart: true,
+  onComplete: () => console.log("Can resend now"),
+});
+```
+
+## Navigation Flow
+
+1. **Landing** (`/`) → **Sign Up** (`/signup`)
+2. **Sign Up** → **Verify OTP** (`/verify-otp?email=user@example.com`)
+3. **Verify OTP** → **Dashboard** (`/(app)`) via authentication guard
+
+## Error Handling
+
+### Current Implementation
+
+- Console logging for debugging
+- Haptic feedback for user awareness
+- Visual error states (red borders, shake animations)
+
+### TODO: User-Facing Errors
+
+- Toast notifications for network errors
+- Inline error messages for invalid codes
+- Rate limiting feedback
+
+## Testing
+
+### Development Testing
+
+- Uses test domain for immediate sending
+- No domain verification required
+- All email addresses work in development
+
+### Production Considerations
+
+- Verify sending domain
+- Monitor email delivery rates
+- Implement proper error tracking
+- Consider rate limiting
+
+## Security Features
+
+- **OTP Expiration**: Codes expire after set time
+- **Rate Limiting**: Built into Better Auth
+- **Session Management**: Automatic session creation on success
+- **Type Safety**: Full TypeScript integration
+
+## Customization
+
+### Email Templates
+
+Modify the email template in `apps/api/src/services/auth.ts`:
+
+```typescript
+await resend.emails.send({
+  from: "Your App <auth@yourdomain.com>",
+  to: email,
+  subject: "Welcome! Your verification code",
+  html: `
+    <h1>Welcome to Your App!</h1>
+    <p>Your verification code is: <strong>${otp}</strong></p>
+    <p>This code expires in 10 minutes.</p>
+  `,
+});
+```
+
+### Styling
+
+All components use your app's design system:
+
+- `@/constants/Colors.ts` for color definitions
+- `@/components/ui/app-text.tsx` for themed text
+- Dark mode automatically supported
+
+## Troubleshooting
+
+### Email Not Received
+
+1. Check spam/junk folders
+2. Verify Resend API key is correct
+3. Check domain verification status
+4. Review console logs for errors
+
+### OTP Not Working
+
+1. Check code expiration time
+2. Verify email matches exactly
+3. Check network connectivity
+4. Review backend logs
+
+### Navigation Issues
+
+1. Ensure authentication guard is properly configured
+2. Check session state management
+3. Verify route protection in `_layout.tsx`

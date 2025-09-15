@@ -22,6 +22,7 @@
             "pages": [
               "mobile/environment-setup",
               "mobile/authentication",
+              "mobile/onboarding",
               "mobile/file-structure",
               "mobile/components"
             ]

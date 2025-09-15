@@ -1,0 +1,366 @@
+# Mobile App Onboarding
+
+The Launch starter kit includes a comprehensive multi-step onboarding system that guides new users through setting up their profile after authentication. The onboarding flow is database-driven, customizable, and follows modern UX patterns.
+
+## Overview
+
+The onboarding system consists of three default steps:
+1. **Name Collection** - Users enter their display name
+2. **Phone Number** - Users provide their phone number
+3. **Username Selection** - Users choose a unique username with real-time availability checking
+
+## Architecture
+
+### Flow Control
+The onboarding flow is controlled by the root layout (`app/_layout.tsx`) using a redirect pattern:
+
+```typescript
+// Simplified redirect logic
+const target = useMemo(() => {
+  if (!session) return "/";
+  
+  if (onboardingStatus && !onboardingStatus.isComplete) {
+    return "/onboarding/name"; // Always start with first step
+  }
+  
+  if (!profile?.onboardingComplete) {
+    return "/onboarding/name";
+  }
+  
+  return "/app/home";
+}, [session, onboardingStatus, profile]);
+```
+
+### Database Schema
+The user profile includes onboarding-related fields:
+
+```sql
+-- User table (simplified)
+CREATE TABLE users (
+  id UUID PRIMARY KEY,
+  email VARCHAR UNIQUE NOT NULL,
+  name VARCHAR,
+  phoneNumber VARCHAR,
+  username VARCHAR UNIQUE,
+  onboardingComplete BOOLEAN DEFAULT FALSE,
+  createdAt TIMESTAMP,
+  updatedAt TIMESTAMP
+);
+```
+
+## Default Onboarding Steps
+
+### Step 1: Name Collection (`/onboarding/name`)
+
+**Purpose**: Collect the user's display name
+**File**: `apps/mobile/app/onboarding/name/index.tsx`
+
+Key features:
+- Pre-populated with social login name (if available)
+- Users can customize regardless of social login data
+- Minimum 2 character validation
+- Saves name and navigates to phone step
+
+```typescript
+// API mutation
+const saveNameMutation = useSaveNameMutation();
+
+const handleContinue = async () => {
+  await saveNameMutation.mutateAsync({ name: name.trim() });
+  router.push(`/onboarding/phone?name=${encodeURIComponent(name.trim())}`);
+};
+```
+
+### Step 2: Phone Number Collection (`/onboarding/phone`)
+
+**Purpose**: Collect user's phone number
+**File**: `apps/mobile/app/onboarding/phone/index.tsx`
+
+Key features:
+- Personalized greeting using first name only
+- Basic phone validation (10+ digits)
+- Passes data via URL parameters to next step
+
+```typescript
+// Phone validation
+const isValidPhone = (phone: string): boolean => {
+  const digits = phone.replace(/\D/g, "");
+  return digits.length >= 10;
+};
+
+// Navigation with data
+router.push(
+  `/onboarding/username?name=${encodeURIComponent(name)}&phoneNumber=${encodeURIComponent(phoneNumber.trim())}`
+);
+```
+
+### Step 3: Username Selection (`/onboarding/username`)
+
+**Purpose**: Choose a unique username
+**File**: `apps/mobile/app/onboarding/username/index.tsx`
+
+Key features:
+- Real-time availability checking with 500ms debouncing
+- Automatic space-to-underscore conversion
+- Username validation (3+ characters, alphanumeric + underscore)
+- Visual feedback (loading, available, taken, invalid)
+
+```typescript
+// Debounced availability checking
+useEffect(() => {
+  const timer = setTimeout(() => {
+    setDebouncedUsername(username);
+  }, 500);
+  return () => clearTimeout(timer);
+}, [username]);
+
+// Auto-format spaces to underscores
+onChangeText={(text) => setUsername(text.replace(/\s/g, '_'))}
+```
+
+## API Integration
+
+### tRPC Mutations
+
+The onboarding system uses type-safe tRPC mutations:
+
+```typescript
+// apps/mobile/lib/mutations/user/profile.ts
+
+export const useSaveNameMutation = () => {
+  const utils = trpc.useUtils();
+  return trpc.user.saveName.useMutation({
+    onSuccess: () => {
+      utils.user.me.invalidate();
+      utils.user.onboardingStatus.invalidate();
+    },
+  });
+};
+
+export const useSavePhoneNumberMutation = () => {
+  const utils = trpc.useUtils();
+  return trpc.user.savePhoneNumber.useMutation({
+    onSuccess: () => {
+      utils.user.me.invalidate();
+      utils.user.onboardingStatus.invalidate();
+    },
+  });
+};
+
+export const useCompleteOnboardingMutation = () => {
+  const utils = trpc.useUtils();
+  return trpc.user.completeOnboarding.useMutation({
+    onSuccess: () => {
+      utils.user.me.invalidate();
+      utils.user.onboardingStatus.invalidate();
+    },
+  });
+};
+```
+
+### Backend Routes
+
+```typescript
+// apps/api/src/router.ts
+
+export const userRouter = router({
+  saveName: protectedProcedure
+    .input(z.object({ name: z.string().min(1) }))
+    .mutation(async ({ ctx, input }) => {
+      return await ctx.db.user.update({
+        where: { id: ctx.user.id },
+        data: { name: input.name },
+      });
+    }),
+
+  savePhoneNumber: protectedProcedure
+    .input(z.object({ phoneNumber: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      return await ctx.db.user.update({
+        where: { id: ctx.user.id },
+        data: { phoneNumber: input.phoneNumber },
+      });
+    }),
+
+  completeOnboarding: protectedProcedure
+    .input(z.object({ username: z.string().min(3) }))
+    .mutation(async ({ ctx, input }) => {
+      return await ctx.db.user.update({
+        where: { id: ctx.user.id },
+        data: { 
+          username: input.username,
+          onboardingComplete: true 
+        },
+      });
+    }),
+});
+```
+
+## Extending Onboarding
+
+### Adding New Steps
+
+To add additional onboarding steps (e.g., profile picture, preferences):
+
+1. **Create the new screen**:
+```bash
+mkdir apps/mobile/app/onboarding/preferences
+touch apps/mobile/app/onboarding/preferences/index.tsx
+```
+
+2. **Update the database schema**:
+```sql
+ALTER TABLE users ADD COLUMN preferences JSONB;
+```
+
+3. **Create the mutation**:
+```typescript
+// In apps/mobile/lib/mutations/user/profile.ts
+export const useSavePreferencesMutation = () => {
+  const utils = trpc.useUtils();
+  return trpc.user.savePreferences.useMutation({
+    onSuccess: () => {
+      utils.user.me.invalidate();
+      utils.user.onboardingStatus.invalidate();
+    },
+  });
+};
+```
+
+4. **Add the backend route**:
+```typescript
+// In apps/api/src/router.ts
+savePreferences: protectedProcedure
+  .input(z.object({ preferences: z.record(z.any()) }))
+  .mutation(async ({ ctx, input }) => {
+    return await ctx.db.user.update({
+      where: { id: ctx.user.id },
+      data: { preferences: input.preferences },
+    });
+  }),
+```
+
+5. **Update navigation flow**:
+```typescript
+// In the previous step (username), change the final navigation:
+router.push(`/onboarding/preferences?name=${name}&phoneNumber=${phoneNumber}&username=${username}`);
+
+// In the new preferences step, complete onboarding:
+const completeOnboardingMutation = useCompleteOnboardingMutation();
+await completeOnboardingMutation.mutateAsync({
+  username,
+  preferences: selectedPreferences
+});
+```
+
+6. **Update onboarding status query** (if needed):
+```typescript
+// In apps/api/src/router.ts
+onboardingStatus: protectedProcedure.query(async ({ ctx }) => {
+  const user = await ctx.db.user.findUnique({
+    where: { id: ctx.user.id },
+    select: { 
+      name: true, 
+      phoneNumber: true, 
+      username: true,
+      preferences: true, // Add new field
+      onboardingComplete: true 
+    },
+  });
+
+  return {
+    hasName: !!user?.name,
+    hasPhoneNumber: !!user?.phoneNumber,
+    hasUsername: !!user?.username,
+    hasPreferences: !!user?.preferences, // Add new check
+    isComplete: user?.onboardingComplete ?? false,
+  };
+}),
+```
+
+### Conditional Steps
+
+You can make steps conditional based on user data or preferences:
+
+```typescript
+// In _layout.tsx target calculation
+const target = useMemo(() => {
+  if (!session) return "/";
+  
+  if (onboardingStatus && !onboardingStatus.isComplete) {
+    // Conditional logic for different user types
+    if (!onboardingStatus.hasName) return "/onboarding/name";
+    if (!onboardingStatus.hasPhoneNumber) return "/onboarding/phone";
+    if (userType === "business" && !onboardingStatus.hasCompanyInfo) {
+      return "/onboarding/company";
+    }
+    if (!onboardingStatus.hasUsername) return "/onboarding/username";
+  }
+  
+  return "/app/home";
+}, [session, onboardingStatus, userType]);
+```
+
+## UX Patterns
+
+### Consistent Design
+All onboarding screens follow the same design pattern:
+- App icon at the top
+- Clear title and description
+- Single focused input field
+- Continue button with loading states
+- Logout option in top-right corner
+
+### Loading States
+Each step implements smooth loading states:
+- Minimum 300ms loading duration for visual feedback
+- Activity indicators instead of text changes
+- Disabled button with reduced opacity during submission
+
+### Error Handling
+- Validation messages in consistent colors
+- Real-time feedback for username availability
+- Graceful error states with retry options
+
+### Navigation Guards
+- Prevents access to protected routes during incomplete onboarding
+- Atomic authentication state prevents UI flashing
+- Centralized cache invalidation on logout
+
+## Best Practices
+
+1. **Always validate on both client and server**
+2. **Use URL parameters to pass data between steps** (not global state)
+3. **Implement proper loading states** for better UX
+4. **Cache invalidation** after each mutation to keep UI in sync
+5. **Graceful logout** that clears all user data completely
+6. **Real-time validation** where appropriate (usernames, emails)
+7. **Consistent error messaging** across all steps
+
+## Troubleshooting
+
+### Common Issues
+
+**User stuck in onboarding loop:**
+- Check `onboardingComplete` field in database
+- Verify all required fields are populated
+- Check for validation errors in mutations
+
+**Flashing between screens:**
+- Ensure atomic authentication state in `_layout.tsx`
+- Verify cache invalidation is working properly
+- Check for race conditions in useEffect dependencies
+
+**Username availability not working:**
+- Verify debouncing is implemented (500ms)
+- Check backend route for username checking
+- Ensure proper error handling for network issues
+
+## Code References
+
+- **Root Layout**: `apps/mobile/app/_layout.tsx` - Navigation and redirect logic
+- **Onboarding Screens**: `apps/mobile/app/onboarding/*/index.tsx` - Individual step implementations
+- **Mutations**: `apps/mobile/lib/mutations/user/profile.ts` - Client-side API calls
+- **Backend Routes**: `apps/api/src/router.ts` - Server-side endpoints
+- **Database Schema**: Check your Prisma schema or SQL migrations
+- **Logout Hook**: `apps/mobile/lib/hooks/useLogout.ts` - Comprehensive logout logic

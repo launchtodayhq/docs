@@ -1,0 +1,330 @@
+---
+title: "Adding New Screens"
+description: "Step-by-step guide for adding new screens to the mobile app with proper navigation"
+---
+
+# Adding New Screens to the Mobile App
+
+This guide walks you through adding new screens to the Launch mobile app, including proper navigation setup, route registration, and navigation guards.
+
+## Overview
+
+The Launch mobile app uses a **nested navigation structure** with NativeTabs inside an AppStack:
+
+```
+AppStack (main navigation)
+├── Authentication routes (/auth/*)
+├── Onboarding routes (/onboarding/*)
+├── (tabs) ← NativeTabs navigator
+│   ├── index (Home)
+│   ├── explore (Features)
+│   └── profile (Profile)
+└── Modal/Feature screens (/payments, etc.)
+```
+
+## Step-by-Step Process
+
+### 1. Create the Screen Component
+
+Create your screen file in the `app/` directory:
+
+**File**: `apps/mobile/app/your-screen.tsx`
+
+```tsx
+import { View } from "react-native";
+import { useTheme } from "heroui-native";
+import { AppText } from "@/components/ui/app-text";
+import { ScreenScrollView } from "@/components/layout/screen-scroll-view";
+
+export default function YourScreen() {
+  const { colors } = useTheme();
+
+  return (
+    <ScreenScrollView
+      style={{ backgroundColor: colors.background }}
+      contentInsetAdjustmentBehavior="automatic"
+    >
+      <View className="px-5 py-6">
+        <AppText className="text-3xl font-bold mb-2">Your Screen Title</AppText>
+
+        <AppText className="text-lg text-muted-foreground mb-6">
+          Screen description or subtitle.
+        </AppText>
+
+        {/* Your screen content here */}
+      </View>
+    </ScreenScrollView>
+  );
+}
+```
+
+### 2. Register the Route in AppStack
+
+Add the screen to the main navigation stack:
+
+**File**: `apps/mobile/components/navigation/app-stack.tsx`
+
+```tsx
+<Stack.Screen
+  name="your-screen"
+  options={{
+    title: "Your Screen Title",
+    presentation: "card",
+    headerShown: true,
+    headerBackTitle: "Features", // Customize back button text
+  }}
+/>
+```
+
+### 3. Add to Navigation Guards (if needed)
+
+If the screen should be accessible to authenticated users without redirect:
+
+**File**: `apps/mobile/lib/hooks/useAppNavigation.ts`
+
+```tsx
+const allowedModalRoutes = [
+  "/payments",
+  "/your-screen", // Add your route here
+];
+```
+
+### 4. Add Navigation from Other Screens
+
+To navigate to your screen from within tabs (like Explore):
+
+**From within a tab screen**:
+
+```tsx
+import { useNavigation } from "@react-navigation/native";
+
+const navigation = useNavigation();
+
+const handleNavigate = () => {
+  const parentNav = navigation.getParent();
+  const grandParentNav = parentNav?.getParent();
+  grandParentNav?.navigate("your-screen" as never);
+};
+```
+
+**Using FeatureCard component**:
+
+```tsx
+<FeatureCard
+  title="Your Feature"
+  description="Feature description"
+  providers={providers}
+  status="Not set up"
+  buttonText="Explore Feature"
+  onPress={handleNavigate}
+/>
+```
+
+## Navigation Patterns
+
+### From Tabs to AppStack Routes
+
+When navigating from inside tabs to AppStack routes, you need to access the grandparent navigator:
+
+```tsx
+// Inside a tab screen (explore, profile, etc.)
+const parentNav = navigation.getParent(); // Gets NativeTabs
+const grandParentNav = parentNav?.getParent(); // Gets AppStack
+grandParentNav?.navigate("your-screen" as never);
+```
+
+### Direct AppStack Navigation
+
+For routes at the same level in AppStack:
+
+```tsx
+// Inside an AppStack screen
+navigation.navigate("your-screen" as never);
+```
+
+### Back Navigation
+
+Back navigation works automatically with the configured `headerBackTitle`:
+
+- **iOS**: Shows "< Features" or custom back title
+- **Android**: Shows standard back arrow
+- **Gesture**: Swipe from edge works automatically
+
+## Screen Types and Presentations
+
+### Card Presentation (Recommended)
+
+```tsx
+presentation: "card"; // Slides in from right, standard behavior
+```
+
+### Modal Presentation
+
+```tsx
+presentation: "modal"; // Slides up from bottom, modal-style
+```
+
+### Fullscreen Presentation
+
+```tsx
+presentation: "fullScreenModal"; // Full screen overlay
+```
+
+## Navigation Guards
+
+The app includes automatic navigation guards that redirect users based on authentication state:
+
+### Protected Routes
+
+Routes that require authentication and will redirect if not authenticated:
+
+```tsx
+const protectedRoutes = ["/(tabs)", "/(tabs)/explore", "/(tabs)/profile"];
+```
+
+### Allowed Modal Routes
+
+Routes that authenticated users can access outside the main tabs flow:
+
+```tsx
+const allowedModalRoutes = ["/payments", "/your-screen"];
+```
+
+### How It Works
+
+- **Unauthenticated users**: Redirected to login
+- **Authenticated users**: Can access tabs and allowed modal routes
+- **Incomplete onboarding**: Redirected to onboarding flow
+
+## Common Issues and Solutions
+
+### Issue: Navigation Not Working from Tabs
+
+**Problem**: Calling `navigation.navigate()` from inside tabs doesn't work.
+
+**Solution**: Use grandparent navigation:
+
+```tsx
+const parentNav = navigation.getParent();
+const grandParentNav = parentNav?.getParent();
+grandParentNav?.navigate("your-screen" as never);
+```
+
+### Issue: Automatic Redirect Away from Screen
+
+**Problem**: User gets redirected back to tabs immediately.
+
+**Solution**: Add route to `allowedModalRoutes` in `useAppNavigation.ts`:
+
+```tsx
+const allowedModalRoutes = ["/payments", "/your-screen"];
+```
+
+### Issue: Wrong Back Button Text
+
+**Problem**: Back button shows "(tabs)" or route name.
+
+**Solution**: Set custom back title:
+
+```tsx
+headerBackTitle: "Features"; // Shows "< Features"
+```
+
+## Best Practices
+
+### 1. Consistent Screen Structure
+
+- Use `ScreenScrollView` for layout consistency
+- Follow the established padding/margin patterns
+- Use theme colors via `useTheme()`
+
+### 2. Navigation Naming
+
+- Use kebab-case for route names: `"feature-name"`
+- Keep route names descriptive but concise
+- Match file names to route names when possible
+
+### 3. Header Configuration
+
+- Always set meaningful `title`
+- Use appropriate `presentation` for UX
+- Customize `headerBackTitle` for better navigation context
+
+### 4. Navigation Guards
+
+- Add new routes to `allowedModalRoutes` if they should be accessible
+- Consider authentication requirements
+- Test navigation flows thoroughly
+
+## Example: Complete Feature Screen
+
+Here's a complete example following all best practices:
+
+**File**: `apps/mobile/app/ai-chat.tsx`
+
+```tsx
+import { View } from "react-native";
+import { useTheme } from "heroui-native";
+import { AppText } from "@/components/ui/app-text";
+import { ScreenScrollView } from "@/components/layout/screen-scroll-view";
+
+export default function AIChatScreen() {
+  const { colors } = useTheme();
+
+  return (
+    <ScreenScrollView
+      style={{ backgroundColor: colors.background }}
+      contentInsetAdjustmentBehavior="automatic"
+    >
+      <View className="px-5 py-6">
+        <AppText className="text-3xl font-bold mb-2">AI Chat</AppText>
+
+        <AppText className="text-lg text-muted-foreground mb-6">
+          Configure AI providers for intelligent conversations.
+        </AppText>
+
+        {/* Provider selection and setup content */}
+      </View>
+    </ScreenScrollView>
+  );
+}
+```
+
+**AppStack Registration**:
+
+```tsx
+<Stack.Screen
+  name="ai-chat"
+  options={{
+    title: "AI Chat",
+    presentation: "card",
+    headerShown: true,
+    headerBackTitle: "Features",
+  }}
+/>
+```
+
+**Navigation Guard**:
+
+```tsx
+const allowedModalRoutes = ["/payments", "/ai-chat"];
+```
+
+**Navigation from FeatureCard**:
+
+```tsx
+<FeatureCard
+  title="AI Chat"
+  description="Multi-model AI conversations with Claude and OpenAI"
+  providers={aiProviders}
+  status="Coming soon"
+  buttonText="Explore AI Chat"
+  onPress={() => {
+    const parentNav = navigation.getParent();
+    const grandParentNav = parentNav?.getParent();
+    grandParentNav?.navigate("ai-chat" as never);
+  }}
+/>
+```
+
+This pattern provides a consistent, maintainable approach to adding new feature screens to the Launch mobile app.

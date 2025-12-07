@@ -1,0 +1,186 @@
+---
+title: "Database Schema"
+description: "Understanding the payment system database design and relationships"
+---
+
+# Payment Database Schema
+
+The payment system uses a flexible database schema designed to support multiple billing models and payment providers while maintaining clean separation of concerns.
+
+## Schema Design Philosophy
+
+### Plans → Entitlements → Meters Pattern
+
+The schema follows a three-layer architecture:
+
+1. **Plans** define what users pay for
+2. **Entitlements** define what features users get
+3. **Meters** track and limit feature usage
+
+This separation allows you to:
+
+- Change pricing without affecting feature logic
+- Add new features without schema changes
+- Support multiple billing models simultaneously
+- Switch payment providers easily
+
+## Core Models
+
+### Plan Model
+
+Located in `apps/api/prisma/schema.prisma`
+
+Stores subscription plans and their Stripe integration details:
+
+- Links to Stripe products and prices
+- Supports multiple billing intervals (monthly, yearly, one-time)
+- Currency and amount tracking
+- Active/inactive status for plan management
+
+**Key Fields**:
+
+- `stripePriceId` - Links to Stripe Price objects
+- `stripeProductId` - Links to Stripe Product objects
+- `interval` - Billing frequency (monthly, yearly, one_time)
+- `amount` - Price in cents for display purposes
+
+### Subscription Model
+
+Tracks active user subscriptions with full Stripe integration:
+
+- Links users to their active plans
+- Stores Stripe subscription and customer IDs
+- Tracks subscription status and billing periods
+- Handles cancellation scheduling
+
+**Key Relationships**:
+
+- Belongs to a `User`
+- References a `Plan`
+- Synced with Stripe via webhooks
+
+### Entitlement System
+
+#### Entitlement Model
+
+Defines available features in your application:
+
+- Unique key-based identification (`pro_docs`, `ai_pro`)
+- Human-readable names and descriptions
+- Reusable across multiple plans
+
+#### PlanEntitlement Model
+
+Junction table mapping which entitlements come with each plan:
+
+- Many-to-many relationship between Plans and Entitlements
+- Allows flexible plan composition
+- Easy to modify without affecting existing subscriptions
+
+#### UserEntitlement Model
+
+Tracks which entitlements each user currently has:
+
+- Direct user-to-entitlement mapping
+- Supports expiration dates for temporary access
+- Active/inactive status for fine-grained control
+- Updated automatically via Stripe webhooks
+
+### Usage Tracking
+
+#### Meter Model
+
+Defines trackable usage metrics:
+
+- Unique key identification (`docs.uploads.month`)
+- Configurable reset periods (monthly, yearly, never)
+- Human-readable descriptions
+
+#### UsageCounter Model
+
+Tracks individual user usage against meters:
+
+- Current count and optional limits
+- Period-based tracking (e.g., "2025-01" for January 2025)
+- Automatic reset handling based on meter configuration
+- Unique constraints prevent duplicate counting
+
+## Indexing Strategy
+
+The schema includes strategic indexes for performance:
+
+### Primary Lookups
+
+- `User.email` - Authentication and user lookup
+- `Entitlement.key` - Feature access checks
+- `Meter.key` - Usage tracking queries
+
+### Stripe Integration
+
+- `Plan.stripePriceId` - Webhook processing
+- `Subscription.stripeSubscriptionId` - Webhook processing
+- `Subscription.userId` - User subscription queries
+
+### Usage Queries
+
+- `UsageCounter.userId` - User usage lookups
+- `UsageCounter.period` - Period-based queries
+- `UserEntitlement.userId` + `isActive` - Active entitlement checks
+
+## Relationships Overview
+
+```
+User
+├── subscriptions[] → Subscription
+├── userEntitlements[] → UserEntitlement
+└── usageCounters[] → UsageCounter
+
+Subscription
+├── user → User
+└── plan → Plan
+
+Plan
+├── subscriptions[] → Subscription
+└── entitlements[] → PlanEntitlement
+
+Entitlement
+├── planEntitlements[] → PlanEntitlement
+└── userEntitlements[] → UserEntitlement
+
+Meter
+└── usageCounters[] → UsageCounter
+```
+
+## Example Scenarios
+
+### Checking Feature Access
+
+1. Query `UserEntitlement` for user + entitlement key
+2. Verify `isActive = true` and `expiresAt` (if set)
+3. Allow or deny feature access
+
+### Usage Tracking
+
+1. Query `UsageCounter` for user + meter + current period
+2. Check if `count < limit` (or limit is null)
+3. Increment count if within limits
+4. Show paywall if limit exceeded
+
+### Subscription Changes
+
+1. Stripe webhook updates `Subscription` status
+2. System recalculates `UserEntitlements` based on new plan
+3. Usage limits updated via `UsageCounter` relationships
+4. User immediately sees new access levels
+
+## Migration Commands
+
+After updating the schema, run these commands:
+
+```bash
+cd apps/api
+pnpm db:migrate
+pnpm db:generate
+```
+
+This creates the migration files and updates the Prisma client with the new models.

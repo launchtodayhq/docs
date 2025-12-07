@@ -1,0 +1,330 @@
+---
+title: "Stripe Setup"
+description: "Complete setup guide for Stripe integration including ngrok, webhooks, products, and environment variables"
+---
+
+# Complete Stripe Setup Guide
+
+This guide walks you through setting up Stripe integration for the Launch payment system, including local development with ngrok, webhook configuration, and creating the required products.
+
+## Prerequisites
+
+1. Stripe account (free at [stripe.com](https://stripe.com))
+2. ngrok installed for local webhook testing
+3. Launch development environment running (API on port 3001)
+
+## Step 1: Setup ngrok for Local Development
+
+First, set up ngrok to expose your local API for webhook testing:
+
+### Install ngrok
+
+```bash
+# Install ngrok
+brew install ngrok/ngrok/ngrok
+# or download from https://ngrok.com/download
+```
+
+### Start ngrok tunnel
+
+```bash
+# Expose your local API (port 3001)
+ngrok http 3001
+```
+
+You'll get a URL like: `https://abc123.ngrok-free.app`
+
+**Important**: Keep this terminal running throughout development.
+
+## Step 2: Create Stripe Products
+
+Create these exact products in your Stripe Dashboard:
+
+### Option A: Using Stripe Dashboard (Recommended)
+
+1. Go to [Stripe Dashboard → Products](https://dashboard.stripe.com/products)
+2. Click "Add product"
+
+#### Product 1: Upload Pack 100
+
+- **Name**: `Upload Pack 100`
+- **Description**: `Adds 100 extra document uploads to your account.`
+- **Pricing**:
+  - **Price**: `$4.99`
+  - **Billing**: `One time`
+- **Copy the Product ID**: `prod_...` (you'll need this)
+
+#### Product 2: Launch Pro
+
+- **Name**: `Launch Pro`
+- **Description**: `Unlocks unlimited doc uploads and AI Pro features. Includes customer portal access.`
+- **Pricing**:
+  - **Price**: `$9.99`
+  - **Billing**: `Monthly recurring`
+- **Copy the Product ID**: `prod_...` (you'll need this)
+
+### Option B: Using Stripe CLI
+
+```bash
+# Create Upload Pack product
+stripe products create \
+  --name="Upload Pack 100" \
+  --description="Adds 100 extra document uploads to your account." \
+  --type=service
+
+# Create Launch Pro product
+stripe products create \
+  --name="Launch Pro" \
+  --description="Unlocks unlimited doc uploads and AI Pro features. Includes customer portal access." \
+  --type=service
+
+# Create prices (replace prod_xxx with actual product IDs)
+stripe prices create \
+  --currency=usd \
+  --unit-amount=499 \
+  --product=prod_xxx
+
+stripe prices create \
+  --currency=usd \
+  --unit-amount=999 \
+  --recurring[interval]=month \
+  --product=prod_xxx
+```
+
+## Step 3: Setup Webhook Endpoint
+
+### Create webhook in Stripe Dashboard
+
+1. Go to [Stripe Dashboard → Webhooks](https://dashboard.stripe.com/webhooks)
+2. Click "Add endpoint"
+3. **Endpoint URL**: `https://your-ngrok-url.ngrok-free.app/webhooks/stripe`
+4. **Events to select**:
+
+   - `customer.subscription.created`
+   - `customer.subscription.updated`
+   - `customer.subscription.deleted`
+   - `invoice.payment_succeeded`
+   - `invoice.payment_failed`
+   - `payment_intent.succeeded`
+   - `payment_intent.payment_failed`
+
+5. Click "Add endpoint"
+6. **Copy the Webhook Secret**: `whsec_...` (you'll need this)
+
+## Step 4: Environment Variables
+
+### Backend Configuration
+
+**File**: `apps/api/.env`
+
+```bash
+# Stripe Configuration
+STRIPE_SECRET_KEY=sk_test_51...              # From Stripe Dashboard → API Keys
+STRIPE_WEBHOOK_SECRET=whsec_...              # From webhook endpoint you just created
+
+# Database (if not already set)
+DATABASE_URL="postgresql://..."
+```
+
+### Mobile App Configuration
+
+**File**: `apps/mobile/.env`
+
+```bash
+# Stripe Publishable Key (safe for client-side)
+EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_51...
+```
+
+**File**: `apps/mobile/app.config.ts`
+
+Make sure this section exists:
+
+```typescript
+export default {
+  // ... other config
+  extra: {
+    stripe: {
+      publishableKey: process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY,
+    },
+  },
+  plugins: [
+    // ... other plugins
+    [
+      "@stripe/stripe-react-native",
+      {
+        merchantIdentifier: "", // Leave empty for now
+        enableGooglePay: false,
+      },
+    ],
+  ],
+};
+```
+
+## Step 5: Restart Your Application
+
+After setting up environment variables:
+
+### Restart API Server
+
+```bash
+cd apps/api
+npm run dev
+```
+
+### Restart Mobile App
+
+```bash
+cd apps/mobile
+npx expo start --clear
+```
+
+## Step 6: Test the Integration
+
+### Test Webhook Connection
+
+1. **Check API logs**: You should see Stripe environment logs:
+
+   ```
+   🔑 Stripe environment check: STRIPE_SECRET_KEY exists: true
+   ```
+
+2. **Test webhook endpoint** in your browser:
+   ```
+   https://your-ngrok-url.ngrok-free.app/webhooks/stripe
+   ```
+   You should see: `{"error": "Webhook endpoint not found"}` (this is expected for GET requests)
+
+### Test Payment Flow
+
+1. **Open mobile app** → Navigate to Payments screen
+2. **Provider Status** should show "Test" with auto-detected setup
+3. **Click "Run Test Payment"** → Choose "Upload Pack ($4.99)"
+4. **Complete payment** using test card: `4242 4242 4242 4242`
+5. **Check Stripe Dashboard** → You should see:
+   - Payment succeeded
+   - Customer created with your name/email
+   - Webhook events fired
+
+### Verify Webhook Events
+
+In your API logs, you should see:
+
+```
+🔔 Stripe webhook received: payment_intent.succeeded
+💳 Payment succeeded: pi_xxx - $4.99 (TEST)
+💾 Test payment saved to database for user: usr_xxx
+```
+
+## Step 7: Troubleshooting
+
+### Common Issues
+
+#### "Webhook signature verification failed"
+
+- ✅ Check `STRIPE_WEBHOOK_SECRET` matches your webhook endpoint
+- ✅ Make sure ngrok URL is correct in webhook settings
+- ✅ Restart API server after changing environment variables
+
+#### "You did not provide an API key"
+
+- ✅ Check `STRIPE_SECRET_KEY` is set in `apps/api/.env`
+- ✅ Restart API server after adding the key
+
+#### "Payment failed" on mobile
+
+- ✅ Check `EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY` is set
+- ✅ Restart Expo app with `--clear` flag
+- ✅ Try test card: `4242 4242 4242 4242`
+
+#### Webhook events not received
+
+- ✅ Check ngrok is running and URL is correct
+- ✅ Test webhook endpoint manually in browser
+- ✅ Check Stripe webhook logs in dashboard
+
+### Debug Commands
+
+```bash
+# Check if environment variables are loaded
+cd apps/api && node -e "console.log(process.env.STRIPE_SECRET_KEY?.substring(0, 10))"
+
+# Test ngrok connection
+curl https://your-ngrok-url.ngrok-free.app/health
+
+# Check webhook endpoint
+curl https://your-ngrok-url.ngrok-free.app/webhooks/stripe
+```
+
+## Step 8: Production Deployment
+
+When ready for production:
+
+### 1. Production Webhook Endpoint
+
+1. Deploy your API to production (e.g., Vercel, Railway, etc.)
+2. Create a new webhook endpoint with your production URL:
+   ```
+   https://your-production-api.com/webhooks/stripe
+   ```
+3. Copy the new webhook secret
+
+### 2. Production Environment Variables
+
+Update your production environment with:
+
+```bash
+# Production Stripe keys
+STRIPE_SECRET_KEY=sk_live_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+
+# Production database
+DATABASE_URL="postgresql://production..."
+```
+
+### 3. Switch to Live Mode
+
+In Stripe Dashboard:
+
+1. Toggle from "Test mode" to "Live mode"
+2. Update webhook endpoints
+3. Get live API keys
+
+## Test Cards for Development
+
+Use these Stripe test cards:
+
+- **Success**: `4242 4242 4242 4242`
+- **Decline**: `4000 0000 0000 0002`
+- **3D Secure**: `4000 0000 0000 3220`
+- **Insufficient funds**: `4000 0000 0000 9995`
+
+**CVV**: Any 3 digits  
+**Expiry**: Any future date
+
+## Security Best Practices
+
+✅ **Never expose secret keys** in client code  
+✅ **Always verify webhook signatures** (already implemented)  
+✅ **Use HTTPS** for all webhook endpoints  
+✅ **Validate user ownership** of subscriptions  
+✅ **Handle webhook idempotency** (duplicate events)
+
+## What's Next?
+
+After completing this setup, you can:
+
+1. **[Implement tRPC Middlewares](/payments/feature-catalog)** - Add entitlement checking
+2. **Create Usage Tracking** - Monitor document uploads
+3. **Build Pricing Screen** - Let users choose plans
+4. **Add Billing Management** - Customer portal integration
+
+## Getting Help
+
+If you run into issues:
+
+1. **Check the logs** - Both API and ngrok show helpful errors
+2. **Stripe Dashboard** - View webhook delivery logs
+3. **Test webhook endpoint** - Use browser or curl
+4. **Verify environment variables** - Restart servers after changes
+
+Your Stripe integration should now be fully functional! 🎉

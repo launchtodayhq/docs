@@ -1,0 +1,135 @@
+---
+title: "Project Structure"
+description: "How the Launch monorepo is organized"
+---
+
+## Overview
+
+Launch is a Turborepo monorepo with three applications that share type definitions and work together seamlessly.
+
+```
+Launch/
+├── apps/
+│   ├── mobile/          # React Native + Expo
+│   ├── api/             # Koa.js + tRPC
+│   └── web/             # Next.js
+├── docs/                # Documentation (Mintlify)
+├── package.json
+├── pnpm-workspace.yaml
+└── turbo.json
+```
+
+## Apps
+
+<Columns cols={3}>
+  <Card title="Mobile" icon="mobile" href="/mobile/file-structure">
+    iOS and Android app built with Expo SDK 54 and Expo Router.
+  </Card>
+  <Card title="API" icon="server" href="/api-reference/introduction">
+    Backend server with tRPC, Better Auth, and Prisma.
+  </Card>
+  <Card title="Web" icon="globe">
+    Web application built with Next.js 15 and HeroUI.
+  </Card>
+</Columns>
+
+---
+
+## Mobile App
+
+The mobile app uses Expo Router for file-based navigation. Screens go in `app/`, reusable components in `components/`.
+
+```
+apps/mobile/
+├── app/
+│   ├── _layout.tsx
+│   ├── index.tsx
+│   ├── (tabs)/          # Tab screens
+│   ├── onboarding/      # Onboarding flow
+│   └── auth/            # Auth screens
+├── components/          # Reusable UI components
+├── features/            # Feature modules (chat, etc)
+├── lib/                 # API client, hooks, utilities
+├── constants/           # Colors, spacing, typography
+├── assets/              # Fonts, images
+├── app.config.ts
+└── package.json
+```
+
+| Folder        | What goes here                                                      |
+| ------------- | ------------------------------------------------------------------- |
+| `app/`        | Screens and navigation. File name = route.                          |
+| `components/` | Shared UI components used across screens.                           |
+| `features/`   | Self-contained feature modules with their own hooks and components. |
+| `lib/`        | API client, authentication, utilities, custom hooks.                |
+| `constants/`  | Theme tokens, colors, spacing values.                               |
+
+---
+
+## API
+
+The API uses Koa.js as the server framework with tRPC for type-safe endpoints and Prisma for database access.
+
+```
+apps/api/
+├── src/
+│   ├── routers/         # tRPC routers (user, chat, stripe)
+│   ├── routes/          # REST endpoints (auth, webhooks)
+│   ├── services/        # Business logic (auth, AI, payments)
+│   ├── middleware/      # CORS, logging
+│   ├── lib/             # Database, Stripe, Twilio clients
+│   ├── config/          # Environment configuration
+│   ├── app.ts
+│   └── router.ts
+├── prisma/
+│   ├── schema.prisma
+│   └── migrations/
+└── package.json
+```
+
+| Folder      | What goes here                                               |
+| ----------- | ------------------------------------------------------------ |
+| `routers/`  | tRPC routers. Each file exports procedures for a domain.     |
+| `routes/`   | Traditional REST endpoints like auth callbacks and webhooks. |
+| `services/` | Business logic. Keep routers thin, put logic here.           |
+| `lib/`      | Database client, external service clients (Stripe, Twilio).  |
+| `prisma/`   | Database schema and migrations.                              |
+
+---
+
+## Web
+
+The web app uses Next.js 15 with App Router.
+
+```
+apps/web/
+├── app/                 # Pages (App Router)
+├── components/          # React components
+├── lib/                 # Utilities
+├── public/              # Static assets
+└── package.json
+```
+
+---
+
+## Key Files
+
+| File                            | Purpose                                           |
+| ------------------------------- | ------------------------------------------------- |
+| `apps/mobile/app.config.ts`     | Expo configuration (app name, bundle ID, plugins) |
+| `apps/mobile/app/_layout.tsx`   | Root layout with auth provider and navigation     |
+| `apps/api/src/router.ts`        | Main tRPC router combining all sub-routers        |
+| `apps/api/prisma/schema.prisma` | Database models and relationships                 |
+| `turbo.json`                    | Turborepo build pipeline configuration            |
+| `pnpm-workspace.yaml`           | Workspace package definitions                     |
+
+## Next Steps
+
+<Columns cols={2}>
+  <Card title="Quick Start" icon="rocket" href="/quickstart">
+    Get the project running locally.
+  </Card>
+  <Card title="Tech Stack" icon="layer-group" href="/tech-stack">
+    See all the technologies and versions used.
+  </Card>
+</Columns>

@@ -1,0 +1,175 @@
+---
+title: "Feature Catalog"
+description: "Understanding the Explore tab and provider selection system"
+---
+
+# Feature Catalog System
+
+The Feature Catalog transforms the Explore tab into an action-first interface for enabling integrations and capabilities in your Launch app.
+
+## Current Implementation
+
+### Explore Tab Structure
+
+**File**: `apps/mobile/app/(tabs)/explore/index.tsx`
+
+The Explore tab displays capability cards grouped by:
+
+- **Payments** - Stripe, RevenueCat integration
+- **AI Chat** - Claude, OpenAI providers
+- **E-commerce** - Shopify integration
+- **Cloud Storage** - AWS S3 integration
+- **Monitoring** - Datadog integration
+
+### Feature Card Component
+
+**File**: `apps/mobile/components/ui/feature-card.tsx`
+
+Each card displays:
+
+- **Provider Avatars**: Overlapping provider logos
+- **Status Chip**: "Not set up", "Connected", or "Coming soon"
+- **Description**: Clear explanation of capabilities
+- **Action Button**: Primary CTA for setup
+
+#### Status System
+
+- **Not set up**: Ready for configuration
+- **Connected**: Integration active and working
+- **Coming soon**: Feature planned but not available
+
+## Planned Enhancements
+
+### Provider Picker Bottom Sheet
+
+Instead of navigating to full screens, tapping a feature card will open a bottom sheet with:
+
+#### Payments Example:
+
+- **Stripe** (Primary provider)
+- **RevenueCat** (Alternative)
+- **Add later** (Skip for now)
+- **View docs** (Learn more)
+
+#### Benefits:
+
+- Fewer taps and less context switching
+- Consistent pattern across all features
+- Quick provider comparison
+- Easy cancellation
+
+### Guided Setup Checklist
+
+After provider selection, users see a progress-based checklist:
+
+#### Stripe Setup Example:
+
+1. ✅ Add API keys
+2. ⏳ Create test products/prices
+3. ⏸️ Enable paywall demo
+4. ⏸️ Test payment (mobile + web)
+5. ⏸️ Go live (switch environment)
+
+#### Features:
+
+- Clear progress indication
+- Step-by-step guidance
+- Inline error handling
+- Skip/retry options
+
+## Implementation Strategy
+
+### Phase 1: Enhanced Cards
+
+- Update status tracking system
+- Add configuration state management
+- Implement better error states
+
+### Phase 2: Provider Picker
+
+- Create reusable bottom sheet component
+- Add provider comparison data
+- Implement selection persistence
+
+### Phase 3: Setup Checklists
+
+- Build step component framework
+- Add progress tracking
+- Create setup validation
+
+## File Organization
+
+```
+apps/mobile/
+├── app/(tabs)/explore/
+│   └── index.tsx                    # Main feature catalog
+├── components/ui/
+│   ├── feature-card.tsx            # Current card component
+│   ├── provider-picker.tsx         # Bottom sheet (planned)
+│   └── setup-checklist.tsx         # Progress component (planned)
+├── lib/
+│   ├── providers/                  # Provider configurations
+│   └── setup/                      # Setup state management
+└── constants/
+    └── integrations.ts             # Provider and feature data
+```
+
+## Provider Configuration
+
+Each provider will have standardized metadata:
+
+```typescript
+// Example structure
+interface Provider {
+  id: string;
+  name: string;
+  logo: ImageSource;
+  fallback: string;
+  isPrimary: boolean;
+  setupSteps: SetupStep[];
+  documentation: string;
+  status: ProviderStatus;
+}
+```
+
+## User Experience Flow
+
+### Current Flow:
+
+1. Tap "Explore Payments" → Navigate to payments screen
+2. View list of providers → Select provider
+3. Navigate to setup screen → Follow instructions
+
+### Improved Flow:
+
+1. Tap "Payments" card → Provider picker appears
+2. Select "Stripe" → Setup checklist appears
+3. Complete steps inline → Real-time progress
+4. Return to Explore → Card shows "Connected"
+
+## Benefits
+
+### For Users:
+
+- Faster setup with fewer navigation steps
+- Clear progress indication
+- Consistent interface across features
+- Easy to retry or change providers
+
+### For Developers:
+
+- Reusable component patterns
+- Centralized integration status
+- Easier to add new providers
+- Better error handling and recovery
+
+## Integration with Payment System
+
+The Feature Catalog integrates with the payment database schema:
+
+- **Status tracking** via configuration tables
+- **Setup progress** stored in user preferences
+- **Provider selection** affects API routing
+- **Error states** from webhook failures
+
+See the Database Schema and Stripe Setup guides for backend integration details.

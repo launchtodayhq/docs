@@ -3,9 +3,9 @@
   "theme": "maple",
   "name": "Launch",
   "colors": {
-    "primary": "#1447E6",
-    "light": "#3B82F6",
-    "dark": "#1E40AF"
+    "primary": "#000000",
+    "light": "#ffffff",
+    "dark": "#000000"
   },
   "favicon": "/favicon.svg",
   "navigation": {
@@ -15,7 +15,12 @@
         "groups": [
           {
             "group": "Getting started",
-            "pages": ["index", "quickstart", "development"]
+            "pages": [
+              "index",
+              "project-structure",
+              "tech-stack",
+              "quickstart"
+            ]
           },
           {
             "group": "Mobile App",
@@ -24,7 +29,8 @@
               "mobile/authentication",
               "mobile/onboarding",
               "mobile/file-structure",
-              "mobile/components"
+              "mobile/components",
+              "mobile/adding-screens"
             ]
           },
           {
@@ -35,6 +41,21 @@
               "authentication/google-signin",
               "authentication/email-signin"
             ]
+          },
+          {
+            "group": "Payments & Monetization",
+            "pages": [
+              "payments/index",
+              "payments/mobile-integration",
+              "payments/stripe-setup",
+              "payments/environment-setup",
+              "payments/database-schema",
+              "payments/feature-catalog"
+            ]
+          },
+          {
+            "group": "AI Features",
+            "pages": ["ai-features/overview"]
           },
           {
             "group": "Customization",

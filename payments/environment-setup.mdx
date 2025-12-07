@@ -1,0 +1,211 @@
+---
+title: "Environment Variables"
+description: "Complete guide to configuring Stripe environment variables for API and mobile app"
+---
+
+# Environment Variables Setup
+
+This guide covers all the environment variables needed for Stripe integration in both your API and mobile app.
+
+## API Environment Variables
+
+### File: `apps/api/.env`
+
+```bash
+# Stripe Configuration
+STRIPE_SECRET_KEY=sk_test_51...              # Required: Test secret key from Stripe Dashboard
+STRIPE_WEBHOOK_SECRET=whsec_...              # Required: From webhook endpoint setup
+
+# Database (if not already configured)
+DATABASE_URL="postgresql://..."             # Required: Your PostgreSQL connection string
+
+# Optional: Better Auth configuration
+BETTER_AUTH_SECRET="your-secret-key"         # Required for production
+BETTER_AUTH_URL="http://localhost:3001"     # Your API base URL
+```
+
+### Getting Your Stripe Keys
+
+1. **Stripe Secret Key**:
+
+   - Go to [Stripe Dashboard → API Keys](https://dashboard.stripe.com/apikeys)
+   - Copy the "Secret key" (starts with `sk_test_`)
+   - **Important**: Never expose this in client code
+
+2. **Webhook Secret**:
+   - Go to [Stripe Dashboard → Webhooks](https://dashboard.stripe.com/webhooks)
+   - Click on your webhook endpoint
+   - Click "Reveal" in the "Signing secret" section
+   - Copy the value (starts with `whsec_`)
+
+## Mobile App Environment Variables
+
+### File: `apps/mobile/.env`
+
+```bash
+# Stripe Configuration
+EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...   # Required: Publishable key from Stripe Dashboard
+
+# Optional: API Configuration
+EXPO_PUBLIC_API_URL="http://localhost:3001"      # Your API base URL
+```
+
+### Getting Your Publishable Key
+
+1. Go to [Stripe Dashboard → API Keys](https://dashboard.stripe.com/apikeys)
+2. Copy the "Publishable key" (starts with `pk_test_`)
+3. **Safe for client-side**: This key is safe to expose in mobile apps
+
+## App Configuration Updates
+
+### File: `apps/mobile/app.config.ts`
+
+Make sure your config includes the Stripe setup:
+
+```typescript
+import { ExpoConfig, ConfigContext } from "expo/config";
+
+export default ({ config }: ConfigContext): ExpoConfig => ({
+  ...config,
+  name: "Launch",
+  slug: "launch",
+
+  // Stripe configuration
+  extra: {
+    stripe: {
+      publishableKey: process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY,
+    },
+  },
+
+  // Stripe plugin configuration
+  plugins: [
+    // ... other plugins
+    [
+      "@stripe/stripe-react-native",
+      {
+        merchantIdentifier: "", // Leave empty for now (Apple Pay not configured)
+        enableGooglePay: false,
+      },
+    ],
+  ],
+});
+```
+
+## Environment Variable Validation
+
+### API Validation
+
+Add this to your API startup to verify Stripe configuration:
+
+```typescript
+// apps/api/src/lib/stripe.ts
+console.log("🔑 Stripe environment check:");
+console.log("STRIPE_SECRET_KEY exists:", !!process.env.STRIPE_SECRET_KEY);
+console.log(
+  "STRIPE_SECRET_KEY starts with sk_:",
+  process.env.STRIPE_SECRET_KEY?.startsWith("sk_")
+);
+console.log(
+  "STRIPE_WEBHOOK_SECRET exists:",
+  !!process.env.STRIPE_WEBHOOK_SECRET
+);
+```
+
+### Mobile Validation
+
+The mobile app will automatically validate the publishable key when initializing Stripe.
+
+## Common Issues
+
+### "You did not provide an API key"
+
+**Cause**: `STRIPE_SECRET_KEY` not set or incorrect
+
+**Solutions**:
+
+- ✅ Check the key starts with `sk_test_` (for test mode)
+- ✅ Verify no extra spaces or newlines
+- ✅ Restart your API server after adding the key
+- ✅ Check you're using the correct `.env` file
+
+### "Webhook signature verification failed"
+
+**Cause**: `STRIPE_WEBHOOK_SECRET` not set or incorrect
+
+**Solutions**:
+
+- ✅ Check the secret starts with `whsec_`
+- ✅ Verify it matches your webhook endpoint
+- ✅ Make sure ngrok URL is correct in Stripe Dashboard
+- ✅ Restart API server after adding the secret
+
+### "Missing publishable key" on mobile
+
+**Cause**: `EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY` not set
+
+**Solutions**:
+
+- ✅ Check the key starts with `pk_test_`
+- ✅ Restart Expo with `npx expo start --clear`
+- ✅ Verify the key is in `apps/mobile/.env`
+
+## Production Environment Variables
+
+When deploying to production:
+
+### API Production Variables
+
+```bash
+# Production Stripe keys
+STRIPE_SECRET_KEY=sk_live_...                # Live secret key
+STRIPE_WEBHOOK_SECRET=whsec_...              # Production webhook secret
+
+# Production database
+DATABASE_URL="postgresql://production..."    # Production database URL
+
+# Better Auth production config
+BETTER_AUTH_SECRET="secure-production-secret"
+BETTER_AUTH_URL="https://your-production-api.com"
+```
+
+### Mobile Production Variables
+
+```bash
+# Production publishable key
+EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_...
+
+# Production API
+EXPO_PUBLIC_API_URL="https://your-production-api.com"
+```
+
+## Security Best Practices
+
+✅ **Never commit `.env` files** to version control  
+✅ **Use different keys** for test and production  
+✅ **Rotate webhook secrets** if compromised  
+✅ **Validate environment variables** on startup  
+✅ **Use secure deployment** practices for production keys
+
+## Testing Your Setup
+
+After setting up environment variables:
+
+1. **Start your API**:
+   ```bash
+   cd apps/api && npm run dev
+   ```
+2. **Check for Stripe logs**:
+
+   ```
+   🔑 Stripe environment check: STRIPE_SECRET_KEY exists: true
+   ```
+
+3. **Start your mobile app**:
+
+   ```bash
+   cd apps/mobile && npx expo start --clear
+   ```
+
+4. **Test the payment flow** in the app
+
+Your environment should now be properly configured for Stripe integration! 🎉

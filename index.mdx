@@ -7,9 +7,17 @@ description: "A comprehensive cross-platform development starter kit"
 
 Launch is a modern, production-ready starter kit that helps developers build cross-platform applications quickly and efficiently. The platform combines React Native mobile apps, Next.js web applications, and a robust tRPC API backend—all with seamless type safety and beautiful design systems.
 
-<Card title="Quick Start" icon="rocket" href="/quickstart" horizontal>
-  Get your development environment running in under 5 minutes.
-</Card>
+<Columns cols={3}>
+  <Card title="Project Structure" icon="folder-tree" href="/project-structure">
+    Understand how the monorepo is organized.
+  </Card>
+  <Card title="Tech Stack" icon="layer-group" href="/tech-stack">
+    Expo 54, React Native 0.81, Next.js 15, and more.
+  </Card>
+  <Card title="Quick Start" icon="rocket" href="/quickstart">
+    Get running in under 5 minutes.
+  </Card>
+</Columns>
 
 ## Platform Architecture
 
@@ -82,8 +90,9 @@ The platform includes several key features that are ready for development:
 ## Key Features
 
 <Columns cols={2}>
-  <Card title="Cross-Platform Design" icon="devices" href="/development">
-    Shared design tokens and components across mobile and web platforms.
+  <Card title="AI Chat" icon="brain" href="/ai-features/overview">
+    Multi-provider AI chat with streaming, system prompts, and conversation
+    persistence.
   </Card>
   <Card title="Type Safety" icon="shield-check" href="/essentials/typescript">
     End-to-end type safety from database to UI with tRPC and TypeScript.

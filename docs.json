@@ -15,12 +15,7 @@
         "groups": [
           {
             "group": "Getting started",
-            "pages": [
-              "index",
-              "project-structure",
-              "tech-stack",
-              "quickstart"
-            ]
+            "pages": ["index", "project-structure", "tech-stack", "quickstart"]
           },
           {
             "group": "Mobile App",
@@ -43,14 +38,22 @@
             ]
           },
           {
-            "group": "Payments & Monetization",
+            "group": "Payments",
             "pages": [
               "payments/index",
-              "payments/mobile-integration",
-              "payments/stripe-setup",
-              "payments/environment-setup",
-              "payments/database-schema",
-              "payments/feature-catalog"
+              {
+                "group": "Stripe",
+                "pages": [
+                  "payments/stripe",
+                  "payments/stripe-setup",
+                  "payments/stripe-webhooks",
+                  "payments/stripe-api",
+                  "payments/database-schema"
+                ]
+              },
+              "payments/revenuecat",
+              "payments/superwall",
+              "payments/paddle"
             ]
           },
           {

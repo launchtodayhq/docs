@@ -1,0 +1,122 @@
+---
+title: "Stripe"
+description: "Accept payments, manage subscriptions, and handle billing with Stripe"
+---
+
+# Stripe Integration
+
+Launch includes a production-ready Stripe integration with a beautiful paywall screen, webhook handling, and subscription management.
+
+<Frame>
+  <img src="/images/798shots_so.png" alt="Stripe Paywall Screen" />
+</Frame>
+
+## What's Included
+
+<CardGroup cols={2}>
+  <Card title="Paywall Screen" icon="credit-card">
+    Beautiful, customizable paywall with support for yearly, monthly, and
+    one-time purchases.
+  </Card>
+  <Card title="Webhook Handling" icon="webhook">
+    Complete webhook setup for subscription events, payment success/failure, and
+    more.
+  </Card>
+  <Card title="tRPC API" icon="code">
+    Type-safe API endpoints for creating payment intents, checkout sessions, and
+    managing subscriptions.
+  </Card>
+  <Card title="Database Schema" icon="database">
+    Prisma models for customers, subscriptions, and payment history.
+  </Card>
+</CardGroup>
+
+## Paywall Features
+
+The included paywall screen (`app/payments/stripe.tsx`) supports:
+
+- **Multiple pricing tiers** - Yearly, monthly, and lifetime options
+- **Dynamic pricing** - Pulls products directly from your Stripe dashboard
+- **Savings calculation** - Automatically shows "Save X%" for yearly plans
+- **Dark mode** - Fully themed for light and dark modes
+- **Customizable content** - Easy to edit title, benefits, and branding
+- **Terms & Privacy links** - Required for App Store compliance
+- **Haptic feedback** - Native feel with tactile responses
+
+## Quick Start
+
+<Steps>
+  <Step title="Set up Stripe">
+    Create products in your Stripe dashboard and configure environment
+    variables. [View Setup Guide →](/payments/stripe-setup)
+  </Step>
+  <Step title="Configure webhooks">
+    Set up webhook endpoints to handle subscription events. [View Webhook Guide
+    →](/payments/stripe-webhooks)
+  </Step>
+  <Step title="Customize the paywall">
+    Edit `PAYWALL_CONTENT` in `app/payments/stripe.tsx` to match your branding.
+  </Step>
+</Steps>
+
+## File Structure
+
+```
+apps/api/
+├── src/routers/stripe.ts          # tRPC endpoints
+├── src/routes/stripe-webhooks.ts  # Webhook handling
+└── src/lib/stripe.ts              # Stripe client
+
+apps/mobile/
+└── app/payments/stripe.tsx        # Paywall screen
+```
+
+## Customizing the Paywall
+
+The paywall is fully customizable via the `PAYWALL_CONTENT` object:
+
+```typescript
+const PAYWALL_CONTENT = {
+  titleStart: "Unlock ",
+  titleHighlight: "Premium",
+  titleEnd: " and get full access",
+
+  planLabels: {
+    yearly: { name: "Pro Yearly", badge: "Best value" },
+    monthly: { name: "Pro Monthly", badge: null },
+    lifetime: { name: "Pro Lifetime", badge: null },
+  },
+
+  benefits: [
+    "Unlimited access to all features",
+    "Cloud sync across all your devices",
+    "Priority support when you need help",
+  ],
+
+  links: {
+    terms: "https://yourapp.com/terms",
+    privacy: "https://yourapp.com/privacy",
+  },
+};
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Setup Guide" icon="gear" href="/payments/stripe-setup">
+    Environment variables, ngrok, and product creation.
+  </Card>
+  <Card title="Webhooks" icon="webhook" href="/payments/stripe-webhooks">
+    Handle subscription events and payment notifications.
+  </Card>
+  <Card title="API Reference" icon="code" href="/payments/stripe-api">
+    tRPC endpoints for payments and subscriptions.
+  </Card>
+  <Card
+    title="Database Schema"
+    icon="database"
+    href="/payments/database-schema"
+  >
+    Prisma models for payment data.
+  </Card>
+</CardGroup>

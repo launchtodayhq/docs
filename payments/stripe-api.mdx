@@ -1,0 +1,145 @@
+---
+title: "Stripe API"
+description: "tRPC endpoints for Stripe payments and subscriptions"
+---
+
+# Stripe API
+
+Launch provides type-safe tRPC endpoints for all Stripe operations. These endpoints handle payment intents, checkout sessions, and product management.
+
+## Available Endpoints
+
+### `stripe.getProducts`
+
+Fetches all active products and prices from your Stripe account.
+
+```typescript
+const { data } = trpc.stripe.getProducts.useQuery();
+
+// Returns
+{
+  products: [
+    {
+      id: "prod_xxx",
+      name: "Pro Yearly",
+      description: "Annual subscription",
+      prices: [
+        { id: "price_xxx", unit_amount: 9999, recurring: { interval: "year" } },
+      ],
+    },
+  ];
+}
+```
+
+### `stripe.createPaymentIntent`
+
+Creates a payment intent for one-time purchases.
+
+```typescript
+const mutation = trpc.stripe.createPaymentIntent.useMutation();
+
+const { clientSecret } = await mutation.mutateAsync({
+  amount: 999, // Amount in cents
+  currency: "usd",
+  description: "Pro Lifetime Access",
+});
+```
+
+### `stripe.createCheckoutSession`
+
+Creates a checkout session for subscriptions.
+
+```typescript
+const mutation = trpc.stripe.createCheckoutSession.useMutation();
+
+const { url } = await mutation.mutateAsync({
+  priceId: "price_xxx",
+  mode: "subscription",
+  successUrl: "myapp://success",
+  cancelUrl: "myapp://cancel",
+});
+```
+
+## API Structure
+
+**Location:** `apps/api/src/routers/stripe.ts`
+
+```typescript
+export const stripeRouter = router({
+  getProducts: publicProcedure.query(async () => {
+    // Fetch products from Stripe
+  }),
+
+  createPaymentIntent: protectedProcedure
+    .input(
+      z.object({
+        amount: z.number(),
+        currency: z.string(),
+        description: z.string().optional(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      // Create payment intent
+    }),
+
+  createCheckoutSession: protectedProcedure
+    .input(
+      z.object({
+        priceId: z.string(),
+        mode: z.enum(["subscription", "payment"]),
+        successUrl: z.string(),
+        cancelUrl: z.string(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      // Create checkout session
+    }),
+});
+```
+
+## Authentication
+
+- `getProducts` - Public, no authentication required
+- `createPaymentIntent` - Protected, requires authenticated user
+- `createCheckoutSession` - Protected, requires authenticated user
+
+## Customer Management
+
+When a user makes their first payment, a Stripe customer is automatically created and linked to their account:
+
+```typescript
+// Automatic customer creation
+const customer = await stripe.customers.create({
+  email: user.email,
+  name: user.name,
+  metadata: { userId: user.id },
+});
+```
+
+## Error Handling
+
+All endpoints return structured errors:
+
+```typescript
+try {
+  await mutation.mutateAsync({ ... });
+} catch (error) {
+  // error.message contains Stripe error details
+  Alert.alert("Payment Failed", error.message);
+}
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Webhooks" icon="webhook" href="/payments/stripe-webhooks">
+    Handle asynchronous payment events.
+  </Card>
+  <Card
+    title="Database Schema"
+    icon="database"
+    href="/payments/database-schema"
+  >
+    View the database models for payment data.
+  </Card>
+</CardGroup>

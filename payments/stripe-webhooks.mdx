@@ -1,0 +1,109 @@
+---
+title: "Stripe Webhooks"
+description: "Handle Stripe webhook events for subscriptions and payments"
+---
+
+# Stripe Webhooks
+
+Webhooks allow Stripe to notify your app when events happen—like successful payments, subscription changes, or failed charges.
+
+## Supported Events
+
+Launch handles these webhook events out of the box:
+
+| Event                           | Description                              |
+| ------------------------------- | ---------------------------------------- |
+| `payment_intent.succeeded`      | Payment was successful                   |
+| `payment_intent.payment_failed` | Payment failed                           |
+| `customer.subscription.created` | New subscription started                 |
+| `customer.subscription.updated` | Subscription changed (upgrade/downgrade) |
+| `customer.subscription.deleted` | Subscription cancelled                   |
+| `invoice.payment_succeeded`     | Recurring payment successful             |
+| `invoice.payment_failed`        | Recurring payment failed                 |
+
+## How It Works
+
+```
+Stripe Event → Your API → Database Update → App Response
+```
+
+1. **Stripe sends event** to your webhook endpoint
+2. **API verifies signature** to ensure authenticity
+3. **Handler processes event** and updates database
+4. **User sees changes** reflected in the app
+
+## Webhook Endpoint
+
+**Location:** `apps/api/src/routes/stripe-webhooks.ts`
+
+```typescript
+// Webhook endpoint: POST /webhooks/stripe
+export async function handleStripeWebhook(req, res) {
+  const sig = req.headers["stripe-signature"];
+  const event = stripe.webhooks.constructEvent(
+    req.body,
+    sig,
+    process.env.STRIPE_WEBHOOK_SECRET
+  );
+
+  switch (event.type) {
+    case "payment_intent.succeeded":
+      // Handle successful payment
+      break;
+    case "customer.subscription.created":
+      // Handle new subscription
+      break;
+    // ... more handlers
+  }
+}
+```
+
+## Local Development
+
+For local testing, use ngrok to expose your API:
+
+```bash
+# Start ngrok tunnel
+ngrok http 3001
+
+# Your webhook URL will be:
+# https://abc123.ngrok-free.app/webhooks/stripe
+```
+
+<Warning>
+  Remember to update your webhook URL in Stripe Dashboard whenever your ngrok
+  URL changes.
+</Warning>
+
+## Database Updates
+
+When webhook events are received, the following tables are updated:
+
+- **`StripeCustomer`** - Customer information
+- **`Subscription`** - Subscription status and details
+- **`Payment`** - Payment history
+
+## Debugging
+
+Check your API logs for webhook activity:
+
+```
+🔔 Stripe webhook received: payment_intent.succeeded
+💳 Payment succeeded: pi_xxx - $19.99
+💾 Payment saved to database for user: usr_xxx
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Setup Guide" icon="gear" href="/payments/stripe-setup">
+    Configure webhook endpoints and secrets.
+  </Card>
+  <Card
+    title="Database Schema"
+    icon="database"
+    href="/payments/database-schema"
+  >
+    View the database models for payment data.
+  </Card>
+</CardGroup>

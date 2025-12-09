@@ -1,0 +1,199 @@
+---
+title: "Paywall Best Practices"
+description: "Build high-converting paywalls with proven psychological principles"
+---
+
+Building an effective paywall is both an art and a science. This guide covers the psychology behind high-converting paywalls and how to apply these principles to your app.
+
+<Frame>
+  <img src="/images/paywall-full.png" alt="Launch paywall overview" />
+</Frame>
+<Caption>The complete paywall screen with all conversion elements</Caption>
+
+## The Psychology of Conversion
+
+Users make purchasing decisions based on emotion first, then justify with logic. Your paywall should:
+
+1. **Create desire** — Show what they're missing
+2. **Build trust** — Social proof and guarantees
+3. **Remove friction** — Clear pricing, easy action
+4. **Reduce risk** — Money-back guarantees, cancel anytime
+
+---
+
+## Key Conversion Elements
+
+### 1. Clear Value Proposition
+
+Your title should immediately communicate what the user gains. Use action verbs like "Unlock" or "Get" to imply transformation.
+
+<Note>Keep your title under 8 words. Users scan, they don't read.</Note>
+
+---
+
+### 2. Price Anchoring
+
+Show the yearly price with a monthly breakdown (e.g., "$199.99/year ($16.67/mo)"). This makes the yearly option feel more affordable and encourages longer commitments.
+
+Always display a savings badge like "Save 17%" to create urgency and highlight the value of annual plans.
+
+<Info>
+  Show the yearly plan first and pre-select it. Users are more likely to choose
+  the first option they see.
+</Info>
+
+---
+
+### 3. Plan Selection Cards
+
+<Frame>
+  <img src="/images/paywall-plans.png" alt="Plan selection cards" />
+</Frame>
+
+Your plan options should have:
+
+- Clear visual distinction between selected and unselected states
+- Badge support for highlighting value (e.g., "Most Popular", "Best Value")
+- Haptic feedback on selection for tactile confirmation
+- Large, accessible touch targets
+
+---
+
+### 4. Benefits List
+
+<Frame>
+  <img src="/images/paywall-benefits.png" alt="Benefits list" />
+</Frame>
+
+Lead with your most valuable benefit and use specific language. "Cloud sync across all your devices" is more compelling than "Sync to multiple devices."
+
+Include emotional benefits like "Priority support when you need help" — users want to feel cared for.
+
+Keep to 4-6 items maximum. Too many benefits dilute the message.
+
+---
+
+### 5. Social Proof
+
+<Frame>
+  <img src="/images/paywall-testimonials.png" alt="Testimonial carousel" />
+</Frame>
+
+Testimonials are one of the most powerful conversion tools. The Launch template includes a **TestimonialCarousel** that auto-rotates quotes in the sticky CTA area — ensuring users always see social proof near the purchase button.
+
+<Warning>
+  Use real testimonials from actual users. Fake testimonials erode trust and may
+  violate consumer protection laws.
+</Warning>
+
+---
+
+### 6. Trust Signals
+
+#### Money-Back Guarantee
+
+A guarantee like "7-day money-back guarantee" removes purchase anxiety, shows confidence in your product, and reduces perceived risk.
+
+#### Cancel Anytime
+
+For subscriptions, always show "Cancel anytime" prominently. This addresses subscription fatigue and helps users feel in control.
+
+---
+
+### 7. Sticky CTA
+
+<Frame>
+  <img src="/images/paywall-cta.png" alt="Sticky CTA container" />
+</Frame>
+
+Your call-to-action button should be fixed at the bottom of the screen, always visible regardless of scroll position. Users should never have to search for how to purchase.
+
+The Launch template positions testimonials, the purchase button, and trust signals together in this sticky area for maximum impact.
+
+---
+
+### 8. Dynamic Button Text
+
+Your subscribe button should show the exact price and plan (e.g., "Subscribe – $199.99/year"). This eliminates surprises at the decision point and reinforces the selected option.
+
+---
+
+## Conversion Optimization Checklist
+
+| Element                | Purpose                      |
+| ---------------------- | ---------------------------- |
+| Clear title            | Communicate value instantly  |
+| Price anchoring        | Make yearly plans attractive |
+| Monthly breakdown      | Reduce sticker shock         |
+| Savings badge          | Create urgency               |
+| Benefits list          | Justify the purchase         |
+| Testimonials           | Social proof                 |
+| Money-back guarantee   | Reduce risk                  |
+| Cancel anytime         | Reduce commitment fear       |
+| Sticky CTA             | Always accessible            |
+| Dynamic button text    | Clarity at decision point    |
+| Apple Pay / Google Pay | Reduce checkout friction     |
+
+---
+
+## A/B Testing Ideas
+
+Once you have users, consider testing:
+
+1. **Pricing** — Different price points
+2. **Plan order** — Yearly first vs monthly first
+3. **Title copy** — Different value propositions
+4. **Testimonial content** — Which quotes resonate most
+5. **CTA text** — "Subscribe" vs "Get Pro" vs "Upgrade Now"
+6. **Guarantee length** — 7 days vs 14 days vs 30 days
+
+---
+
+## Common Mistakes to Avoid
+
+1. **Too many options** — Stick to 3 plans maximum
+2. **Hidden pricing** — Always show the price upfront
+3. **Fake urgency** — "Only 2 left!" erodes trust quickly
+4. **Wall of text** — Users scan, keep it minimal
+5. **No social proof** — Testimonials significantly boost conversion
+6. **Difficult dismissal** — Let users close the paywall easily
+
+---
+
+## What's Included in Launch
+
+<Frame>
+  <img
+    src="/images/paywall-dark-light.png"
+    alt="Paywall in dark and light mode"
+  />
+</Frame>
+
+The Launch paywall template implements all of these best practices out of the box:
+
+- **SelectCard component** — Beautiful, accessible plan selection
+- **TestimonialCarousel** — Auto-rotating social proof
+- **Sticky CTA container** — Always-visible purchase area
+- **Dynamic pricing display** — Shows monthly breakdown for yearly plans
+- **Trust signals** — Guarantee and cancel anytime messaging
+- **Apple Pay / Google Pay** — One-tap purchasing
+
+All content is centralized in a single `PAYWALL_CONTENT` object for easy customization.
+
+---
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Stripe Setup" icon="stripe" href="/payments/stripe-setup">
+    Configure your products and pricing
+  </Card>
+  <Card
+    title="Apple Pay"
+    icon="apple"
+    href="/payments/stripe-setup#step-5-enable-apple-pay-optional"
+  >
+    Enable one-tap purchasing
+  </Card>
+</CardGroup>
+

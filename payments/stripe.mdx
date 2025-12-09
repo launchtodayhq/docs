@@ -18,6 +18,9 @@ Launch includes a production-ready Stripe integration with a beautiful paywall s
     Beautiful, customizable paywall with support for yearly, monthly, and
     one-time purchases.
   </Card>
+  <Card title="Apple Pay & Google Pay" icon="apple">
+    Native payment buttons for faster checkout on iOS and Android.
+  </Card>
   <Card title="Webhook Handling" icon="webhook">
     Complete webhook setup for subscription events, payment success/failure, and
     more.
@@ -29,6 +32,9 @@ Launch includes a production-ready Stripe integration with a beautiful paywall s
   <Card title="Database Schema" icon="database">
     Prisma models for customers, subscriptions, and payment history.
   </Card>
+  <Card title="SelectCard Component" icon="square-check">
+    Reusable selection card component matching the app's design system.
+  </Card>
 </CardGroup>
 
 ## Paywall Features
@@ -37,11 +43,12 @@ The included paywall screen (`app/payments/stripe.tsx`) supports:
 
 - **Multiple pricing tiers** - Yearly, monthly, and lifetime options
 - **Dynamic pricing** - Pulls products directly from your Stripe dashboard
-- **Savings calculation** - Automatically shows "Save X%" for yearly plans
+- **Apple Pay & Google Pay** - Native payment buttons for faster checkout
 - **Dark mode** - Fully themed for light and dark modes
 - **Customizable content** - Easy to edit title, benefits, and branding
 - **Terms & Privacy links** - Required for App Store compliance
 - **Haptic feedback** - Native feel with tactile responses
+- **Reusable SelectCard component** - Consistent design across your app
 
 ## Quick Start
 
@@ -120,3 +127,4 @@ const PAYWALL_CONTENT = {
     Prisma models for payment data.
   </Card>
 </CardGroup>
+

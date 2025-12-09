@@ -142,25 +142,83 @@ Make sure this section exists:
 ```typescript
 export default {
   // ... other config
-  extra: {
-    stripe: {
-      publishableKey: process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY,
-    },
-  },
   plugins: [
     // ... other plugins
     [
       "@stripe/stripe-react-native",
       {
-        merchantIdentifier: "", // Leave empty for now
-        enableGooglePay: false,
+        merchantIdentifier: "merchant.com.yourcompany.yourapp",
+        enableGooglePay: true,
       },
     ],
   ],
 };
 ```
 
-## Step 5: Restart Your Application
+## Step 5: Enable Apple Pay (Optional)
+
+Apple Pay provides a faster checkout experience for iOS users. Follow these steps to enable it:
+
+### 5.1 Create Merchant ID in Apple Developer Portal
+
+1. Go to [Apple Developer → Certificates, Identifiers & Profiles](https://developer.apple.com/account/resources/identifiers/list/merchant)
+2. Click the **+** button to add a new identifier
+3. Select **Merchant IDs** and click Continue
+4. Enter your Merchant ID (e.g., `merchant.com.yourcompany.yourapp`)
+5. Click Register
+
+### 5.2 Get Certificate Signing Request from Stripe
+
+1. Go to [Stripe Dashboard → Settings → Payment Methods → Apple Pay](https://dashboard.stripe.com/settings/payments/apple_pay)
+2. Click **Add new application**
+3. Download the **Certificate Signing Request (CSR)** file that Stripe provides
+4. Save the `.certSigningRequest` file
+
+### 5.3 Create Apple Pay Certificate
+
+1. Go back to [Apple Developer → Certificates](https://developer.apple.com/account/resources/certificates/list)
+2. Click the **+** button to create a new certificate
+3. Select **Apple Pay Merchant Identity Certificate**
+4. Select your Merchant ID from the dropdown
+5. Click **Choose File** and upload the CSR file from Stripe
+6. Click Continue and then Download the certificate
+
+### 5.4 Upload Certificate to Stripe
+
+1. Go back to [Stripe Dashboard → Apple Pay settings](https://dashboard.stripe.com/settings/payments/apple_pay)
+2. Upload the `.cer` certificate file you downloaded from Apple
+3. Click Submit
+
+### 5.5 Update app.config.ts
+
+Make sure your merchant identifier matches:
+
+```typescript
+[
+  "@stripe/stripe-react-native",
+  {
+    merchantIdentifier: "merchant.com.yourcompany.yourapp", // Must match Apple Developer
+    enableGooglePay: true,
+  },
+],
+```
+
+### 5.6 Rebuild the App
+
+Apple Pay requires a native rebuild:
+
+```bash
+cd apps/mobile
+npx expo prebuild --clean
+npx expo run:ios
+```
+
+<Note>
+  Apple Pay only works on real devices, not simulators. You'll need to test on a
+  physical iPhone with Apple Pay configured.
+</Note>
+
+## Step 6: Restart Your Application
 
 After setting up environment variables:
 
@@ -178,7 +236,7 @@ cd apps/mobile
 npx expo start --clear
 ```
 
-## Step 6: Test the Integration
+## Step 7: Test the Integration
 
 ### Test Webhook Connection
 
@@ -215,7 +273,7 @@ In your API logs, you should see:
 💾 Test payment saved to database for user: usr_xxx
 ```
 
-## Step 7: Troubleshooting
+## Step 8: Troubleshooting
 
 ### Common Issues
 
@@ -255,7 +313,7 @@ curl https://your-ngrok-url.ngrok-free.app/health
 curl https://your-ngrok-url.ngrok-free.app/webhooks/stripe
 ```
 
-## Step 8: Production Deployment
+## Step 9: Production Deployment
 
 When ready for production:
 

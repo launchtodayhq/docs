@@ -45,10 +45,11 @@
                 "group": "Stripe",
                 "pages": [
                   "payments/stripe",
+                  "payments/database-schema",
                   "payments/stripe-setup",
                   "payments/stripe-webhooks",
                   "payments/stripe-api",
-                  "payments/database-schema"
+                  "payments/paywall-best-practices"
                 ]
               },
               "payments/revenuecat",

@@ -45,16 +45,38 @@
                 "group": "Stripe",
                 "pages": [
                   "payments/stripe",
-                  "payments/database-schema",
                   "payments/stripe-setup",
                   "payments/stripe-webhooks",
                   "payments/stripe-api",
-                  "payments/paywall-best-practices"
+                  "payments/database-schema"
                 ]
               },
-              "payments/revenuecat",
-              "payments/superwall",
+              {
+                "group": "RevenueCat",
+                "pages": [
+                  "payments/revenuecat",
+                  "payments/revenuecat-setup",
+                  "payments/revenuecat-troubleshooting"
+                ]
+              },
+              {
+                "group": "Superwall",
+                "pages": [
+                  "payments/superwall",
+                  "payments/superwall-setup",
+                  "payments/superwall-troubleshooting"
+                ]
+              },
+              "payments/paywall-best-practices",
               "payments/paddle"
+            ]
+          },
+          {
+            "group": "Backend",
+            "pages": [
+              "backend/index",
+              "backend/railway-deployment",
+              "backend/environment-variables"
             ]
           },
           {

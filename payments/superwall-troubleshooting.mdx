@@ -1,0 +1,213 @@
+---
+title: "Superwall Troubleshooting"
+description: "Common errors and solutions for Superwall integration"
+---
+
+This page documents common Superwall issues and their solutions.
+
+---
+
+## Prices Showing as NaN
+
+This means Superwall couldn't fetch product prices from StoreKit.
+
+<Steps>
+  <Step title="Check Product Status">
+    Products must be "Ready to Submit" or "Approved" in App Store Connect. Use
+    the debug script to check status: ```bash node scripts/debug-appstore.js ```
+  </Step>
+
+  <Step title="Verify Product IDs Match">
+    Product IDs in Superwall dashboard must **exactly** match App Store Connect.
+    Common mistakes: - Extra spaces - Wrong capitalization - Typos
+  </Step>
+
+  <Step title="Test on Physical Device">
+    Simulator cannot fetch real products from StoreKit. Use a physical device
+    with a sandbox account signed in.
+  </Step>
+
+  <Step title="Wait for Apple">
+    New products can take 15-30 minutes to propagate through Apple's systems.
+    Check [Apple System Status](https://www.apple.com/support/systemstatus/) for
+    outages.
+  </Step>
+</Steps>
+
+<Tip>
+  This is often an Apple StoreKit issue, not Superwall. If all settings are
+  correct, waiting usually resolves it.
+</Tip>
+
+---
+
+## PlacementNotFound
+
+The placement name in your code doesn't match any active Campaign in Superwall.
+
+### Solutions
+
+1. **Check Campaign Status**
+
+   Dashboard → Campaigns → Verify status is **Active** (not Draft)
+
+2. **Verify Placement Name**
+
+   The placement in your code must exactly match the Campaign:
+
+   ```typescript
+   // In your code
+   registerPlacement({ placement: "campaign_trigger" });
+
+   // Must match Campaign's placement in Superwall dashboard
+   ```
+
+3. **Restart App**
+
+   After making changes in the dashboard, fully restart the app (not just reload).
+
+---
+
+## Old Paywall Showing
+
+Superwall caches paywall assignments. To see a new paywall:
+
+<Steps>
+  <Step title="Archive Old Campaign">
+    Dashboard → Campaigns → Archive the old campaign
+  </Step>
+
+  <Step title="Create New Campaign">
+    Create a new Campaign with the new paywall
+  </Step>
+
+  <Step title="Restart App">Fully quit and restart the app</Step>
+</Steps>
+
+<Note>
+  Superwall uses "sticky" assignments - users see the same paywall variant
+  consistently. Creating a new Campaign resets this.
+</Note>
+
+---
+
+## Paywall Not Appearing
+
+### Check SuperwallProvider
+
+Ensure your component is wrapped with the provider:
+
+```typescript
+import { SuperwallProvider } from "expo-superwall";
+import { SUPERWALL_CONFIG } from "@/lib/payments/config";
+
+export default function Screen() {
+  return (
+    <SuperwallProvider
+      apiKeys={{
+        ios: SUPERWALL_CONFIG.iosApiKey,
+        android: SUPERWALL_CONFIG.androidApiKey,
+      }}
+    >
+      <Content />
+    </SuperwallProvider>
+  );
+}
+```
+
+### Check API Key
+
+Verify the API key is correct and starts with `pk_`.
+
+### Check Campaign Status
+
+Dashboard → Campaigns → Must be **Active**
+
+### Check Console Logs
+
+Look for errors in the console when triggering the placement.
+
+---
+
+## "Cannot connect to iTunes Store"
+
+This is an Apple/StoreKit error, not Superwall.
+
+1. Check internet connection
+2. Try a different sandbox account
+3. Wait a few minutes and retry
+4. Check [Apple System Status](https://www.apple.com/support/systemstatus/)
+
+---
+
+## Simulator Testing
+
+**Simulators cannot connect to App Store Connect.**
+
+Options:
+
+1. **Use Physical Device** (recommended)
+
+   - Sign into sandbox account in Settings → App Store
+
+2. **Use StoreKit Configuration File**
+   - Xcode → File → New → StoreKit Configuration File
+   - Add products with matching IDs
+   - Edit Scheme → Run → Options → StoreKit Configuration
+
+---
+
+## Multiple Navigations Back
+
+If closing the paywall navigates back multiple screens:
+
+This happens when multiple callbacks fire. The template includes a guard:
+
+```typescript
+const hasNavigatedBack = useRef(false);
+
+const goBack = useCallback(() => {
+  if (!hasNavigatedBack.current) {
+    hasNavigatedBack.current = true;
+    router.back();
+  }
+}, [router]);
+```
+
+Ensure your paywall screen uses this pattern.
+
+---
+
+## Superwall vs RevenueCat
+
+| Feature                 | Superwall             | RevenueCat         |
+| ----------------------- | --------------------- | ------------------ |
+| Paywall A/B Testing     | ✅ Built-in           | ❌ Manual          |
+| Remote Paywall Updates  | ✅ Yes                | ✅ Yes (Paywalls)  |
+| Subscription Management | ❌ No                 | ✅ Yes             |
+| Cross-Platform Sync     | ❌ No                 | ✅ Yes             |
+| Analytics               | ✅ Conversion focused | ✅ Revenue focused |
+
+**Use Superwall if**: You want to optimize paywall conversion with A/B testing
+
+**Use RevenueCat if**: You need cross-platform subscription management
+
+**Use Both**: Some apps use Superwall for paywalls and RevenueCat for subscription management
+
+---
+
+## Still Stuck?
+
+<CardGroup cols={2}>
+  <Card title="Superwall Docs" icon="book" href="https://docs.superwall.com">
+    Official documentation
+  </Card>
+  <Card
+    title="expo-superwall"
+    icon="cube"
+    href="https://www.npmjs.com/package/expo-superwall"
+  >
+    NPM package docs
+  </Card>
+</CardGroup>
+

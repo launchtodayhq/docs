@@ -1,29 +1,24 @@
 ---
-title: "RevenueCat"
+title: "RevenueCat Overview"
 description: "In-app subscriptions made easy with cross-platform support"
 ---
 
-# RevenueCat Integration
+RevenueCat is a subscription management platform that simplifies in-app purchases across iOS, Android, and web.
 
-<Info>
-  RevenueCat integration is coming soon. This page will be updated with setup
-  instructions and implementation details.
-</Info>
+## What's Included
 
-## What is RevenueCat?
+Launch includes a ready-to-use RevenueCat integration:
 
-RevenueCat is a subscription management platform that simplifies in-app purchases across iOS, Android, and web. It handles:
+- **RevenueCat Provider** - Context for subscription state
+- **Native Paywall** - Uses RevenueCat's visual paywall builder
+- **Entitlement Checking** - `useRevenueCat()` hook
+- **Restore Purchases** - Built-in restore functionality
 
-- **Receipt validation** - Verify purchases with Apple and Google
-- **Cross-platform sync** - Share subscription status across devices
-- **Analytics** - Track revenue, churn, and subscriber metrics
-- **Entitlements** - Manage feature access based on subscription status
-
-## Why Use RevenueCat?
+## Why RevenueCat?
 
 <CardGroup cols={2}>
-  <Card title="Simplified IAP" icon="mobile">
-    Abstract away the complexity of StoreKit and Google Play Billing.
+  <Card title="Native Paywalls" icon="mobile">
+    Design paywalls in RevenueCat's dashboard — no code changes needed.
   </Card>
   <Card title="Cross-Platform" icon="arrows-rotate">
     Sync subscriptions between iOS, Android, and web.
@@ -31,31 +26,85 @@ RevenueCat is a subscription management platform that simplifies in-app purchase
   <Card title="Analytics" icon="chart-line">
     Built-in dashboards for revenue and subscriber metrics.
   </Card>
-  <Card title="Webhooks" icon="webhook">
-    Real-time notifications for subscription events.
+  <Card title="A/B Testing" icon="flask">
+    Test different paywalls and pricing without app updates.
   </Card>
 </CardGroup>
 
-## When to Use
+## How It Works
 
-Consider RevenueCat if you:
+```
+App Store Connect          RevenueCat               Your App
+─────────────────         ──────────────           ─────────
+  Products &       ──▶    Syncs products    ──▶    Fetches offerings
+  Subscriptions           Manages entitlements     Shows paywall
+                          Validates receipts       Checks access
+```
 
-- Build for both iOS and Android
-- Want simplified subscription management
-- Need cross-device subscription sync
-- Want detailed revenue analytics
+1. **App Store Connect** - Create your subscription products
+2. **RevenueCat** - Import products, create offerings, design paywalls
+3. **Your App** - Display paywall, check subscription status
 
-## Coming Soon
+## Usage
 
-- Installation guide
-- SDK configuration
-- Entitlement setup
-- Webhook integration
-- Paywall implementation
+### Check Subscription Status
 
-<Note>
-  In the meantime, check out the [Stripe integration](/payments/stripe) for a
-  fully implemented payment solution.
-</Note>
+```tsx
+import { useRevenueCat } from "@/lib/payments/revenuecat";
+
+function MyComponent() {
+  const { isSubscribed, subscriptionStatus } = useRevenueCat();
+
+  if (isSubscribed) {
+    return <PremiumContent />;
+  }
+  return <UpgradePrompt />;
+}
+```
+
+### Navigate to Paywall
+
+```tsx
+import { useRouter } from "expo-router";
+
+function UpgradeButton() {
+  const router = useRouter();
+
+  return (
+    <Button onPress={() => router.push("/payments/revenuecat")}>
+      Upgrade to Pro
+    </Button>
+  );
+}
+```
+
+## File Structure
+
+```
+lib/payments/
+├── config.ts              # API keys, provider selection
+├── revenuecat/
+│   ├── provider.tsx       # RevenueCatProvider context
+│   └── index.ts           # Exports
+└── types.ts               # Shared types
+
+app/payments/
+└── revenuecat.tsx         # Paywall screen (uses RevenueCat UI)
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Setup Guide" icon="wrench" href="/payments/revenuecat-setup">
+    Configure App Store Connect and RevenueCat
+  </Card>
+  <Card
+    title="Troubleshooting"
+    icon="bug"
+    href="/payments/revenuecat-troubleshooting"
+  >
+    Common errors and solutions
+  </Card>
+</CardGroup>
 
 

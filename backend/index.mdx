@@ -1,0 +1,81 @@
+---
+title: "Backend Overview"
+description: "Server-side API and deployment options"
+---
+
+The Launch backend is built with modern, scalable technologies designed for rapid development and easy deployment.
+
+## Tech Stack
+
+<CardGroup cols={2}>
+  <Card title="Hono" icon="bolt">
+    Ultra-fast web framework for edge and serverless environments.
+  </Card>
+  <Card title="Drizzle ORM" icon="database">
+    Type-safe SQL toolkit with zero runtime overhead.
+  </Card>
+  <Card title="PostgreSQL" icon="elephant">
+    Reliable, production-ready relational database.
+  </Card>
+  <Card title="tRPC" icon="arrows-left-right">
+    End-to-end typesafe APIs without code generation.
+  </Card>
+</CardGroup>
+
+## What's Included
+
+- **Authentication API** - Session management with Better Auth
+- **User Management** - Profile storage and updates
+- **Payment Webhooks** - Stripe webhook handlers
+- **Database Migrations** - Drizzle migrations system
+- **Type Safety** - Shared types between mobile and backend
+
+## File Structure
+
+```
+apps/server/
+├── src/
+│   ├── db/
+│   │   ├── schema.ts      # Database schema
+│   │   └── index.ts       # Database connection
+│   ├── routes/
+│   │   ├── auth.ts        # Authentication routes
+│   │   ├── users.ts       # User routes
+│   │   └── webhooks.ts    # Payment webhooks
+│   ├── lib/
+│   │   └── auth.ts        # Better Auth config
+│   └── index.ts           # Server entry point
+├── drizzle/               # Migrations
+└── package.json
+```
+
+## Deployment Options
+
+The backend can be deployed to various platforms:
+
+| Platform | Type       | Best For                         |
+| -------- | ---------- | -------------------------------- |
+| Railway  | Container  | Simple deploys, auto-scaling     |
+| Vercel   | Serverless | Edge functions, fast cold starts |
+| Fly.io   | Container  | Global distribution              |
+| AWS      | Various    | Enterprise, custom infra         |
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card
+    title="Railway Deployment"
+    icon="train"
+    href="/backend/railway-deployment"
+  >
+    Deploy to Railway in minutes
+  </Card>
+  <Card
+    title="Environment Variables"
+    icon="key"
+    href="/backend/environment-variables"
+  >
+    Configure your backend
+  </Card>
+</CardGroup>
+

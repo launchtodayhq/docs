@@ -1,0 +1,51 @@
+---
+title: "Environment Variables"
+description: "Configure your backend environment"
+---
+
+<Info>
+  This guide is coming soon. It will cover all environment variables needed for
+  the backend.
+</Info>
+
+## Required Variables
+
+| Variable             | Description                   | Example                               |
+| -------------------- | ----------------------------- | ------------------------------------- |
+| `DATABASE_URL`       | PostgreSQL connection string  | `postgresql://user:pass@host:5432/db` |
+| `BETTER_AUTH_SECRET` | Secret for session encryption | Random 32+ character string           |
+| `BETTER_AUTH_URL`    | Your backend URL              | `https://api.yourapp.com`             |
+
+## Authentication
+
+### Apple Sign In
+
+| Variable              | Description          |
+| --------------------- | -------------------- |
+| `APPLE_CLIENT_ID`     | Apple Services ID    |
+| `APPLE_CLIENT_SECRET` | Generated JWT secret |
+| `APPLE_TEAM_ID`       | Your Apple Team ID   |
+| `APPLE_KEY_ID`        | Key ID from Apple    |
+
+### Google Sign In
+
+| Variable               | Description         |
+| ---------------------- | ------------------- |
+| `GOOGLE_CLIENT_ID`     | OAuth client ID     |
+| `GOOGLE_CLIENT_SECRET` | OAuth client secret |
+
+## Payments
+
+### Stripe
+
+| Variable                | Description            |
+| ----------------------- | ---------------------- |
+| `STRIPE_SECRET_KEY`     | Stripe API secret key  |
+| `STRIPE_WEBHOOK_SECRET` | Webhook signing secret |
+
+## Coming Soon
+
+- Detailed setup instructions for each provider
+- Local development configuration
+- Production security best practices
+

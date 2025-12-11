@@ -1,25 +1,20 @@
 ---
-title: "Superwall"
+title: "Superwall Overview"
 description: "Paywall A/B testing and optimization to maximize subscription revenue"
 ---
 
-# Superwall Integration
+Superwall is a paywall optimization platform that helps you maximize subscription revenue through A/B testing, remote configuration, and analytics.
 
-<Info>
-  Superwall integration is coming soon. This page will be updated with setup
-  instructions and implementation details.
-</Info>
+## What's Included
 
-## What is Superwall?
+Launch includes a ready-to-use Superwall integration:
 
-Superwall is a paywall optimization platform that helps you maximize subscription revenue through:
+- **Superwall Provider** - Context for paywall state
+- **Placement System** - Trigger paywalls at specific points
+- **Remote Paywalls** - Design in dashboard, no code changes
+- **A/B Testing** - Test different paywall variants
 
-- **A/B Testing** - Test different paywall designs and copy
-- **Remote Configuration** - Update paywalls without app updates
-- **Analytics** - Track conversion rates and revenue impact
-- **Targeting** - Show different paywalls to different user segments
-
-## Why Use Superwall?
+## Why Superwall?
 
 <CardGroup cols={2}>
   <Card title="A/B Testing" icon="flask">
@@ -31,31 +26,88 @@ Superwall is a paywall optimization platform that helps you maximize subscriptio
   <Card title="Conversion Analytics" icon="chart-pie">
     Deep insights into what drives subscriptions.
   </Card>
-  <Card title="User Targeting" icon="users">
-    Personalize paywalls based on user behavior.
+  <Card title="Placements" icon="map-pin">
+    Trigger paywalls at strategic moments in your app.
   </Card>
 </CardGroup>
 
-## When to Use
+## How It Works
 
-Consider Superwall if you:
+```
+Your App                  Superwall                 App Store
+─────────                ──────────                ─────────
+  Calls Placement  ──▶    Shows Paywall     ──▶    Handles Purchase
+                          (from dashboard)          via StoreKit
+```
 
-- Want to optimize paywall conversion rates
-- Need to A/B test pricing and messaging
-- Want to update paywalls without app releases
-- Have significant user volume to test with
+Unlike RevenueCat where you fetch products and build a paywall, Superwall handles everything:
 
-## Coming Soon
+1. **Your App** - Calls a placement (e.g., "upgrade_tapped")
+2. **Superwall** - Shows the paywall configured for that placement
+3. **App Store** - Handles the actual purchase via StoreKit
 
-- Installation guide
-- SDK configuration
-- Paywall creation
-- A/B test setup
-- Analytics integration
+## Usage
 
-<Note>
-  In the meantime, check out the [Stripe integration](/payments/stripe) which
-  includes a customizable paywall template.
-</Note>
+### Show Paywall
 
+The template includes a demo in the Payments screen. Tapping "Superwall" presents the paywall immediately.
 
+```tsx
+import { usePlacement } from "expo-superwall";
+
+function MyComponent() {
+  const { registerPlacement } = usePlacement({
+    onDismiss: () => console.log("Paywall dismissed"),
+  });
+
+  const showPaywall = () => {
+    registerPlacement({
+      placement: "campaign_trigger",
+      feature: () => {
+        // Called if user has access (already subscribed)
+      },
+    });
+  };
+
+  return <Button onPress={showPaywall} title="Upgrade" />;
+}
+```
+
+### Placements
+
+Placements are events in your app where you want to show a paywall:
+
+- `campaign_trigger` - Generic trigger for testing
+- `feature_locked` - When user tries to access a premium feature
+- `onboarding_complete` - After user finishes onboarding
+
+In the Superwall dashboard, you link Campaigns to Placements.
+
+## File Structure
+
+```
+lib/payments/
+├── config.ts              # API keys, provider selection
+├── superwall/
+│   ├── provider.tsx       # SuperwallPaymentProvider context
+│   └── index.ts           # Exports
+└── types.ts               # Shared types
+
+app/payments/
+└── superwall.tsx          # Paywall screen
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Setup Guide" icon="wrench" href="/payments/superwall-setup">
+    Configure App Store Connect and Superwall
+  </Card>
+  <Card
+    title="Troubleshooting"
+    icon="bug"
+    href="/payments/superwall-troubleshooting"
+  >
+    Common errors and solutions
+  </Card>
+</CardGroup>

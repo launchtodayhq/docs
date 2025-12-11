@@ -1,0 +1,182 @@
+---
+title: "Superwall Setup"
+description: "Configure Superwall for your app"
+---
+
+This guide walks through setting up Superwall from scratch.
+
+## Prerequisites
+
+- Apple Developer Account
+- App created in App Store Connect
+- Physical iOS device (simulator can't test purchases)
+
+---
+
+## 1. Create Superwall Account
+
+<Steps>
+  <Step title="Sign Up">
+    Go to [superwall.com](https://superwall.com) and create an account.
+  </Step>
+
+  <Step title="Create App">In the dashboard, create a new app for iOS.</Step>
+
+  <Step title="Copy API Key">
+    Go to Settings → API Keys and copy your **iOS API Key** (starts with `pk_`).
+  </Step>
+</Steps>
+
+---
+
+## 2. Configure API Keys
+
+Update `lib/payments/config.ts`:
+
+```typescript
+export const SUPERWALL_CONFIG = {
+  iosApiKey: "pk_your_ios_api_key",
+  androidApiKey: "pk_your_android_api_key", // optional
+};
+```
+
+---
+
+## 3. Create Products in App Store Connect
+
+Superwall uses StoreKit to fetch product prices. You need products in App Store Connect.
+
+<Steps>
+  <Step title="Create Subscription Group">
+    App Store Connect → Your App → Subscriptions → Create Group Example:
+    "Premium Subscriptions"
+  </Step>
+
+  <Step title="Add Subscription Products">
+    Add products to the group: - **Product ID**: `your_app_monthly_sub` -
+    **Price**: Set your price - **Duration**: 1 Month Repeat for yearly, etc.
+  </Step>
+
+  <Step title="Add Localizations">
+    Each product needs at least one localization: - Display Name: "Monthly
+    Premium" - Description: "Access all features"
+  </Step>
+
+  <Step title="Check Status">
+    Products should show "Ready to Submit" status.
+    <Warning>
+      Products won't work until they're at least "Ready to Submit". New products
+      can take 15-30 minutes to propagate.
+    </Warning>
+  </Step>
+</Steps>
+
+---
+
+## 4. Add Products to Superwall
+
+<Steps>
+  <Step title="Go to Products">
+    Superwall Dashboard → Products → Add Products
+  </Step>
+
+  <Step title="Enter Product IDs">
+    Add each product ID exactly as it appears in App Store Connect: -
+    `your_app_monthly_sub` - `your_app_yearly_sub`
+  </Step>
+</Steps>
+
+---
+
+## 5. Create a Paywall
+
+<Steps>
+  <Step title="Go to Paywalls">Dashboard → Paywalls → Create Paywall</Step>
+
+  <Step title="Choose Template">Pick a template or start from scratch.</Step>
+
+  <Step title="Add Products">
+    Drag your products onto the paywall. Configure: - Primary product (yearly
+    recommended) - Secondary product (monthly)
+  </Step>
+
+  <Step title="Design">Customize the design, copy, and images.</Step>
+
+  <Step title="Save">Save the paywall.</Step>
+</Steps>
+
+---
+
+## 6. Create a Campaign
+
+Campaigns link paywalls to placements.
+
+<Steps>
+  <Step title="Go to Campaigns">Dashboard → Campaigns → Create Campaign</Step>
+
+  <Step title="Set Placement">
+    Enter the placement name your app will call: - `campaign_trigger` (default
+    in template) - Or create your own: `upgrade_tapped`, `feature_locked`, etc.
+  </Step>
+
+  <Step title="Assign Paywall">Select the paywall you created.</Step>
+
+  <Step title="Activate">
+    Set the campaign to **Active** (not Draft).
+    <Warning>Campaigns in Draft status won't show paywalls!</Warning>
+  </Step>
+</Steps>
+
+---
+
+## 7. Test
+
+<Steps>
+  <Step title="Build on Device">
+    Run the app on a physical device (not simulator).
+  </Step>
+
+  <Step title="Sign into Sandbox">
+    On device: Settings → App Store → Sandbox Account → Sign in with test
+    account.
+  </Step>
+
+  <Step title="Trigger Paywall">Go to Payments → Superwall in the app.</Step>
+
+  <Step title="Verify">
+    - Paywall should appear with correct products - Prices should display (not
+    NaN) - Purchase flow should work
+  </Step>
+</Steps>
+
+---
+
+## Checklist
+
+Before going live, verify:
+
+- [ ] API key configured in `config.ts`
+- [ ] Products created in App Store Connect
+- [ ] Products added to Superwall dashboard
+- [ ] Paywall designed with products
+- [ ] Campaign created and **Active**
+- [ ] Placement name matches code (`campaign_trigger`)
+- [ ] Tested on physical device with sandbox account
+
+---
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Overview" icon="book" href="/payments/superwall">
+    Learn about Superwall features
+  </Card>
+  <Card
+    title="Troubleshooting"
+    icon="bug"
+    href="/payments/superwall-troubleshooting"
+  >
+    Common errors and solutions
+  </Card>
+</CardGroup>
+

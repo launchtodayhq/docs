@@ -1,0 +1,241 @@
+---
+title: "RevenueCat Troubleshooting"
+description: "Common errors and solutions for RevenueCat integration"
+---
+
+This page documents common RevenueCat issues and their solutions.
+
+---
+
+## Products Not Loading
+
+### "None of the products could be fetched from App Store Connect"
+
+This is the most common error. Check these in order:
+
+<Steps>
+  <Step title="Check if using Simulator">
+    **Simulator cannot fetch products from App Store Connect.**
+    
+    Solution: Test on a physical device, or create a StoreKit Configuration file in Xcode.
+  </Step>
+  
+  <Step title="Verify Paid Apps Agreement">
+    Go to App Store Connect → **Agreements, Tax, and Banking**
+    
+    - Status must be **Active** (not pending)
+    - Complete all tax and banking info
+  </Step>
+  
+  <Step title="Check Product Configuration">
+    Each product in App Store Connect needs:
+    
+    - ✅ Price set
+    - ✅ At least one localization (display name + description)
+    - ✅ Subscription group assigned
+  </Step>
+  
+  <Step title="Verify Bundle ID">
+    Your app's bundle ID must exactly match App Store Connect.
+    
+    Check `app.config.ts`:
+    ```typescript
+    ios: {
+      bundleIdentifier: "com.yourcompany.yourapp",
+    }
+    ```
+  </Step>
+  
+  <Step title="Sign In to Sandbox Account">
+    On your iPhone:
+    1. Settings → App Store → scroll to Sandbox Account
+    2. Sign in with a sandbox tester
+  </Step>
+  
+  <Step title="Wait for Apple StoreKit">
+    Sometimes this is an **Apple-side issue** with StoreKit. If all the above checks pass:
+    
+    - Wait 15-30 minutes and try again
+    - New products can take time to propagate through Apple's systems
+    - Check [Apple System Status](https://www.apple.com/support/systemstatus/) for outages
+    - If persistent, contact Apple Developer Support
+  </Step>
+</Steps>
+
+<Tip>
+  This error is often caused by Apple's StoreKit systems, not your
+  configuration. If you've verified all settings are correct, waiting is usually
+  the best solution.
+</Tip>
+
+---
+
+## Configuration Warnings
+
+### "RevenueCat already configured"
+
+```
+WARN  RevenueCat already configured, skipping...
+```
+
+**This is harmless.** It means `Purchases.configure()` was called more than once. Our provider handles this automatically.
+
+### "Products are configured but aren't approved in App Store Connect"
+
+```
+Products status (READY_TO_SUBMIT) requires action in App Store Connect
+```
+
+**This is expected for development.** Products in "Ready to Submit" status work for:
+
+- ✅ Sandbox testing (physical device)
+- ❌ Simulator testing
+- ❌ Production
+
+Products become fully "Approved" after your first app submission.
+
+---
+
+## Entitlement Issues
+
+### "User has no active entitlements" after purchase
+
+1. **Check product → entitlement mapping**
+
+   - RevenueCat → Product Catalog → Products
+   - Verify product is attached to an entitlement
+
+2. **Verify purchase completed**
+
+   - RevenueCat → Customers → search for user
+   - Check transaction history
+
+3. **Refresh subscription status**
+   ```typescript
+   const { refresh } = useRevenueCat();
+   await refresh();
+   ```
+
+### Subscription works in sandbox but not production
+
+1. App must be approved and live on App Store
+2. Products must be approved (not "Ready to Submit")
+3. Paid Apps Agreement must be active
+4. User must have a real (not sandbox) purchase
+
+---
+
+## Paywall Issues
+
+### Paywall shows but no products displayed
+
+1. **Check Offerings in RevenueCat**
+
+   - Product Catalog → Offerings
+   - Ensure packages are assigned
+   - Verify offering is set as "Current"
+
+2. **Check paywall assignment**
+   - Paywalls → your paywall
+   - Verify it's assigned to an offering
+
+### Paywall not showing at all
+
+1. **Check RevenueCat initialization**
+
+   - Look for `✅ RevenueCat initialization complete!` in logs
+   - Verify API key is correct
+
+2. **Check for errors in logs**
+   - Enable verbose logging in development
+   - Look for `❌ Failed to fetch offerings`
+
+---
+
+## Testing Issues
+
+### Can't test on Simulator
+
+The iOS Simulator cannot connect to App Store Connect. Options:
+
+1. **Use a physical device** (recommended)
+2. **Create a StoreKit Configuration file**:
+   - In Xcode: File → New → File → StoreKit Configuration File
+   - Add products with matching IDs
+   - Edit Scheme → Run → Options → StoreKit Configuration
+
+### Sandbox purchases not working
+
+1. **Sign out of production App Store**
+   - Settings → App Store → sign out of your real Apple ID
+2. **Sign into sandbox account**
+   - Settings → App Store → Sandbox Account
+3. **Use a fresh sandbox account**
+   - App Store Connect → Users & Access → Sandbox → create new
+
+### "Cannot connect to iTunes Store"
+
+- Check internet connection
+- Try a different sandbox account
+- Wait a few minutes and retry (App Store Connect can have delays)
+
+---
+
+## API & Network Issues
+
+### "Network request failed"
+
+1. Check internet connection
+2. Verify API key is correct
+3. Check RevenueCat status page: [status.revenuecat.com](https://status.revenuecat.com)
+
+### Customer info not updating
+
+```typescript
+// Force refresh from network
+const { refresh } = useRevenueCat();
+await refresh();
+```
+
+---
+
+## Debug Logging
+
+Enable verbose logging to see detailed RevenueCat activity:
+
+```typescript
+// In provider.tsx - already enabled in development
+if (__DEV__) {
+  Purchases.setLogLevel(LOG_LEVEL.VERBOSE);
+}
+```
+
+Look for these log patterns:
+
+| Log                                  | Meaning                      |
+| ------------------------------------ | ---------------------------- |
+| `✅ RevenueCat configured`           | SDK initialized successfully |
+| `✅ Loaded X products`               | Products fetched from store  |
+| `ℹ️ User has no active entitlements` | User hasn't purchased        |
+| `❌ Failed to fetch offerings`       | Products couldn't be loaded  |
+
+---
+
+## Still Stuck?
+
+1. **Check RevenueCat's official docs**: [docs.revenuecat.com](https://docs.revenuecat.com)
+2. **RevenueCat community**: [community.revenuecat.com](https://community.revenuecat.com)
+3. **Check error link**: Most errors include a URL with detailed info
+
+---
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Setup Guide" icon="wrench" href="/payments/revenuecat-setup">
+    Review the setup steps
+  </Card>
+  <Card title="RevenueCat Docs" icon="book" href="https://docs.revenuecat.com">
+    Official documentation
+  </Card>
+</CardGroup>

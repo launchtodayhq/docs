@@ -1,0 +1,88 @@
+---
+title: "Railway Deployment"
+description: "Deploy your backend to Railway"
+---
+
+<Info>
+  This guide is coming soon. It will cover deploying the Launch backend to
+  Railway with PostgreSQL.
+</Info>
+
+## What is Railway?
+
+Railway is a modern deployment platform that makes it easy to deploy applications with:
+
+- **One-click deploys** from GitHub
+- **Managed PostgreSQL** databases
+- **Automatic HTTPS** and custom domains
+- **Environment variables** management
+- **Auto-scaling** based on traffic
+
+## Coming Soon
+
+This guide will cover:
+
+<Steps>
+  <Step title="Create Railway Account">
+    Sign up at [railway.app](https://railway.app)
+  </Step>
+
+  <Step title="Connect GitHub Repository">
+    Link your Launch repository to Railway
+  </Step>
+
+  <Step title="Add PostgreSQL Database">
+    Provision a managed PostgreSQL instance
+  </Step>
+
+  <Step title="Configure Environment Variables">
+    Set up required environment variables: - `DATABASE_URL` -
+    `BETTER_AUTH_SECRET` - `STRIPE_SECRET_KEY` - etc.
+  </Step>
+
+  <Step title="Deploy">Push to main branch to trigger deployment</Step>
+
+  <Step title="Run Migrations">Apply database migrations</Step>
+</Steps>
+
+## Quick Reference
+
+```bash
+# Environment variables needed
+DATABASE_URL=postgresql://...
+BETTER_AUTH_SECRET=your-secret-key
+BETTER_AUTH_URL=https://your-app.railway.app
+
+# Stripe (if using)
+STRIPE_SECRET_KEY=sk_live_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+
+# OAuth (if using)
+GOOGLE_CLIENT_ID=...
+GOOGLE_CLIENT_SECRET=...
+APPLE_CLIENT_ID=...
+APPLE_CLIENT_SECRET=...
+```
+
+## Resources
+
+<CardGroup cols={2}>
+  <Card title="Railway Docs" icon="book" href="https://docs.railway.app">
+    Official Railway documentation
+  </Card>
+  <Card
+    title="Railway Templates"
+    icon="copy"
+    href="https://railway.app/templates"
+  >
+    Pre-configured templates
+  </Card>
+</CardGroup>
+
+---
+
+<Note>
+  Full deployment guide coming soon. In the meantime, Railway's documentation
+  provides excellent getting-started guides.
+</Note>
+

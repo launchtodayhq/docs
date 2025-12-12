@@ -1,0 +1,58 @@
+---
+title: "File Uploads"
+description: "Secure file uploads to AWS S3 with presigned URLs"
+---
+
+# File Uploads
+
+Launch includes a production-ready file upload system using AWS S3 with presigned URLs for secure, direct-to-cloud uploads.
+
+<CardGroup cols={2}>
+  <Card title="S3 Setup" icon="aws" href="/file-uploads/s3-setup">
+    Configure AWS S3 bucket and credentials for secure file storage.
+  </Card>
+  <Card title="API Reference" icon="code" href="/file-uploads/api-reference">
+    Backend endpoints for requesting upload URLs and managing files.
+  </Card>
+  <Card
+    title="Mobile Integration"
+    icon="mobile"
+    href="/file-uploads/mobile-integration"
+  >
+    React Native components for selecting and uploading files.
+  </Card>
+  <Card title="Security" icon="shield" href="/file-uploads/security">
+    Security best practices, quotas, and bucket hardening.
+  </Card>
+</CardGroup>
+
+## Features
+
+- **Presigned URLs** - Direct client-to-S3 uploads without exposing credentials
+- **Multi-file selection** - Select multiple photos with numbered indicators
+- **Progress tracking** - Real-time upload progress in the UI
+- **Storage quotas** - Per-user storage limits (configurable)
+- **File validation** - MIME type and size validation server-side
+- **Soft delete** - Maintain audit trail with soft deletes
+
+## Architecture Overview
+
+```
+┌─────────────┐     1. Request URL      ┌─────────────┐
+│   Mobile    │ ──────────────────────► │   Backend   │
+│    App      │                         │   (tRPC)    │
+└─────────────┘                         └─────────────┘
+       │                                       │
+       │ 2. Upload directly                    │ Creates DB record
+       ▼                                       ▼
+┌─────────────┐                         ┌─────────────┐
+│   AWS S3    │                         │  PostgreSQL │
+│   Bucket    │                         │  (Prisma)   │
+└─────────────┘                         └─────────────┘
+```
+
+## Quick Start
+
+1. **[S3 Setup](/file-uploads/s3-setup)** - Create and configure your S3 bucket
+2. **[API Reference](/file-uploads/api-reference)** - Understand the backend endpoints
+3. **[Mobile Integration](/file-uploads/mobile-integration)** - Add file uploads to your app

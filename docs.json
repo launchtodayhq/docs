@@ -15,7 +15,13 @@
         "groups": [
           {
             "group": "Getting started",
-            "pages": ["index", "project-structure", "tech-stack", "quickstart"]
+            "pages": [
+              "index",
+              "whats-included",
+              "project-structure",
+              "tech-stack",
+              "quickstart"
+            ]
           },
           {
             "group": "Mobile App",
@@ -77,6 +83,16 @@
               "backend/index",
               "backend/railway-deployment",
               "backend/environment-variables"
+            ]
+          },
+          {
+            "group": "File Uploads",
+            "pages": [
+              "file-uploads/index",
+              "file-uploads/s3-setup",
+              "file-uploads/api-reference",
+              "file-uploads/mobile-integration",
+              "file-uploads/security"
             ]
           },
           {

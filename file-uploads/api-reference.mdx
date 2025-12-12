@@ -1,0 +1,111 @@
+---
+title: "API Reference"
+description: "Backend endpoints for file upload management"
+---
+
+# Upload API Reference
+
+All endpoints require authentication via `protectedProcedure`.
+
+## Endpoints
+
+### `upload.requestUploadUrl`
+
+Request a presigned URL for uploading a file.
+
+**Input:**
+
+- `filename` (string) - Original filename
+- `mimeType` (string) - File MIME type
+- `size` (number) - File size in bytes
+
+**Returns:**
+
+- `fileId` - Database record ID
+- `uploadUrl` - Presigned S3 URL (valid for 15 minutes)
+- `key` - S3 object key
+- `expiresIn` - URL expiry in seconds
+
+**Validations:**
+
+- MIME type must be in allowed list
+- Size must be under 10MB
+- User must have storage quota available
+
+---
+
+### `upload.confirmUpload`
+
+Confirm that a file upload has completed.
+
+**Input:**
+
+- `fileId` (string) - File ID from requestUploadUrl
+
+**Returns:**
+
+- File metadata with `status: "uploaded"`
+
+---
+
+### `upload.list`
+
+Get all files for the current user.
+
+**Input (optional):**
+
+- `status` - Filter by status
+- `limit` - Max results (default: 50)
+- `cursor` - Pagination cursor
+
+**Returns:**
+
+- `files` - Array of file metadata
+- `nextCursor` - Pagination cursor
+
+---
+
+### `upload.getStorageUsage`
+
+Get storage usage for the current user.
+
+**Returns:**
+
+- `used` - Bytes used
+- `quota` - Total quota in bytes
+- `fileCount` - Number of uploaded files
+- `usedFormatted` - Human-readable usage (e.g., "123.5 MB")
+- `quotaFormatted` - Human-readable quota
+- `percentUsed` - Usage percentage
+
+---
+
+### `upload.delete`
+
+Soft delete a file.
+
+**Input:**
+
+- `fileId` (string) - File ID to delete
+
+**Returns:**
+
+- `success: true`
+
+## Allowed MIME Types
+
+- `image/jpeg`
+- `image/png`
+- `image/gif`
+- `image/webp`
+- `image/heic`
+- `image/heif`
+- `application/pdf`
+
+## Limits
+
+| Limit                | Value           |
+| -------------------- | --------------- |
+| Max file size        | 10 MB           |
+| Storage quota        | 500 MB per user |
+| Presigned URL expiry | 15 minutes      |

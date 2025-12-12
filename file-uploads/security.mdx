@@ -1,0 +1,86 @@
+---
+title: "Security"
+description: "Security best practices for file uploads"
+---
+
+# Security
+
+## Built-in Security
+
+| Feature                  | Implementation                                    |
+| ------------------------ | ------------------------------------------------- |
+| **Authentication**       | All endpoints use `protectedProcedure`            |
+| **Authorization**        | Ownership checks on all file operations           |
+| **Input validation**     | Zod schemas with max lengths                      |
+| **MIME type validation** | Server-side allowlist                             |
+| **File size limits**     | 10MB max enforced server-side                     |
+| **Storage quotas**       | 500MB per user (configurable)                     |
+| **Presigned URLs**       | Time-limited, scoped to specific key/content-type |
+| **User isolation**       | Files stored under `uploads/{userId}/`            |
+
+## Presigned URL Security
+
+Presigned URLs are:
+
+- Valid for 15 minutes only
+- Scoped to a specific S3 key
+- Restricted to declared content-type
+- Restricted to declared content-length
+
+## Storage Quotas
+
+Prevent abuse with per-user storage limits:
+
+```typescript
+// In upload.ts
+const STORAGE_QUOTA = 500 * 1024 * 1024; // 500MB
+```
+
+Adjust for pricing tiers:
+
+- Free: 500 MB
+- Pro: 5 GB
+- Enterprise: Unlimited
+
+## Bucket Hardening
+
+Configure in AWS Console:
+
+- **Block Public Access** - Enable all options
+- **Server-Side Encryption** - SSE-S3 or SSE-KMS
+- **Bucket Versioning** - Enable for recovery
+- **Access Logging** - Enable for audit trail
+- **Lifecycle Rules** - Auto-delete old files
+
+## Rate Limiting (Advanced)
+
+For high-traffic apps, add rate limiting with Redis:
+
+```typescript
+import { Ratelimit } from "@upstash/ratelimit";
+import { Redis } from "@upstash/redis";
+
+const ratelimit = new Ratelimit({
+  redis: Redis.fromEnv(),
+  limiter: Ratelimit.slidingWindow(50, "1 h"), // 50 uploads per hour
+});
+```
+
+## Cleanup Job
+
+Stale `pending` files (presigned URL expired but never uploaded) should be cleaned up:
+
+```typescript
+// Run daily via cron
+await prisma.file.updateMany({
+  where: {
+    status: "pending",
+    createdAt: { lt: new Date(Date.now() - 24 * 60 * 60 * 1000) },
+  },
+  data: { status: "failed" },
+});
+```
+
+## End-to-End Encryption
+
+For highly sensitive data (medical records, legal docs), consider client-side encryption before upload. This is not included by default as it adds complexity and prevents server-side processing.

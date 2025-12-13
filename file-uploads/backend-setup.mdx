@@ -1,0 +1,163 @@
+---
+title: "Backend Setup"
+description: "Configure S3, environment variables, and upload API"
+---
+
+## Prerequisites
+
+- AWS account with S3 access
+- IAM user with S3 permissions
+
+## 1. Create S3 Bucket
+
+1. Go to [AWS S3 Console](https://console.aws.amazon.com/s3)
+2. Click **Create bucket**
+3. Configure:
+   - **Bucket name**: `your-app-uploads` (must be globally unique)
+   - **Region**: Choose closest to your users
+   - **Block Public Access**: Keep enabled (we use presigned URLs)
+4. Click **Create bucket**
+
+### CORS Configuration
+
+Add this CORS policy to your bucket:
+
+```json
+[
+  {
+    "AllowedHeaders": ["*"],
+    "AllowedMethods": ["GET", "PUT", "POST", "DELETE", "HEAD"],
+    "AllowedOrigins": ["*"],
+    "ExposeHeaders": ["ETag"],
+    "MaxAgeSeconds": 3000
+  }
+]
+```
+
+<Note>
+  The `ExposeHeaders: ["ETag"]` is required for multipart uploads to work
+  correctly.
+</Note>
+
+## 2. Create IAM User
+
+1. Go to [IAM Console](https://console.aws.amazon.com/iam)
+2. Create a new user with **Programmatic access**
+3. Attach this policy:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:PutObject",
+        "s3:GetObject",
+        "s3:DeleteObject",
+        "s3:ListBucket",
+        "s3:AbortMultipartUpload",
+        "s3:ListMultipartUploadParts"
+      ],
+      "Resource": [
+        "arn:aws:s3:::your-app-uploads",
+        "arn:aws:s3:::your-app-uploads/*"
+      ]
+    }
+  ]
+}
+```
+
+4. Save the **Access Key ID** and **Secret Access Key**
+
+## 3. Environment Variables
+
+Add these to your backend `.env`:
+
+```bash
+# AWS S3 Configuration
+AWS_ACCESS_KEY_ID=your_access_key_id
+AWS_SECRET_ACCESS_KEY=your_secret_access_key
+AWS_REGION=us-east-1
+AWS_S3_BUCKET=your-app-uploads
+```
+
+## 4. API Endpoints
+
+The upload router (`apps/api/src/routers/upload.ts`) provides these endpoints:
+
+### Simple Upload
+
+| Endpoint           | Description                         |
+| ------------------ | ----------------------------------- |
+| `requestUploadUrl` | Get presigned URL for direct upload |
+| `confirmUpload`    | Mark upload as complete             |
+
+### Multipart Upload
+
+| Endpoint            | Description                           |
+| ------------------- | ------------------------------------- |
+| `initiateMultipart` | Start multipart upload, get upload ID |
+| `getPartUrl`        | Get presigned URL for a specific part |
+| `completePart`      | Record completed part with ETag       |
+| `completeMultipart` | Finalize multipart upload             |
+| `abortMultipart`    | Cancel and cleanup failed upload      |
+
+## 5. Database Schema
+
+The `File` model tracks uploads:
+
+```prisma
+model File {
+  id            String    @id @default(cuid())
+  userId        String
+  filename      String
+  mimeType      String
+  size          Int
+  key           String    @unique
+  url           String?
+  isUploaded    Boolean   @default(false)
+
+  // Multipart tracking
+  uploadId      String?
+  totalParts    Int?
+  uploadedParts Json?
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  user          User      @relation(fields: [userId], references: [id])
+}
+```
+
+## 6. Storage Quota
+
+Configure per-user storage limits in `upload.ts`:
+
+```typescript
+// Maximum storage per user (default: 500MB)
+const STORAGE_QUOTA = 500 * 1024 * 1024;
+
+// For testing, you can increase this
+const STORAGE_QUOTA = 5 * 1024 * 1024 * 1024; // 5GB
+```
+
+## Security Considerations
+
+<AccordionGroup>
+  <Accordion title="Presigned URLs">
+    URLs expire after 1 hour by default. Adjust `expiresIn` in `s3.ts` if
+    needed.
+  </Accordion>
+  <Accordion title="File Type Validation">
+    Allowed MIME types are configured in `ALLOWED_MIME_TYPES`. Add/remove as
+    needed.
+  </Accordion>
+  <Accordion title="Rate Limiting">
+    Consider adding rate limiting to upload endpoints in production.
+  </Accordion>
+  <Accordion title="Virus Scanning">
+    For user-generated content, consider AWS Lambda + ClamAV for scanning.
+  </Accordion>
+</AccordionGroup>
+

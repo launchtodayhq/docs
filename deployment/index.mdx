@@ -1,0 +1,85 @@
+---
+title: "Deployment"
+description: "Deploy your app to production - backend, mobile, and beyond"
+---
+
+{/* TODO: Add deployment overview video */}
+
+<Frame>
+  <div
+    style={{
+      background: "#1a1a2e",
+      padding: "60px",
+      textAlign: "center",
+      borderRadius: "8px",
+    }}
+  >
+    <p style={{ color: "#888", margin: 0 }}>
+      🎬 Video: Deployment Overview (Coming Soon)
+    </p>
+  </div>
+</Frame>
+
+## Overview
+
+Launch is designed for easy deployment to production. This section covers deploying both your backend API and mobile app.
+
+<CardGroup cols={2}>
+  <Card
+    title="Backend to Railway"
+    icon="train"
+    href="/deployment/backend-railway"
+  >
+    Deploy your API to Railway in minutes.
+  </Card>
+  <Card title="Mobile with EAS" icon="mobile" href="/deployment/mobile-eas">
+    Build and distribute with Expo Application Services.
+  </Card>
+  <Card
+    title="Environment Management"
+    icon="sliders"
+    href="/deployment/environments"
+  >
+    Managing dev, staging, and production environments.
+  </Card>
+  <Card
+    title="Docker Deployment"
+    icon="docker"
+    href="/deployment/backend-docker"
+  >
+    Self-host with Docker containers.
+  </Card>
+</CardGroup>
+
+## Deployment Checklist
+
+Before deploying to production, ensure you've completed:
+
+<Steps>
+  <Step title="Environment Variables">
+    All production environment variables configured
+  </Step>
+  <Step title="Database Migration">
+    Production database created and migrated
+  </Step>
+  <Step title="Security Review">
+    Completed [security checklist](/security/checklist)
+  </Step>
+  <Step title="Testing">All critical flows tested on staging</Step>
+</Steps>
+
+## Quick Links
+
+| Platform           | Time   | Difficulty |
+| ------------------ | ------ | ---------- |
+| Railway (Backend)  | 10 min | Easy       |
+| EAS Build (Mobile) | 15 min | Easy       |
+| EAS Submit         | 20 min | Medium     |
+| Docker Self-Host   | 30 min | Medium     |
+
+<Note>
+  **First time deploying?** Start with [Backend to
+  Railway](/deployment/backend-railway) - it's the fastest way to get your API
+  live.
+</Note>
+

@@ -1,0 +1,80 @@
+---
+title: "Security"
+description: "Security best practices for your production app"
+---
+
+## Overview
+
+Security is critical for any production app handling user data. This section covers essential security practices for Launch applications.
+
+<CardGroup cols={2}>
+  <Card title="API Security" icon="shield" href="/security/api-security">
+    Rate limiting, validation, and API protection
+  </Card>
+  <Card title="Mobile Security" icon="lock" href="/security/mobile-security">
+    Secure storage, SSL pinning, and device security
+  </Card>
+  <Card
+    title="Secrets Management"
+    icon="key"
+    href="/security/secrets-management"
+  >
+    Environment variables and secrets handling
+  </Card>
+  <Card title="Security Checklist" icon="check" href="/security/checklist">
+    Pre-launch security review checklist
+  </Card>
+</CardGroup>
+
+## Built-in Security Features
+
+Launch includes these security features out of the box:
+
+| Feature                  | Description                             |
+| ------------------------ | --------------------------------------- |
+| **Presigned URLs**       | S3 uploads without exposing credentials |
+| **Secure Token Storage** | Expo SecureStore for sensitive data     |
+| **HTTPS Only**           | All API communication over TLS          |
+| **Input Validation**     | Zod schemas for all API inputs          |
+| **CORS Configuration**   | Restricted origins for API access       |
+| **Session Management**   | Secure session tokens with Better Auth  |
+
+## Security Principles
+
+<AccordionGroup>
+  <Accordion title="Never trust client input">
+    Always validate and sanitize all data coming from the client, even if it
+    seems to come from your own app.
+  </Accordion>
+  <Accordion title="Principle of least privilege">
+    Only request permissions you need. Only expose data the user should access.
+  </Accordion>
+  <Accordion title="Defense in depth">
+    Multiple layers of security. If one fails, others still protect.
+  </Accordion>
+  <Accordion title="Keep secrets secret">
+    Never commit secrets to git. Use environment variables and secret managers.
+  </Accordion>
+</AccordionGroup>
+
+## Quick Security Wins
+
+<Steps>
+  <Step title="Enable HTTPS">Ensure your production API uses HTTPS only</Step>
+  <Step title="Set secure headers">
+    Add security headers to your API responses
+  </Step>
+  <Step title="Rate limit auth endpoints">
+    Prevent brute force attacks on login
+  </Step>
+  <Step title="Validate all inputs">
+    Use Zod schemas for every API endpoint
+  </Step>
+  <Step title="Audit dependencies">Run `pnpm audit` regularly</Step>
+</Steps>
+
+<Warning>
+  **Before launching**, complete the [Security Checklist](/security/checklist)
+  to ensure you haven't missed any critical security measures.
+</Warning>
+

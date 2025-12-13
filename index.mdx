@@ -1,140 +1,145 @@
 ---
 title: "Launch"
-description: "A comprehensive cross-platform development starter kit"
+description: "Ship production-ready mobile apps in days, not months"
 ---
 
-## Overview
+{/* TODO: Add hero video - 30 second overview of Launch */}
 
-Launch is a modern, production-ready starter kit that helps developers build cross-platform applications quickly and efficiently. The platform combines React Native mobile apps, Next.js web applications, and a robust tRPC API backend—all with seamless type safety and beautiful design systems.
+<Frame>
+  <div
+    style={{
+      background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)",
+      padding: "80px 40px",
+      textAlign: "center",
+      borderRadius: "12px",
+    }}
+  >
+    <p style={{ color: "#888", margin: 0, fontSize: "18px" }}>
+      🎬 Video: Launch in 60 Seconds (Coming Soon)
+    </p>
+  </div>
+</Frame>
 
-<Columns cols={3}>
-  <Card title="Project Structure" icon="folder-tree" href="/project-structure">
-    Understand how the monorepo is organized.
-  </Card>
-  <Card title="Tech Stack" icon="layer-group" href="/tech-stack">
-    Expo 54, React Native 0.81, Next.js 15, and more.
-  </Card>
-  <Card title="Quick Start" icon="rocket" href="/quickstart">
-    Get running in under 5 minutes.
-  </Card>
-</Columns>
+## Build Apps That People Love
 
-## Platform Architecture
+Launch is a production-ready starter kit for React Native and Expo. It's everything you need to build a real mobile app—not a tutorial project, but something you can actually ship to the App Store and Google Play.
 
-Launch uses a monorepo structure with three core applications that share type definitions and work together seamlessly.
+One codebase. **iPhone**, **Android**, **iPad**, and **Android tablets**—all from the same code. Whether you're building a **fitness app**, a **marketplace**, a **social platform**, or a **SaaS mobile companion**—Launch gives you the foundation so you can focus on what makes your app unique.
 
-<Columns cols={3}>
-  <Card title="Mobile App" icon="mobile" href="/mobile/overview">
-    React Native with Expo Router, HeroUI Native components, and Apple Sign-In
-    authentication.
-  </Card>
-  <Card title="Web App" icon="globe" href="/web/overview">
-    Next.js 15 with App Router, HeroUI React components, and modern Tailwind CSS
-    styling.
-  </Card>
-  <Card title="API Backend" icon="server" href="/api-reference/introduction">
-    tRPC server with Koa.js, Better Auth integration, and Docker
-    containerization.
-  </Card>
-</Columns>
+<Tip>
+  **Ready to dive in?** The [Quickstart](/quickstart) gets you from clone to
+  running app in under 10 minutes.
+</Tip>
 
-## Current Implementation Status
+---
 
-The platform includes several key features that are ready for development:
+## What You Can Build
 
-**Authentication System**
+Launch isn't opinionated about what you build—it just makes building faster. Here's what's ready out of the box:
 
-- Better Auth integration with Expo plugin for seamless mobile authentication
-- Apple Sign-In with social provider configuration and OAuth flow handling
-- Session persistence using Expo SecureStore for native security on device
-- Protected route guards with Expo Router Stack.Protected for declarative auth flows
-- Deep linking support with custom `launch://` scheme for OAuth callbacks
-- Instant authentication state transitions without navigation animations
-- Custom fetch implementation with device headers for API authentication
+### Authentication That Just Works
 
-**Type-Safe API Communication**
+No more wrestling with OAuth flows. **Better Auth** powers the backend with Apple Sign-In, Google Sign-In, and email authentication fully configured. Sessions persist securely using Expo SecureStore, protected routes guard your screens, and users stay logged in across app restarts.
 
-- tRPC server running on Koa.js with automatic type generation across platforms
-- Custom fetch middleware injecting device information headers (platform, version, model)
-- Comprehensive request/response logging with device metadata and performance tracking
-- Error handling with structured validation using Zod schemas
-- CORS configuration for secure cross-platform development environment
+→ [Set up authentication](/authentication/backend-setup)
 
-**Backend Architecture**
+### Payments & Subscriptions
 
-- Koa.js server framework with modular middleware architecture
-- Better Auth handler mounted at `/api/auth` with Expo integration plugin
-- tRPC router mounted at `/trpc` for type-safe API endpoint definitions
-- Prisma ORM with PostgreSQL database integration and migration management
-- Docker containerization with docker-compose for consistent development environment
-- Environment-based configuration supporting staging and production deployments
-- Structured logging with request tracing and device information capture
+Monetize from day one. Integrate **Stripe** for one-time payments, **RevenueCat** for cross-platform subscriptions, or **Superwall** for dynamic paywalls. The backend handles webhooks, receipt validation, and subscription status—you just build the UI.
 
-**UI Design System**
+→ [Explore payment options](/payments)
 
-- HeroUI Native components for mobile with custom theming and pastel color schemes
-- HeroUI React components for web applications with consistent design tokens
-- Custom pastel theme system with dark/light mode variants
-- Cross-platform styling with NativeWind for React Native and Tailwind CSS for web
-- Consistent spacing, typography, and color systems across all platforms
+### File Uploads That Scale
 
-**Development Infrastructure**
+Upload profile photos, documents, or 4K videos—all securely stored in **AWS S3** with presigned URLs. Small files upload directly. Large files use S3 multipart uploads with resume support. Really large files? Native background uploads using iOS URLSession and Android coroutines that continue even when the app is backgrounded.
 
-- Turborepo monorepo with workspace management and efficient build caching
-- Hot reload across all platforms during development with instant feedback
-- Comprehensive TypeScript configuration with strict mode and shared type definitions
-- Automated database migrations with Prisma CLI integration
-- Device information collection system for debugging and user analytics
-- Docker containerization for API deployment with multi-stage builds
+→ [Learn about file uploads](/file-uploads)
 
-## Key Features
+### AI-Powered Features
 
-<Columns cols={2}>
-  <Card title="AI Chat" icon="brain" href="/ai-features/overview">
-    Multi-provider AI chat with streaming, system prompts, and conversation
-    persistence.
-  </Card>
-  <Card title="Type Safety" icon="shield-check" href="/essentials/typescript">
-    End-to-end type safety from database to UI with tRPC and TypeScript.
+Add AI chat to your app with streaming responses. Connect to OpenAI, Anthropic, or other providers. Conversations persist, system prompts customize behavior, and the UI handles streaming gracefully.
+
+→ [Add AI features](/ai-features/overview)
+
+---
+
+## The Stack
+
+Launch uses modern, battle-tested technologies that scale:
+
+| Layer          | Technology          | Why                                          |
+| -------------- | ------------------- | -------------------------------------------- |
+| **Mobile**     | React Native + Expo | iOS, Android, iPad, and Android tablets      |
+| **Navigation** | Expo Router         | File-based routing, deep linking built-in    |
+| **UI**         | HeroUI + NativeWind | Beautiful components, Tailwind-style styling |
+| **API**        | tRPC                | End-to-end type safety, no code generation   |
+| **Database**   | Prisma + PostgreSQL | Type-safe queries, easy migrations           |
+| **Auth**       | Better Auth         | Modern auth with social providers            |
+| **Monorepo**   | Turborepo           | Fast builds, shared code                     |
+
+Everything is TypeScript. Types flow from your database schema to your mobile UI. Change a field in Prisma, and TypeScript catches everywhere that needs updating.
+
+### Integrations
+
+Launch comes pre-configured with production-ready integrations:
+
+- **AWS S3** — Secure file storage with presigned URLs
+- **Better Auth** — Modern authentication with social providers
+- **Stripe** — Payments and subscriptions
+- **RevenueCat** — Cross-platform in-app purchases
+- **Superwall** — Dynamic paywalls and A/B testing
+- **OpenAI / Anthropic** — AI chat with streaming
+- **Expo EAS** — Cloud builds and OTA updates
+
+---
+
+## From Zero to App Store
+
+<Steps>
+  <Step title="Clone & Install">
+    Get the monorepo, install dependencies, and start the dev servers. Takes
+    about 5 minutes.
+  </Step>
+  <Step title="Configure Your Backend">
+    Set up PostgreSQL, add your API keys, and run migrations. Your backend is
+    ready.
+  </Step>
+  <Step title="Build Your Features">
+    Authentication, payments, and uploads are ready. Focus on what makes your
+    app special.
+  </Step>
+  <Step title="Deploy & Ship">
+    Push your backend to Railway, build with EAS, and submit to the stores. Real
+    apps, real users.
+  </Step>
+</Steps>
+
+<CardGroup cols={2}>
+  <Card title="Start Building" icon="rocket" href="/quickstart">
+    Get your development environment running
   </Card>
   <Card
-    title="Modern Authentication"
-    icon="lock"
-    href="/authentication/overview"
+    title="Explore the Codebase"
+    icon="folder-tree"
+    href="/project-structure"
   >
-    Secure authentication flows with session persistence and social login.
+    Understand how everything fits together
   </Card>
-  <Card title="Developer Experience" icon="code" href="/development">
-    Fast development cycles with hot reload, TypeScript, and comprehensive
-    tooling.
-  </Card>
-</Columns>
+</CardGroup>
 
-## Technology Stack
+---
 
-**Frontend Frameworks**
+## Why Launch?
 
-- React Native with Expo SDK 53
-- Next.js 15 with App Router
-- Expo Router 5 for mobile navigation
+**Skip the boilerplate.** Authentication, payments, file uploads, API setup—these take weeks to build properly. Launch has them done.
 
-**Backend & API**
+**Production patterns.** This isn't demo code. It's the same architecture used in apps with real users. Security, error handling, and edge cases are handled.
 
-- tRPC 11 for type-safe APIs
-- Koa.js server framework
-- Better Auth for authentication
-- Prisma for database management
+**Stay in control.** No vendor lock-in, no magic. You own the code. Eject, modify, or extend anything.
 
-**Design & Styling**
+---
 
-- HeroUI component libraries
-- NativeWind for React Native
-- Tailwind CSS 4 for web
-- Custom theme system
-
-**Development Tools**
-
-- Turborepo for monorepo management
-- TypeScript for type safety
-- Docker for containerization
-- pnpm for package management
+<Note>
+  **Questions?** Check [Troubleshooting](/troubleshooting) for common issues, or
+  explore the docs to learn how each feature works.
+</Note>

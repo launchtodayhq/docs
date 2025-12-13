@@ -1,0 +1,167 @@
+---
+title: "Mobile Setup"
+description: "Integrate file uploads in your React Native app"
+---
+
+## Overview
+
+The upload screen is located at `apps/mobile/app/file-uploads/s3.tsx` and provides:
+
+- Photo picker with recent photos
+- Document picker for PDFs/videos
+- Multi-file selection
+- Progress tracking
+- Automatic upload strategy selection
+
+## File Pickers
+
+### Photos
+
+Uses `expo-image-picker` and `expo-media-library`:
+
+```typescript
+import * as ImagePicker from "expo-image-picker";
+import * as MediaLibrary from "expo-media-library";
+
+// Get recent photos
+const { assets } = await MediaLibrary.getAssetsAsync({
+  first: 20,
+  mediaType: "photo",
+  sortBy: [MediaLibrary.SortBy.creationTime],
+});
+
+// Open full picker
+const result = await ImagePicker.launchImageLibraryAsync({
+  mediaTypes: ["images", "videos"],
+  allowsMultipleSelection: true,
+  quality: 0.8,
+  videoExportPreset: ImagePicker.VideoExportPreset.HighestQuality,
+});
+```
+
+### Documents
+
+Uses `expo-document-picker`:
+
+```typescript
+import * as DocumentPicker from "expo-document-picker";
+
+const result = await DocumentPicker.getDocumentAsync({
+  type: ["application/pdf", "image/*", "video/mp4", "video/quicktime"],
+  copyToCacheDirectory: true,
+  multiple: true,
+});
+```
+
+## Upload Strategies
+
+The app automatically selects the best strategy:
+
+```typescript
+// Thresholds
+const MAX_SIMPLE_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+const NATIVE_UPLOAD_THRESHOLD = 40 * 1024 * 1024; // 40MB
+const MAX_MULTIPART_FILE_SIZE = 5 * 1024 * 1024 * 1024; // 5GB
+
+// Selection logic
+if (fileSize > NATIVE_UPLOAD_THRESHOLD) {
+  // Use native background upload (iOS/Android)
+  await startNativeUpload(file);
+} else if (fileSize > MAX_SIMPLE_FILE_SIZE) {
+  // Use multipart upload (chunked, resumable)
+  await uploadMultipart(file);
+} else {
+  // Use simple presigned URL upload
+  await uploadSimple(file);
+}
+```
+
+## Upload Queue
+
+Files are tracked in an upload queue with individual status:
+
+```typescript
+interface QueuedUpload {
+  id: string;
+  file: SelectedFile;
+  status: "pending" | "uploading" | "completed" | "error";
+  progress: number;
+  error?: string;
+}
+```
+
+The queue:
+
+- Persists to AsyncStorage for navigation resilience
+- Shows per-file progress
+- Supports parallel uploads (for native uploads)
+- Shows summary alert when all complete
+
+## Progress UI
+
+The upload button dynamically shows status:
+
+```typescript
+const getUploadButtonText = () => {
+  if (hasActiveUploads) {
+    return `Uploading ${completedCount + 1}/${totalFiles} (${avgProgress}%)`;
+  }
+  if (selectedFiles.length === 0) {
+    return "Select files to upload";
+  }
+  return `Upload ${count} files (${formatFileSize(totalSize)})`;
+};
+```
+
+## Permissions
+
+Required permissions for iOS (`Info.plist`):
+
+```xml
+<key>NSPhotoLibraryUsageDescription</key>
+<string>We need access to your photos to upload them.</string>
+<key>NSCameraUsageDescription</key>
+<string>We need access to your camera to take photos.</string>
+```
+
+For Android (`AndroidManifest.xml`):
+
+```xml
+<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+<uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+<uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+```
+
+## Customization
+
+### Change Upload Thresholds
+
+Adjust the constants at the top of `s3.tsx`:
+
+```typescript
+const MAX_SIMPLE_FILE_SIZE = 10 * 1024 * 1024; // When to use multipart
+const NATIVE_UPLOAD_THRESHOLD = 40 * 1024 * 1024; // When to use native
+```
+
+### Allowed File Types
+
+Modify the document picker types:
+
+```typescript
+const result = await DocumentPicker.getDocumentAsync({
+  type: [
+    "application/pdf",
+    "image/*",
+    "video/mp4",
+    "video/quicktime",
+    // Add more types here
+  ],
+});
+```
+
+### Photo Grid Size
+
+```typescript
+const PHOTO_SIZE = 84; // Thumbnail size in pixels
+```
+

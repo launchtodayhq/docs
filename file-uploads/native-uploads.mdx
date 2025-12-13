@@ -1,0 +1,195 @@
+---
+title: "Native Background Uploads"
+description: "iOS URLSession and Android coroutines for reliable large file uploads"
+---
+
+## Overview
+
+For files larger than 40MB, Launch uses native background upload modules that:
+
+- Continue uploading when the app is backgrounded
+- Handle network interruptions gracefully
+- Provide system-level progress tracking
+- Work reliably for very large files (up to 5GB)
+
+## Module Location
+
+```
+apps/mobile/modules/@launch/react-native-file-uploader/
+├── ios/
+│   └── LaunchReactNativeFileUploaderModule.swift
+├── android/
+│   └── src/main/java/.../LaunchReactNativeFileUploaderModule.kt
+├── src/
+│   ├── LaunchReactNativeFileUploaderModule.ts
+│   └── LaunchReactNativeFileUploader.types.ts
+└── index.ts
+```
+
+## iOS Implementation
+
+Uses `URLSession` with background configuration:
+
+```swift
+private func setupBackgroundSession() {
+  let config = URLSessionConfiguration.background(
+    withIdentifier: "com.launch.fileuploader.background"
+  )
+
+  config.isDiscretionary = false
+  config.sessionSendsLaunchEvents = true
+  config.shouldUseExtendedBackgroundIdleMode = true
+  config.timeoutIntervalForResource = 60 * 60 * 24 // 24 hours
+
+  backgroundSession = URLSession(
+    configuration: config,
+    delegate: self,
+    delegateQueue: OperationQueue.main
+  )
+}
+```
+
+### Key Features
+
+- **Background transfers**: iOS manages uploads even when app is suspended
+- **Automatic retries**: System retries on network failure
+- **Progress callbacks**: Real-time progress via delegate methods
+
+## Android Implementation
+
+Uses Kotlin Coroutines for async uploads:
+
+```kotlin
+private fun performUpload(
+  uploadId: String,
+  fileUri: Uri,
+  uploadUrl: String,
+  contentType: String
+) {
+  uploadScope.launch {
+    // Stream file with progress tracking
+    val connection = URL(uploadUrl).openConnection() as HttpURLConnection
+    connection.requestMethod = "PUT"
+    connection.setRequestProperty("Content-Type", contentType)
+
+    // Upload with progress updates
+    inputStream.copyTo(outputStream) { bytesCopied ->
+      val percentage = (bytesCopied * 100.0 / totalBytes)
+      emitProgress(uploadId, bytesCopied, totalBytes, percentage)
+    }
+  }
+}
+```
+
+<Note>
+  For true background persistence on Android, consider migrating to WorkManager.
+  The current coroutine implementation works well but may be interrupted on app
+  kill.
+</Note>
+
+## JavaScript API
+
+### Starting an Upload
+
+```typescript
+import {
+  startUpload,
+  addUploadListener,
+  cancelUpload,
+} from "@/modules/@launch/react-native-file-uploader";
+
+// Start upload
+const result = await startUpload({
+  uploadId: "unique-id",
+  fileUri: "file:///path/to/file",
+  uploadUrl: presignedUrl,
+  contentType: "video/mp4",
+});
+
+// Listen for progress
+const subscription = addUploadListener("onUploadProgress", (event) => {
+  console.log(`${event.percentage}% uploaded`);
+});
+
+// Listen for completion
+addUploadListener("onUploadComplete", (event) => {
+  console.log("Upload complete!");
+});
+
+// Listen for errors
+addUploadListener("onUploadError", (event) => {
+  console.error("Upload failed:", event.error);
+});
+```
+
+### Available Events
+
+| Event               | Payload                                           |
+| ------------------- | ------------------------------------------------- |
+| `onUploadProgress`  | `{ uploadId, bytesSent, totalBytes, percentage }` |
+| `onUploadComplete`  | `{ uploadId, statusCode, etag }`                  |
+| `onUploadError`     | `{ uploadId, error, code?, statusCode? }`         |
+| `onUploadCancelled` | `{ uploadId }`                                    |
+
+### Utility Functions
+
+```typescript
+// Get status of specific upload
+const status = getUploadStatus(uploadId);
+// Returns: { uploadId, totalBytes, uploadedBytes, status, percentage }
+
+// Get all active uploads
+const active = getActiveUploads();
+// Returns: Array of upload status objects
+
+// Cancel specific upload
+await cancelUpload(uploadId);
+
+// Cancel all uploads
+await cancelAllUploads();
+```
+
+## Persistence
+
+Upload state is persisted to AsyncStorage for resilience:
+
+```typescript
+interface PersistedUpload {
+  uploadId: string;
+  fileId: string;
+  filename: string;
+  totalBytes: number;
+  startedAt: number;
+  queueId: string;
+}
+```
+
+When the user navigates away and returns:
+
+1. Saved queue is loaded from AsyncStorage
+2. Native module is queried for active uploads
+3. Listeners are re-attached for ongoing uploads
+4. Progress UI is restored
+
+## Limitations
+
+<Warning>
+  **App Force-Kill**: If the user force-kills the app, uploads may be lost. iOS
+  background URLSession tasks may complete, but the app won't receive the
+  completion callback until next launch. Server-side tracking would be needed
+  for full resume-after-kill support.
+</Warning>
+
+## Debugging
+
+Enable console logs to trace upload flow:
+
+```typescript
+console.log(`Native background upload started for ${file.name}`);
+```
+
+Check native logs:
+
+- **iOS**: Xcode Console
+- **Android**: `adb logcat | grep LaunchReactNativeFileUploader`
+

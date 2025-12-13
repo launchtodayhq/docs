@@ -1,0 +1,127 @@
+---
+title: "Troubleshooting"
+description: "Common issues and how to fix them"
+---
+
+## Common Issues
+
+Quick fixes for the most common problems you'll encounter.
+
+<CardGroup cols={2}>
+  <Card title="Build Errors" icon="hammer" href="/troubleshooting/build-errors">
+    Metro bundler, native build failures
+  </Card>
+  <Card
+    title="Runtime Errors"
+    icon="bug"
+    href="/troubleshooting/runtime-errors"
+  >
+    Crashes, exceptions, and errors
+  </Card>
+  <Card
+    title="Authentication"
+    icon="lock"
+    href="/troubleshooting/authentication"
+  >
+    Sign-in failures, token issues
+  </Card>
+  <Card title="Networking" icon="wifi" href="/troubleshooting/networking">
+    API connection, CORS, SSL issues
+  </Card>
+</CardGroup>
+
+## Quick Fixes
+
+### Metro Bundler Issues
+
+```bash
+# Clear cache and restart
+cd apps/mobile
+pnpm start --clear
+
+# Or nuclear option
+rm -rf node_modules/.cache
+watchman watch-del-all
+pnpm start --clear
+```
+
+### iOS Build Failures
+
+```bash
+cd apps/mobile/ios
+rm -rf Pods Podfile.lock
+pod install --repo-update
+cd ..
+pnpm ios
+```
+
+### Android Build Failures
+
+```bash
+cd apps/mobile/android
+./gradlew clean
+cd ..
+pnpm android
+```
+
+### Prisma Issues
+
+```bash
+cd apps/api
+pnpm prisma generate
+pnpm prisma migrate dev
+```
+
+## Error Reference
+
+<AccordionGroup>
+  <Accordion title="'Unable to resolve module'">
+    **Cause**: Missing dependency or incorrect import **Fix**: ```bash pnpm
+    install pnpm start --clear ```
+  </Accordion>
+
+  <Accordion title="'Network request failed'">
+    **Cause**: API not reachable from device **Fix**: 1. Check API is running
+    (`pnpm dev` in apps/api) 2. Update API URL to your local IP (not localhost)
+    3. Check CORS settings include your device's origin
+  </Accordion>
+
+  <Accordion title="'Apple Sign-In failed'">
+    **Cause**: Misconfigured Apple credentials **Fix**: 1. Verify bundle ID
+    matches APPLE_CLIENT_ID 2. Check APPLE_PRIVATE_KEY is correctly formatted 3.
+    Ensure Sign In with Apple is enabled in Apple Developer Console
+  </Accordion>
+
+  <Accordion title="'CORS error'">
+    **Cause**: Origin not allowed by API **Fix**: Add your origin to
+    TRUSTED_ORIGINS in .env: ```bash
+    TRUSTED_ORIGINS="http://localhost:3000,exp://192.168.1.100:8081" ```
+  </Accordion>
+
+  <Accordion title="'Database connection failed'">
+    **Cause**: PostgreSQL not running or wrong credentials **Fix**: 1. Start
+    PostgreSQL: `docker-compose up -d` or `brew services start postgresql` 2.
+    Verify DATABASE_URL in .env 3. Run migrations: `pnpm prisma migrate dev`
+  </Accordion>
+
+  <Accordion title="'Invalid hook call'">
+    **Cause**: React version mismatch or incorrect hook usage **Fix**: 1. Ensure
+    only one React version: `pnpm why react` 2. Check hooks are only called at
+    top level of components
+  </Accordion>
+</AccordionGroup>
+
+## Getting Help
+
+If you're still stuck:
+
+1. **Search existing issues** on GitHub
+2. **Check Expo documentation** at [docs.expo.dev](https://docs.expo.dev)
+3. **Ask in the community** - Discord, GitHub Discussions
+4. **Open an issue** with reproduction steps
+
+<Tip>
+  When reporting issues, include: - Error message (full stack trace) - Steps to
+  reproduce - Platform (iOS/Android) and version - Expo SDK version
+</Tip>
+

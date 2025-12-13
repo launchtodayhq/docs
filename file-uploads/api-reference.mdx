@@ -1,111 +1,240 @@
 ---
 title: "API Reference"
-description: "Backend endpoints for file upload management"
+description: "Complete API documentation for file upload endpoints"
 ---
 
-# Upload API Reference
+## Authentication
 
-All endpoints require authentication via `protectedProcedure`.
+All upload endpoints require authentication via tRPC context. The user must be logged in.
 
-## Endpoints
+## Simple Upload
 
-### `upload.requestUploadUrl`
+### requestUploadUrl
 
-Request a presigned URL for uploading a file.
+Request a presigned URL for direct file upload.
 
-**Input:**
+<ParamField body="filename" type="string" required>
+  Name of the file being uploaded
+</ParamField>
 
-- `filename` (string) - Original filename
-- `mimeType` (string) - File MIME type
-- `size` (number) - File size in bytes
+<ParamField body="mimeType" type="string" required>
+  MIME type of the file (e.g., `image/jpeg`, `video/mp4`)
+</ParamField>
 
-**Returns:**
+<ParamField body="size" type="number" required>
+  File size in bytes
+</ParamField>
 
-- `fileId` - Database record ID
-- `uploadUrl` - Presigned S3 URL (valid for 15 minutes)
-- `key` - S3 object key
-- `expiresIn` - URL expiry in seconds
+**Response:**
 
-**Validations:**
+```typescript
+{
+  uploadUrl: string; // Presigned S3 URL for PUT request
+  fileId: string; // Database file record ID
+  key: string; // S3 object key
+}
+```
 
-- MIME type must be in allowed list
-- Size must be under 10MB
-- User must have storage quota available
+**Example:**
 
----
+```typescript
+const { uploadUrl, fileId } = await trpc.upload.requestUploadUrl.mutate({
+  filename: "photo.jpg",
+  mimeType: "image/jpeg",
+  size: 1024000,
+});
 
-### `upload.confirmUpload`
-
-Confirm that a file upload has completed.
-
-**Input:**
-
-- `fileId` (string) - File ID from requestUploadUrl
-
-**Returns:**
-
-- File metadata with `status: "uploaded"`
-
----
-
-### `upload.list`
-
-Get all files for the current user.
-
-**Input (optional):**
-
-- `status` - Filter by status
-- `limit` - Max results (default: 50)
-- `cursor` - Pagination cursor
-
-**Returns:**
-
-- `files` - Array of file metadata
-- `nextCursor` - Pagination cursor
+// Upload directly to S3
+await fetch(uploadUrl, {
+  method: "PUT",
+  headers: { "Content-Type": "image/jpeg" },
+  body: fileBlob,
+});
+```
 
 ---
 
-### `upload.getStorageUsage`
+### confirmUpload
 
-Get storage usage for the current user.
+Mark a file as successfully uploaded.
 
-**Returns:**
+<ParamField body="fileId" type="string" required>
+  File record ID from `requestUploadUrl`
+</ParamField>
 
-- `used` - Bytes used
-- `quota` - Total quota in bytes
-- `fileCount` - Number of uploaded files
-- `usedFormatted` - Human-readable usage (e.g., "123.5 MB")
-- `quotaFormatted` - Human-readable quota
-- `percentUsed` - Usage percentage
+**Response:**
+
+```typescript
+{
+  success: boolean;
+  file: {
+    id: string;
+    filename: string;
+    url: string;
+  }
+}
+```
 
 ---
 
-### `upload.delete`
+## Multipart Upload
 
-Soft delete a file.
+For files larger than 10MB, use multipart upload for resumability.
 
-**Input:**
+### initiateMultipart
 
-- `fileId` (string) - File ID to delete
+Start a new multipart upload.
 
-**Returns:**
+<ParamField body="filename" type="string" required>
+  Name of the file
+</ParamField>
 
-- `success: true`
+<ParamField body="mimeType" type="string" required>
+  MIME type of the file
+</ParamField>
+
+<ParamField body="size" type="number" required>
+  Total file size in bytes
+</ParamField>
+
+<ParamField body="totalParts" type="number" required>
+  Number of parts the file will be split into
+</ParamField>
+
+**Response:**
+
+```typescript
+{
+  fileId: string; // Database file record ID
+  uploadId: string; // S3 multipart upload ID
+  key: string; // S3 object key
+}
+```
+
+---
+
+### getPartUrl
+
+Get presigned URL for uploading a specific part.
+
+<ParamField body="fileId" type="string" required>
+  File record ID
+</ParamField>
+
+<ParamField body="partNumber" type="number" required>
+  Part number (1-indexed)
+</ParamField>
+
+**Response:**
+
+```typescript
+{
+  uploadUrl: string; // Presigned URL for this part
+}
+```
+
+---
+
+### completePart
+
+Record that a part has been uploaded successfully.
+
+<ParamField body="fileId" type="string" required>
+  File record ID
+</ParamField>
+
+<ParamField body="partNumber" type="number" required>
+  Part number that was uploaded
+</ParamField>
+
+<ParamField body="etag" type="string" required>
+  ETag returned from S3 after uploading the part
+</ParamField>
+
+**Response:**
+
+```typescript
+{
+  success: boolean;
+  uploadedParts: number[];  // Array of completed part numbers
+}
+```
+
+---
+
+### completeMultipart
+
+Finalize the multipart upload after all parts are uploaded.
+
+<ParamField body="fileId" type="string" required>
+  File record ID
+</ParamField>
+
+**Response:**
+
+```typescript
+{
+  success: boolean;
+  file: {
+    id: string;
+    filename: string;
+    url: string;
+  }
+}
+```
+
+---
+
+### abortMultipart
+
+Cancel a multipart upload and clean up parts.
+
+<ParamField body="fileId" type="string" required>
+  File record ID
+</ParamField>
+
+**Response:**
+
+```typescript
+{
+  success: boolean;
+}
+```
+
+---
+
+## Error Codes
+
+| Code                    | Description                 |
+| ----------------------- | --------------------------- |
+| `UNAUTHORIZED`          | User not authenticated      |
+| `BAD_REQUEST`           | Invalid file type or size   |
+| `QUOTA_EXCEEDED`        | User storage quota exceeded |
+| `NOT_FOUND`             | File record not found       |
+| `INTERNAL_SERVER_ERROR` | S3 or database error        |
 
 ## Allowed MIME Types
 
-- `image/jpeg`
-- `image/png`
-- `image/gif`
-- `image/webp`
-- `image/heic`
-- `image/heif`
-- `application/pdf`
+```typescript
+const ALLOWED_MIME_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/gif",
+  "image/webp",
+  "application/pdf",
+  "video/mp4",
+  "video/quicktime",
+];
+```
 
-## Limits
+To add more types, modify `ALLOWED_MIME_TYPES` in `apps/api/src/routers/upload.ts`.
 
-| Limit                | Value           |
-| -------------------- | --------------- |
-| Max file size        | 10 MB           |
-| Storage quota        | 500 MB per user |
-| Presigned URL expiry | 15 minutes      |
+## Size Limits
+
+| Limit               | Value  |
+| ------------------- | ------ |
+| Simple upload max   | 10 MB  |
+| Multipart part size | 5 MB   |
+| Maximum file size   | 5 GB   |
+| Default user quota  | 500 MB |
+

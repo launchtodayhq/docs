@@ -1,58 +1,85 @@
 ---
 title: "File Uploads"
-description: "Secure file uploads to AWS S3 with presigned URLs"
+description: "Secure, resumable file uploads with S3 presigned URLs"
 ---
 
-# File Uploads
+## Overview
 
-Launch includes a production-ready file upload system using AWS S3 with presigned URLs for secure, direct-to-cloud uploads.
+Launch includes a production-ready file upload system that supports:
 
-<CardGroup cols={2}>
-  <Card title="S3 Setup" icon="aws" href="/file-uploads/s3-setup">
-    Configure AWS S3 bucket and credentials for secure file storage.
-  </Card>
-  <Card title="API Reference" icon="code" href="/file-uploads/api-reference">
-    Backend endpoints for requesting upload URLs and managing files.
-  </Card>
-  <Card
-    title="Mobile Integration"
-    icon="mobile"
-    href="/file-uploads/mobile-integration"
-  >
-    React Native components for selecting and uploading files.
-  </Card>
-  <Card title="Security" icon="shield" href="/file-uploads/security">
-    Security best practices, quotas, and bucket hardening.
-  </Card>
-</CardGroup>
+- **Secure uploads** via S3 presigned URLs (no credentials exposed to client)
+- **Resumable multipart uploads** for large files
+- **Native background uploads** for iOS/Android (survives app backgrounding)
+- **Parallel uploads** for multiple files
+- **Progress tracking** with persistence across navigation
+
+## Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        Upload Flow                               │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│   Mobile App                    Backend API              AWS S3  │
+│   ──────────                    ───────────              ──────  │
+│                                                                  │
+│   1. Select file ──────────────►                                 │
+│                                                                  │
+│   2. Request URL ──────────────► Validate user                   │
+│                                  Check quota                     │
+│                                  Generate presigned URL ◄──────► │
+│                    ◄──────────── Return URL                      │
+│                                                                  │
+│   3. Upload file ──────────────────────────────────────────────► │
+│                                                                  │
+│   4. Confirm ──────────────────► Mark as uploaded                │
+│                                  Update user storage             │
+│                    ◄──────────── Success                         │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+## Upload Strategies
+
+Launch automatically selects the best upload strategy based on file size:
+
+| File Size | Strategy              | Description                              |
+| --------- | --------------------- | ---------------------------------------- |
+| < 10 MB   | **Simple Upload**     | Single presigned URL PUT request         |
+| 10-40 MB  | **Multipart Upload**  | Chunked upload with 5MB parts, resumable |
+| > 40 MB   | **Native Background** | iOS URLSession / Android coroutines      |
 
 ## Features
 
-- **Presigned URLs** - Direct client-to-S3 uploads without exposing credentials
-- **Multi-file selection** - Select multiple photos with numbered indicators
-- **Progress tracking** - Real-time upload progress in the UI
-- **Storage quotas** - Per-user storage limits (configurable)
-- **File validation** - MIME type and size validation server-side
-- **Soft delete** - Maintain audit trail with soft deletes
+<CardGroup cols={2}>
+  <Card title="Presigned URLs" icon="lock">
+    Secure, time-limited URLs. No S3 credentials on client.
+  </Card>
+  <Card title="Resumable" icon="rotate">
+    Multipart uploads can resume after network interruption.
+  </Card>
+  <Card title="Background Uploads" icon="mobile">
+    Native iOS/Android uploads continue when app is backgrounded.
+  </Card>
+  <Card title="Progress Tracking" icon="chart-line">
+    Per-file progress with UI persistence across navigation.
+  </Card>
+</CardGroup>
 
-## Architecture Overview
+## Quick Links
 
-```
-┌─────────────┐     1. Request URL      ┌─────────────┐
-│   Mobile    │ ──────────────────────► │   Backend   │
-│    App      │                         │   (tRPC)    │
-└─────────────┘                         └─────────────┘
-       │                                       │
-       │ 2. Upload directly                    │ Creates DB record
-       ▼                                       ▼
-┌─────────────┐                         ┌─────────────┐
-│   AWS S3    │                         │  PostgreSQL │
-│   Bucket    │                         │  (Prisma)   │
-└─────────────┘                         └─────────────┘
-```
+<CardGroup cols={2}>
+  <Card title="Backend Setup" icon="server" href="/file-uploads/backend-setup">
+    Configure S3, environment variables, and API endpoints.
+  </Card>
+  <Card title="Mobile Setup" icon="mobile" href="/file-uploads/mobile-setup">
+    Integrate file uploads in your React Native app.
+  </Card>
+  <Card title="Native Uploads" icon="apple" href="/file-uploads/native-uploads">
+    Deep dive into iOS/Android background upload module.
+  </Card>
+  <Card title="API Reference" icon="code" href="/file-uploads/api-reference">
+    Complete API documentation for upload endpoints.
+  </Card>
+</CardGroup>
 
-## Quick Start
-
-1. **[S3 Setup](/file-uploads/s3-setup)** - Create and configure your S3 bucket
-2. **[API Reference](/file-uploads/api-reference)** - Understand the backend endpoints
-3. **[Mobile Integration](/file-uploads/mobile-integration)** - Add file uploads to your app

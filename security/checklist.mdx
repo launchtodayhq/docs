@@ -1,0 +1,77 @@
+---
+title: "Security Checklist"
+description: "Pre-launch security review checklist"
+---
+
+## Pre-Launch Security Checklist
+
+Complete this checklist before deploying to production.
+
+### 🔐 Authentication
+
+- [ ] **Strong password requirements** - Minimum 8 characters, mixed case, numbers
+- [ ] **Rate limiting on auth endpoints** - Prevent brute force attacks
+- [ ] **Session expiration** - Tokens expire appropriately
+- [ ] **Secure token storage** - Using SecureStore, not AsyncStorage
+- [ ] **OAuth state validation** - Prevent CSRF in OAuth flows
+
+### 🔑 Secrets & Environment
+
+- [ ] **No secrets in code** - All secrets in environment variables
+- [ ] **Production secrets rotated** - Different from development
+- [ ] **.env files gitignored** - Never committed to repository
+- [ ] **Secrets documented** - Team knows what's needed for deployment
+
+### 🌐 API Security
+
+- [ ] **HTTPS only** - No HTTP in production
+- [ ] **CORS configured** - Only allow trusted origins
+- [ ] **Input validation** - All endpoints validate input with Zod
+- [ ] **Rate limiting** - Prevent abuse on public endpoints
+- [ ] **Error messages** - Don't expose internal details to users
+
+### 📱 Mobile Security
+
+- [ ] **Sensitive data encrypted** - Using SecureStore
+- [ ] **No sensitive logs** - Remove console.log with sensitive data
+- [ ] **Certificate pinning** - Consider for high-security apps
+- [ ] **Jailbreak detection** - Consider for financial apps
+- [ ] **App Transport Security** - Configured correctly for iOS
+
+### 🗄️ Database
+
+- [ ] **Parameterized queries** - Prisma handles this automatically
+- [ ] **Least privilege access** - Database user has minimal permissions
+- [ ] **Backups enabled** - Regular automated backups
+- [ ] **Connection encrypted** - SSL for database connections
+
+### 📦 Dependencies
+
+- [ ] **Audit passed** - `pnpm audit` shows no critical vulnerabilities
+- [ ] **Dependencies updated** - Major security patches applied
+- [ ] **Lockfile committed** - pnpm-lock.yaml in version control
+
+### 📤 File Uploads
+
+- [ ] **File type validation** - Whitelist allowed MIME types
+- [ ] **File size limits** - Prevent resource exhaustion
+- [ ] **Presigned URLs expire** - Time-limited upload URLs
+- [ ] **Virus scanning** - Consider for user-generated content
+
+### 🔍 Monitoring
+
+- [ ] **Error tracking** - Sentry or similar configured
+- [ ] **Audit logging** - Security events logged
+- [ ] **Alerting** - Notified of suspicious activity
+
+## Post-Launch
+
+After launching, maintain security by:
+
+- **Regular dependency updates** - Weekly `pnpm audit`
+- **Security monitoring** - Review error logs and alerts
+- **Penetration testing** - Consider professional testing
+- **Stay informed** - Follow security advisories for your stack
+
+<Note>Security is ongoing. Schedule monthly reviews of this checklist.</Note>
+

@@ -1,0 +1,162 @@
+---
+title: "Mobile Deployment with EAS"
+description: "Build and distribute your app with Expo Application Services"
+---
+
+{/* TODO: Add EAS deployment video */}
+
+<Frame>
+  <div
+    style={{
+      background: "#1a1a2e",
+      padding: "60px",
+      textAlign: "center",
+      borderRadius: "8px",
+    }}
+  >
+    <p style={{ color: "#888", margin: 0 }}>
+      🎬 Video: EAS Build & Submit Walkthrough (Coming Soon)
+    </p>
+  </div>
+</Frame>
+
+## Overview
+
+Expo Application Services (EAS) handles building and submitting your app to the App Store and Google Play.
+
+## Prerequisites
+
+- Expo account ([expo.dev](https://expo.dev))
+- EAS CLI installed: `npm install -g eas-cli`
+- Apple Developer account (for iOS)
+- Google Play Developer account (for Android)
+
+## 1. Configure EAS
+
+```bash
+cd apps/mobile
+
+# Login to Expo
+eas login
+
+# Configure EAS for your project
+eas build:configure
+```
+
+This creates `eas.json`:
+
+```json
+{
+  "cli": {
+    "version": ">= 5.0.0"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
+    },
+    "preview": {
+      "distribution": "internal"
+    },
+    "production": {}
+  },
+  "submit": {
+    "production": {}
+  }
+}
+```
+
+## 2. Build for iOS
+
+```bash
+# Development build (with dev client)
+eas build --platform ios --profile development
+
+# Production build (for App Store)
+eas build --platform ios --profile production
+```
+
+{/* TODO: Add screenshot of EAS build dashboard */}
+
+<Frame>
+  <div
+    style={{
+      background: "#f5f5f5",
+      padding: "40px",
+      textAlign: "center",
+      borderRadius: "8px",
+    }}
+  >
+    <p style={{ color: "#666", margin: 0 }}>
+      📸 Screenshot: EAS Build Dashboard (Coming Soon)
+    </p>
+  </div>
+</Frame>
+
+## 3. Build for Android
+
+```bash
+# Development build
+eas build --platform android --profile development
+
+# Production build (for Play Store)
+eas build --platform android --profile production
+```
+
+## 4. Submit to Stores
+
+```bash
+# Submit iOS build to App Store Connect
+eas submit --platform ios
+
+# Submit Android build to Google Play
+eas submit --platform android
+```
+
+## Environment Variables
+
+For production builds, configure environment variables in `eas.json`:
+
+```json
+{
+  "build": {
+    "production": {
+      "env": {
+        "API_URL": "https://your-api.railway.app"
+      }
+    }
+  }
+}
+```
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Build fails with signing error">
+    **iOS**: Run `eas credentials` to manage certificates **Android**: Ensure
+    keystore is properly configured
+  </Accordion>
+  <Accordion title="Build takes too long">
+    EAS builds typically take 10-20 minutes. Check build logs for specific
+    steps.
+  </Accordion>
+  <Accordion title="App crashes on production build">
+    Check that all environment variables are set correctly for production.
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="iOS Submission" icon="apple" href="/app-stores/ios-submission">
+    Submit to App Store Connect
+  </Card>
+  <Card
+    title="Android Submission"
+    icon="google-play"
+    href="/app-stores/android-submission"
+  >
+    Submit to Google Play Console
+  </Card>
+</CardGroup>
+

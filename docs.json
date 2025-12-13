@@ -14,24 +14,18 @@
         "tab": "Guides",
         "groups": [
           {
-            "group": "Getting started",
-            "pages": [
-              "index",
-              "whats-included",
-              "project-structure",
-              "tech-stack",
-              "quickstart"
-            ]
+            "group": "Getting Started",
+            "pages": ["index", "quickstart", "project-structure", "tech-stack"]
           },
           {
             "group": "Mobile App",
             "pages": [
               "mobile/environment-setup",
-              "mobile/authentication",
-              "mobile/onboarding",
               "mobile/file-structure",
+              "mobile/authentication",
               "mobile/components",
-              "mobile/adding-screens"
+              "mobile/adding-screens",
+              "mobile/onboarding"
             ]
           },
           {
@@ -42,6 +36,20 @@
               "authentication/google-signin",
               "authentication/email-signin"
             ]
+          },
+          {
+            "group": "File Uploads",
+            "pages": [
+              "file-uploads/index",
+              "file-uploads/backend-setup",
+              "file-uploads/mobile-setup",
+              "file-uploads/native-uploads",
+              "file-uploads/api-reference"
+            ]
+          },
+          {
+            "group": "Push Notifications",
+            "pages": ["push-notifications/index"]
           },
           {
             "group": "Payments",
@@ -78,6 +86,10 @@
             ]
           },
           {
+            "group": "AI Features",
+            "pages": ["ai-features/overview"]
+          },
+          {
             "group": "Backend",
             "pages": [
               "backend/index",
@@ -86,34 +98,23 @@
             ]
           },
           {
-            "group": "File Uploads",
-            "pages": [
-              "file-uploads/index",
-              "file-uploads/s3-setup",
-              "file-uploads/api-reference",
-              "file-uploads/mobile-integration",
-              "file-uploads/security"
-            ]
+            "group": "Deployment",
+            "pages": ["deployment/index", "deployment/mobile-eas"]
           },
           {
-            "group": "AI Features",
-            "pages": ["ai-features/overview"]
+            "group": "App Store Submission",
+            "pages": ["app-stores/index"]
           },
           {
-            "group": "Customization",
-            "pages": ["essentials/settings", "essentials/navigation"]
+            "group": "Security",
+            "pages": ["security/index", "security/checklist"]
           },
           {
-            "group": "Writing content",
-            "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/reusable-snippets"
-            ]
+            "group": "Troubleshooting",
+            "pages": ["troubleshooting/index"]
           },
           {
-            "group": "AI tools",
+            "group": "AI Tools",
             "pages": [
               "ai-tools/cursor",
               "ai-tools/claude-code",
@@ -123,14 +124,14 @@
         ]
       },
       {
-        "tab": "API reference",
+        "tab": "API Reference",
         "groups": [
           {
-            "group": "API documentation",
+            "group": "API Documentation",
             "pages": ["api-reference/introduction"]
           },
           {
-            "group": "Endpoint examples",
+            "group": "Endpoint Examples",
             "pages": [
               "api-reference/endpoint/get",
               "api-reference/endpoint/create",

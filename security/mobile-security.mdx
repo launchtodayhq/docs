@@ -1,0 +1,290 @@
+---
+title: "Mobile Security"
+description: "Secure storage, data protection, and mobile security best practices"
+---
+
+## Secure by Default
+
+Launch is configured with security best practices out of the box. Here's what's protected and how.
+
+### Authentication & Token Storage
+
+<Check>**Auth tokens are stored securely** using `expo-secure-store`</Check>
+
+```typescript
+// lib/auth/client.ts
+import * as SecureStore from "expo-secure-store";
+
+export const authClient = createAuthClient({
+  plugins: [
+    expoClient({
+      scheme: "launch",
+      storagePrefix: "launch",
+      storage: SecureStore, // ✅ Secure storage
+    }),
+  ],
+});
+```
+
+This means:
+
+- **iOS**: Tokens are stored in the Keychain (hardware-backed encryption)
+- **Android**: Tokens are stored in the Keystore (hardware-backed encryption)
+
+Even on jailbroken/rooted devices, this data is significantly harder to extract than plaintext storage.
+
+---
+
+## Choosing the Right Storage
+
+Both `AsyncStorage` and `SecureStore` have their place. The key is knowing what data belongs where.
+
+<CardGroup cols={2}>
+  <Card title="AsyncStorage" icon="database">
+    Unencrypted key-value storage. Fast and simple, but readable on compromised
+    devices.
+  </Card>
+  <Card title="SecureStore" icon="lock">
+    Encrypted via native Keychain/Keystore. Hardware-backed protection for
+    sensitive data.
+  </Card>
+</CardGroup>
+
+### When to Use AsyncStorage ✅
+
+AsyncStorage is perfectly fine for **non-sensitive, non-PII data**:
+
+| Use Case          | Example                    | Why It's OK                |
+| ----------------- | -------------------------- | -------------------------- |
+| Theme preferences | `"dark"` or `"light"`      | No user impact if exposed  |
+| App settings      | `{ notifications: true }`  | Non-personal configuration |
+| Onboarding state  | `{ hasSeenIntro: true }`   | No security implications   |
+| Cache data        | Recently viewed items      | Improves UX, not sensitive |
+| Feature flags     | `{ betaFeatures: true }`   | Non-sensitive app state    |
+| Upload queue      | Progress tracking metadata | No credentials involved    |
+
+```typescript
+// ✅ These are fine in AsyncStorage
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+await AsyncStorage.setItem("@theme", "dark");
+await AsyncStorage.setItem("@onboarding_complete", "true");
+await AsyncStorage.setItem("@last_viewed_category", "electronics");
+```
+
+### When to Use SecureStore 🔒
+
+Use SecureStore for anything that could harm the user if exposed:
+
+| Use Case       | Example                 | Why It Needs Protection   |
+| -------------- | ----------------------- | ------------------------- |
+| Auth tokens    | JWT, session tokens     | Enables account access    |
+| Passwords      | User credentials        | Direct account compromise |
+| API keys       | Third-party secrets     | Service abuse             |
+| Payment data   | Card numbers, CVV       | Financial fraud           |
+| PII            | SSN, passport, DOB      | Identity theft            |
+| Biometric data | Face/fingerprint hashes | Privacy violation         |
+
+```typescript
+// ✅ Use SecureStore for sensitive data
+import * as SecureStore from "expo-secure-store";
+
+await SecureStore.setItemAsync("authToken", token);
+await SecureStore.setItemAsync("refreshToken", refreshToken);
+```
+
+### What Launch Stores Where
+
+| Data                    | Storage          | Why                                |
+| ----------------------- | ---------------- | ---------------------------------- |
+| Auth tokens             | `SecureStore` ✅ | Sensitive - enables account access |
+| Session data            | `SecureStore` ✅ | Sensitive - authentication state   |
+| Color scheme preference | `AsyncStorage`   | Non-sensitive UI preference        |
+| Upload queue state      | `AsyncStorage`   | Non-sensitive progress tracking    |
+
+### Quick Decision Guide
+
+Ask yourself: **"If someone read this data, could they harm the user?"**
+
+- **No** → AsyncStorage is fine
+- **Yes** → Use SecureStore
+
+<Warning>
+  **Never store in AsyncStorage:** - Authentication tokens or session IDs -
+  Passwords, PINs, or security codes - API keys or secrets - Credit card numbers
+  or financial data - Personal identification (SSN, passport, driver's license)
+  - Health or medical information
+</Warning>
+
+---
+
+## Best Practices
+
+### Be Mindful About What You Store
+
+Before storing any data locally, consider its sensitivity:
+
+```typescript
+// ✅ Non-sensitive data → AsyncStorage
+import AsyncStorage from "@react-native-async-storage/async-storage";
+await AsyncStorage.setItem("@theme", "dark");
+await AsyncStorage.setItem("@language", "en");
+await AsyncStorage.setItem("@has_rated_app", "true");
+
+// ✅ Sensitive data → SecureStore
+import * as SecureStore from "expo-secure-store";
+await SecureStore.setItemAsync("authToken", token);
+await SecureStore.setItemAsync("apiKey", apiKey);
+```
+
+### Think Before You Store
+
+When adding features that persist data, ask:
+
+1. **Could this data harm the user if exposed?** → SecureStore
+2. **Could this data impersonate the user?** → SecureStore
+3. **Is this financial or personal information?** → SecureStore
+4. **Is this just a preference or app state?** → AsyncStorage is fine
+
+### Audit Storage Periodically
+
+Search your codebase to review what's being stored:
+
+```bash
+# Find all AsyncStorage usage
+grep -r "AsyncStorage" --include="*.tsx" --include="*.ts" apps/mobile/
+
+# Find all SecureStore usage
+grep -r "SecureStore" --include="*.tsx" --include="*.ts" apps/mobile/
+```
+
+Ensure sensitive data isn't accidentally stored in AsyncStorage.
+
+---
+
+## What Happens on Jailbroken/Rooted Devices
+
+### AsyncStorage Exposure
+
+On a jailbroken iOS device or rooted Android device:
+
+```bash
+# Attacker can simply read:
+/var/mobile/Containers/Data/Application/{APP_ID}/Documents/AsyncStorage/
+
+# Contents are plain JSON:
+{"@color_scheme_preference": "dark"}  # ← This is fine
+{"@auth_token": "eyJhbGc..."}         # ← This would be BAD
+```
+
+### SecureStore Protection
+
+SecureStore data is stored in:
+
+- **iOS**: Keychain (encrypted, access-controlled)
+- **Android**: Keystore (hardware-backed encryption)
+
+Even with root access, extracting Keychain data requires:
+
+- Specialized forensic tools
+- Device-specific exploits
+- Significantly more effort and expertise
+
+<Note>
+  SecureStore isn't impenetrable on jailbroken devices, but it raises the bar
+  dramatically compared to AsyncStorage.
+</Note>
+
+---
+
+## Additional Mobile Security Measures
+
+### Remove Sensitive Console Logs
+
+Before production builds, remove any console.log statements that output sensitive data:
+
+```typescript
+// ❌ Remove before production
+console.log("User token:", authToken);
+console.log("API response:", response);
+
+// ✅ Use proper logging with levels
+if (__DEV__) {
+  console.log("Debug info:", safeData);
+}
+```
+
+### Consider Certificate Pinning (High-Security Apps)
+
+For apps handling financial data or highly sensitive information:
+
+```typescript
+// Using react-native-ssl-pinning or similar
+import { fetch } from "react-native-ssl-pinning";
+
+const response = await fetch(url, {
+  sslPinning: {
+    certs: ["cert1", "cert2"],
+  },
+});
+```
+
+### Consider Jailbreak Detection (Financial Apps)
+
+For banking or payment apps, consider detecting compromised devices:
+
+```typescript
+import JailMonkey from "jail-monkey";
+
+if (JailMonkey.isJailBroken()) {
+  // Warn user or restrict functionality
+}
+```
+
+<Note>
+  Jailbreak detection can be bypassed by determined attackers. Use it as one
+  layer in defense-in-depth, not as your only protection.
+</Note>
+
+---
+
+## Quick Security Audit
+
+Run this checklist for your app:
+
+<Steps>
+  <Step title="Search for AsyncStorage">
+    Find all uses: `grep -r "AsyncStorage" apps/mobile/`
+  </Step>
+  <Step title="Verify no sensitive data">
+    Check each usage stores only non-sensitive data
+  </Step>
+  <Step title="Confirm SecureStore for auth">
+    Verify `lib/auth/client.ts` uses `storage: SecureStore`
+  </Step>
+  <Step title="Remove sensitive logs">
+    Search for `console.log` with tokens, passwords, or user data
+  </Step>
+  <Step title="Check third-party SDKs">
+    Verify payment SDKs (Stripe, RevenueCat) use secure storage
+  </Step>
+</Steps>
+
+---
+
+## Summary
+
+| Aspect             | Launch Default                      | Status                |
+| ------------------ | ----------------------------------- | --------------------- |
+| Auth token storage | `expo-secure-store`                 | ✅ Secure             |
+| Session management | Better Auth + SecureStore           | ✅ Secure             |
+| User preferences   | `AsyncStorage`                      | ✅ OK (non-sensitive) |
+| Upload progress    | `AsyncStorage`                      | ✅ OK (non-sensitive) |
+| API credentials    | Environment variables (server-side) | ✅ Secure             |
+
+<Check>
+  **Launch is secure by default.** Authentication tokens and sensitive session
+  data are stored using `expo-secure-store`, which provides hardware-backed
+  encryption on both iOS and Android.
+</Check>
+

@@ -107,7 +107,11 @@
           },
           {
             "group": "Security",
-            "pages": ["security/index", "security/checklist"]
+            "pages": [
+              "security/index",
+              "security/mobile-security",
+              "security/checklist"
+            ]
           },
           {
             "group": "Troubleshooting",

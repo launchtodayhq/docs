@@ -48,7 +48,9 @@ The authentication client is configured in `lib/auth-client.ts`:
 
 ```typescript
 export const authClient = createAuthClient({
-  baseURL: "http://192.168.0.46:3001/api/auth",
+  // IMPORTANT: For mobile OAuth (Google), this must be reachable from your device.
+  // Use your ngrok HTTPS URL during development (recommended).
+  baseURL: `${process.env.EXPO_PUBLIC_API_URL}/api/auth`,
   plugins: [
     expoClient({
       scheme: "launch", // Deep link scheme
@@ -76,6 +78,17 @@ export const authClient = createAuthClient({
 - **Device Headers**: Automatically includes device information in all requests
 - **Deep Linking**: Handles OAuth callbacks via `launch://` scheme
 - **Type Safety**: Full TypeScript support with session hooks
+
+<Warning>
+  **Google OAuth (Android) requires a single origin**.
+  
+  If your API is exposed via ngrok (e.g. `https://xxxx.ngrok-free.app`), then:
+  - `BETTER_AUTH_URL` (API) must use that same origin
+  - `EXPO_PUBLIC_API_URL` (mobile) must also use that same origin
+
+  If mobile starts auth at `http://192.168.x.x:3001` but the callback returns to `https://xxxx.ngrok-free.app`,
+  you will get a **state mismatch** error.
+</Warning>
 
 ### 2. Route Protection
 

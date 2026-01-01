@@ -5,7 +5,17 @@ description: "Step-by-step guide to configuring Google Cloud Console for OAuth a
 
 # Google Sign-In Setup
 
-This guide covers the **manual configuration steps** required to set up Google Sign-In. The Launch template includes all the necessary code - you just need to configure Google Cloud Console and understand how the OAuth flow works.
+This guide covers the configuration required to set up Google Sign-In with **Better Auth**.
+
+<Warning>
+  **Local mobile testing (Android)**: if your API is using an ngrok HTTPS URL, you must ensure the OAuth flow starts and ends on the **same origin**.
+  
+  Use the same base URL everywhere:
+  - API: `BETTER_AUTH_URL=https://xxxx.ngrok-free.app`
+  - Mobile: `EXPO_PUBLIC_API_URL=https://xxxx.ngrok-free.app`
+  
+  A mismatch (starting on `http://192.168.x.x:3001` but callback hitting ngrok) causes **state mismatch**.
+</Warning>
 
 ## Why This OAuth Flow?
 
@@ -73,8 +83,12 @@ You need **two separate client IDs** for different purposes:
 1. Click **Create Credentials** → **OAuth client ID** again
 2. Select **Web application** as application type
 3. **Name**: "Launch Server" (or similar)
-4. **Authorized JavaScript origins**: Leave empty (not needed for this flow)
-5. **Authorized redirect URIs**: Leave empty (not needed for this flow)
+4. **Authorized JavaScript origins**: Add your backend origin (e.g. `https://xxxx.ngrok-free.app`)
+5. **Authorized redirect URIs**: Add your Better Auth callback URL:
+
+`https://xxxx.ngrok-free.app/api/auth/callback/google`
+
+These must match exactly (scheme/host/path).
 6. Click **Create**
 
 ## Step 3: Download Configuration Files

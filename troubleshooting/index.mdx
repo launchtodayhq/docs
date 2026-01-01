@@ -98,6 +98,14 @@ pnpm prisma migrate dev
     TRUSTED_ORIGINS="http://localhost:3000,exp://192.168.1.100:8081" ```
   </Accordion>
 
+  <Accordion title="'state mismatch' (Google sign-in on Android)">
+    **Cause**: OAuth started on one origin but the callback returned to another (common when mixing LAN URLs with ngrok).
+
+    **Fix**:
+    - If API uses ngrok: set both `BETTER_AUTH_URL` (API) and `EXPO_PUBLIC_API_URL` (mobile) to the same ngrok HTTPS origin
+    - Ensure Google Console **Authorized redirect URI** matches exactly: `https://YOUR_NGROK.ngrok-free.app/api/auth/callback/google`
+  </Accordion>
+
   <Accordion title="'Database connection failed'">
     **Cause**: PostgreSQL not running or wrong credentials **Fix**: 1. Start
     PostgreSQL: `docker-compose up -d` or `brew services start postgresql` 2.
@@ -124,6 +132,11 @@ If you're still stuck:
   When reporting issues, include: - Error message (full stack trace) - Steps to
   reproduce - Platform (iOS/Android) and version - Expo SDK version
 </Tip>
+
+
+
+
+
 
 
 

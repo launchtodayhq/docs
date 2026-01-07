@@ -1,0 +1,87 @@
+---
+title: "Error Handling & Observability"
+description: "How to ship with confidence: safe logging, correlation IDs, and Sentry/Datadog-ready patterns"
+---
+
+## Goal
+
+In production, the fastest teams aren’t the ones who never ship bugs—they’re the ones who can **detect**, **triage**, and **fix** issues quickly.
+
+Launch aims to teach a high-quality baseline:
+
+- errors have consistent shapes/codes
+- logs don’t leak secrets/PII
+- every incident can be traced across mobile ↔ API ↔ database
+
+## What to implement (recommended baseline)
+
+### 1) Correlation IDs
+
+Every API request should have a stable identifier (`requestId` / `traceId`) that appears in:
+
+- API logs
+- API error responses
+- client error reports (Sentry breadcrumbs)
+
+This is the foundation of debugging “what happened to this user” in Datadog/Sentry.
+
+### 2) Safe logging
+
+Rules:
+
+- never log auth cookies, tokens, idTokens, refresh tokens
+- sanitize request bodies and headers before logging
+- log structured data (JSON) so Datadog can index fields
+
+### 3) Consistent error taxonomy
+
+Keep a small set of stable error codes and handle them explicitly:
+
+- `UNAUTHORIZED`, `FORBIDDEN`
+- `VALIDATION_ERROR`
+- `RATE_LIMITED`
+- `UPSTREAM_TIMEOUT`, `UPSTREAM_ERROR`
+- `INTERNAL_ERROR`
+
+Client UI should branch on codes, not string matching.
+
+### 4) Mobile UX patterns
+
+- a global error boundary for unexpected crashes
+- friendly error messages with retry actions for network failures
+- treat cancellations (e.g. aborting streaming) as non-errors
+
+## Sentry / Datadog guidance (high-level)
+
+### Mobile
+
+Recommended:
+
+- Sentry for JS + native crash reporting
+- optional Datadog RUM for performance + network tracing
+
+Attach:
+
+- app version, platform, device type
+- user ID (if your privacy policy allows)
+
+Do **not** attach:
+
+- cookies, tokens, authorization headers
+
+### API
+
+Recommended:
+
+- structured logs (Datadog log ingestion)
+- APM/tracing (Datadog APM or OpenTelemetry)
+- optional Sentry Node for exception + performance traces
+
+## Production checklist
+
+- rate limit auth + expensive endpoints (like streaming)
+- ensure error responses don’t leak internal stack traces
+- ensure logs are sanitized
+- confirm you can correlate a mobile error → API logs using a requestId/traceId
+
+

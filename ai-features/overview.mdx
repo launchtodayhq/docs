@@ -11,6 +11,11 @@ description: "Build intelligent conversational experiences with multi-provider A
 
 Launch includes a production-ready AI chat feature that supports multiple AI providers out of the box. The implementation follows a modular architecture that makes it easy to extend with new providers, customize system prompts, and build sophisticated AI-powered features.
 
+<Tip>
+  This feature is gated by the mobile feature registry flag: `ai`. See
+  [Feature Registry](/mobile/feature-registry).
+</Tip>
+
 ## Key Features
 
 <Columns cols={2}>
@@ -107,13 +112,12 @@ ANTHROPIC_API_KEY=sk-ant-...
 
 ### 2. Using the Chat Screen
 
-The chat screen is available at `/ai-chat` and includes:
+The chat screen is available at `/ai-chat`.
 
-- Model selector dropdown
-- Prompt suggestion cards
-- Real-time streaming responses
-- Chat history via bottom sheet
-- New chat functionality
+High-level flow:
+
+- Mobile streams tokens from the API via `POST /api/ai/stream` (SSE)
+- Chat history is persisted via tRPC procedures under `chat.*`
 
 ### 3. Customizing System Prompts
 
@@ -278,6 +282,7 @@ The chat feature exposes the following tRPC procedures:
     Create specialized AI personas for your app.
   </Card>
 </Columns>
+
 
 
 

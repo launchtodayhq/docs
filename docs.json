@@ -18,10 +18,18 @@
             "pages": ["index", "quickstart", "project-structure", "tech-stack"]
           },
           {
+            "group": "Essentials",
+            "pages": [
+              "essentials/removing-features",
+              "essentials/error-handling-observability"
+            ]
+          },
+          {
             "group": "Mobile App",
             "pages": [
               "mobile/environment-setup",
               "mobile/file-structure",
+              "mobile/feature-registry",
               "mobile/authentication",
               "mobile/components",
               "mobile/adding-screens",

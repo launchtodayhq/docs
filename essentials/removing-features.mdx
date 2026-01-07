@@ -1,0 +1,83 @@
+---
+title: "Removing Features"
+description: "How to disable vs delete features (and what “world class” removal means)"
+---
+
+## The rule of thumb
+
+Use the feature registry to **explore and learn**, then **delete features you won’t ship**.
+
+Disabling is great for the template experience, but deletion is cleaner for production apps.
+
+## Disable vs delete
+
+### Disable (template / exploration)
+
+Best for:
+
+- quickly trying features without setting up keys
+- demo builds
+- temporarily turning off sections during development
+
+How:
+
+- Toggle flags in `apps/mobile/features/feature-registry.tsx`
+- Guard routes using `FeatureGuard` (already applied for Payments/AI/File Uploads)
+- Hide entry points (tiles/buttons) based on `isFeatureEnabled(...)`
+
+### Delete (production)
+
+Best for:
+
+- shipping a focused product
+- reducing dependencies and risk
+- simplifying upgrades, security review, and bundle size
+
+## Removal checklist (use this for every feature)
+
+### Mobile
+
+- Remove entry points (tabs, tiles, buttons, deep links)
+- Remove or guard all routes/screens for the feature
+- Remove feature providers from `FeatureProviders`
+- Remove feature-specific environment variables
+- Remove unused dependencies from `apps/mobile/package.json`
+
+### Backend
+
+- Remove tRPC routers / REST endpoints that only exist for the feature
+- Remove external integrations (Stripe/S3 keys, webhook routes, etc.)
+- Remove database models/migrations if they’re truly feature-specific
+
+## Example: removing Payments
+
+1. Disable in `apps/mobile/features/feature-registry.tsx` (`payments: false`)
+2. Remove UI entry points:
+   - remove the Payments tile in `apps/mobile/app/(tabs)/features/index.tsx`
+3. Delete the Payments route group:
+   - `apps/mobile/app/payments/*`
+4. Remove payments providers and SDKs from `apps/mobile/lib/payments/*` and deps
+5. Remove backend Stripe endpoints if not used:
+   - `apps/api/src/routers/stripe.ts`
+   - `apps/api/src/routes/stripe-webhooks.ts` (and related webhook wiring)
+6. Remove Stripe env vars from your deployment
+
+## Example: removing AI
+
+1. Disable `ai: false`
+2. Remove `apps/mobile/app/ai-chat.tsx` and any entry points
+3. Remove API streaming route if not used:
+   - `apps/api/src/routes/ai-stream.ts`
+4. Remove OpenAI/Anthropic env vars
+
+## Example: removing File Uploads
+
+1. Disable `fileUploads: false`
+2. Remove `apps/mobile/app/file-uploads/*` and entry points
+3. Remove upload module deps from mobile if not needed
+4. Remove backend S3 router if not used:
+   - `apps/api/src/routers/upload.ts`
+   - `apps/api/src/lib/s3.ts`
+5. Remove S3 env vars
+
+

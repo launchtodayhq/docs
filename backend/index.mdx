@@ -3,16 +3,16 @@ title: "Backend Overview"
 description: "Server-side API and deployment options"
 ---
 
-The Launch backend is built with modern, scalable technologies designed for rapid development and easy deployment.
+The Launch backend is a lightweight Node server designed for mobile-first products: authentication, payments, uploads, and a type-safe API surface for the app.
 
 ## Tech Stack
 
 <CardGroup cols={2}>
-  <Card title="Hono" icon="bolt">
-    Ultra-fast web framework for edge and serverless environments.
+  <Card title="Koa" icon="server">
+    Minimal Node.js server framework. Easy to understand and customize.
   </Card>
-  <Card title="Drizzle ORM" icon="database">
-    Type-safe SQL toolkit with zero runtime overhead.
+  <Card title="Prisma" icon="database">
+    Type-safe database client and migrations for PostgreSQL.
   </Card>
   <Card title="PostgreSQL" icon="elephant">
     Reliable, production-ready relational database.
@@ -27,25 +27,22 @@ The Launch backend is built with modern, scalable technologies designed for rapi
 - **Authentication API** - Session management with Better Auth
 - **User Management** - Profile storage and updates
 - **Payment Webhooks** - Stripe webhook handlers
-- **Database Migrations** - Drizzle migrations system
-- **Type Safety** - Shared types between mobile and backend
+- **Database Migrations** - Prisma schema + migrations
+- **Type Safety** - Shared `AppRouter` types for mobile + web
 
 ## File Structure
 
 ```
-apps/server/
+apps/api/
 ├── src/
-│   ├── db/
-│   │   ├── schema.ts      # Database schema
-│   │   └── index.ts       # Database connection
-│   ├── routes/
-│   │   ├── auth.ts        # Authentication routes
-│   │   ├── users.ts       # User routes
-│   │   └── webhooks.ts    # Payment webhooks
-│   ├── lib/
-│   │   └── auth.ts        # Better Auth config
+│   ├── routers/           # tRPC routers (chat, stripe, upload, user)
+│   ├── routes/            # REST endpoints (auth, webhooks, ai streaming)
+│   ├── services/          # Business logic (auth, AI, payments)
+│   ├── lib/               # Prisma, S3, Stripe clients
+│   ├── config/            # Env/config
+│   ├── app.ts             # Koa app wiring
 │   └── index.ts           # Server entry point
-├── drizzle/               # Migrations
+├── prisma/                # schema.prisma + migrations
 └── package.json
 ```
 
@@ -78,4 +75,3 @@ The backend can be deployed to various platforms:
     Configure your backend
   </Card>
 </CardGroup>
-

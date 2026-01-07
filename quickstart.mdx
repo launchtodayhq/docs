@@ -25,11 +25,21 @@ description: "Get Launch running in under 10 minutes"
 Before starting, ensure you have:
 
 <Steps>
-  <Step title="Node.js 19+">
-    ```bash node --version # Should be v19 or higher ```
+  <Step title="Node.js 20+">
+    ```bash
+    node --version
+    ```
   </Step>
-  <Step title="pnpm">```bash npm install -g pnpm ```</Step>
-  <Step title="Expo CLI">```bash npm install -g @expo/cli ```</Step>
+  <Step title="pnpm">
+    ```bash
+    npm install -g pnpm
+    ```
+  </Step>
+  <Step title="Expo CLI">
+    ```bash
+    npm install -g @expo/cli
+    ```
+  </Step>
   <Step title="PostgreSQL">Either local install or Docker</Step>
 </Steps>
 
@@ -48,11 +58,20 @@ pnpm install
 
 <Tabs>
   <Tab title="Docker (Recommended)">
-    ```bash cd apps/api docker-compose up -d ```
+    ```bash
+    cd apps/api
+    docker-compose up -d
+    ```
   </Tab>
   <Tab title="Local PostgreSQL">
-    ```bash # macOS brew install postgresql brew services start postgresql #
-    Create database createdb launch ```
+    ```bash
+    # macOS
+    brew install postgresql
+    brew services start postgresql
+
+    # Create database
+    createdb launch
+    ```
   </Tab>
 </Tabs>
 
@@ -72,6 +91,16 @@ DATABASE_URL="postgresql://postgres:postgres@localhost:5432/launch"
 # Auth (generate a random string)
 BETTER_AUTH_SECRET="your-super-secret-key-at-least-32-chars"
 BETTER_AUTH_URL="http://localhost:3001"
+
+# AI (optional)
+# OPENAI_API_KEY="..."
+# ANTHROPIC_API_KEY="..."
+
+# File uploads (optional)
+# S3_BUCKET="..."
+# S3_REGION="..."
+# S3_ACCESS_KEY_ID="..."
+# S3_SECRET_ACCESS_KEY="..."
 
 # CORS
 TRUSTED_ORIGINS="http://localhost:3000,http://localhost:19006,launch://"
@@ -98,7 +127,20 @@ You should see:
 🚀 Server running on http://localhost:3001
 ```
 
-## 6. Start the Mobile App
+## 6. Configure the Mobile App
+
+The mobile app talks to the API via `EXPO_PUBLIC_API_URL`.
+
+Set it in your Expo env (example):
+
+```bash
+# apps/mobile/.env
+EXPO_PUBLIC_API_URL="http://localhost:3001"
+```
+
+If you’re testing on a physical device, `localhost` won’t work. Use your machine LAN IP (e.g. `http://192.168.x.x:3001`) or an HTTPS tunnel.
+
+## 7. Start the Mobile App
 
 Open a new terminal:
 
@@ -130,7 +172,7 @@ Then press:
   </div>
 </Frame>
 
-## 7. Test It Works
+## 8. Test It Works
 
 1. Open the app
 2. Tap "Sign In"
@@ -139,13 +181,21 @@ Then press:
 
 <Check>**Congratulations!** You have Launch running locally.</Check>
 
+## 9. Feature flags (optional)
+
+Launch includes optional feature modules (payments, AI, file uploads). If you haven’t set up the required keys yet, you can disable features in one place:
+
+`apps/mobile/features/feature-registry.tsx`
+
+See: [Feature Registry](/mobile/feature-registry)
+
 ## Common Issues
 
 <AccordionGroup>
   <Accordion title="Can't connect to API from device">
     Update the API URL to your computer's local IP: ```bash # Find your IP
     ifconfig | grep "inet " | grep -v 127.0.0.1 ``` Then update
-    `apps/mobile/lib/auth-client.ts` with your IP.
+    `apps/mobile/.env` (`EXPO_PUBLIC_API_URL`) with your IP.
   </Accordion>
 
   <Accordion title="Database connection error">

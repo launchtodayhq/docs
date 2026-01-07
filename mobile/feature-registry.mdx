@@ -1,0 +1,115 @@
+---
+title: "Feature Registry"
+description: "Enable, disable, and swap app features as building blocks"
+---
+
+## What this is
+
+Launch treats major product capabilities (auth/session, payments, etc.) as **features** that can be enabled/disabled and composed centrally.
+
+The goal is to make it easy for engineers to:
+
+- delete a feature without hunting through the app
+- swap a provider implementation (e.g., payments) without rewriting UI
+- understand what a feature contributes (providers, screens, env requirements)
+
+## The registry (source of truth)
+
+The feature registry lives in:
+
+`apps/mobile/features/feature-registry.tsx`
+
+It defines:
+
+- which features exist
+- whether they are enabled
+- the order of provider composition
+- optional docs links and dependencies
+
+## How provider composition works
+
+Some optional features require React providers (payments, uploads, etc.).
+
+Core infrastructure (like auth session, query client, theming) is mounted outside the registry.
+
+In Launch, the root layout mounts a single `FeatureProviders` component, and it wraps the app with the enabled feature providers in order.
+
+This keeps `app/_layout.tsx` clean and makes provider wiring a “one place” concern.
+
+## Enable/disable a feature
+
+Edit `featureFlags` inside:
+
+`apps/mobile/features/feature-registry.tsx`
+
+Example:
+
+```tsx
+export const featureFlags = {
+  payments: false,
+  ai: true,
+  fileUploads: true,
+};
+```
+
+If you disable a feature, you should also remove or gate its screens/components so the app can’t navigate into a broken flow.
+
+## Production guidance: delete features you won’t ship
+
+For real production apps, the best practice is usually:
+
+- **Use the registry to explore and learn**
+- Then **delete features you won’t ship**, instead of leaving them disabled
+
+Why:
+
+- Disabled features still add maintenance surface (dependencies, upgrades, security review, bundle size, more routes to reason about).
+- “Disabled” is great for template exploration, but deletion is cleaner for long-lived products.
+
+### Minimal removal checklist
+
+When removing a feature (example: payments), aim for these outcomes:
+
+- No entry points in UI (tiles, buttons, menus)
+- No reachable routes/screens
+- No providers mounted in `FeatureProviders`
+- No feature-specific env vars required
+- No unused dependencies left behind
+- No backend tables/endpoints running if they’re not needed
+
+### When feature flags still make sense
+
+- **Build-time flags (recommended)**: dev/staging/prod builds differ by enabled features (cleanest, predictable).
+- **Runtime flags (advanced)**: UX experiments and gradual rollouts (never rely on runtime flags for security boundaries; enforce entitlements server-side).
+
+## Add a new feature
+
+1) Create the feature code (recommended home: `apps/mobile/features/<feature-name>/`)
+2) Add a new `FeatureId`
+3) Add a new entry in `featureRegistry`
+4) If it needs a provider, add `provider` + `order`
+5) Document:
+   - required env vars
+   - screens/routes it adds
+   - how to remove it cleanly
+
+## Remove a feature
+
+World-class removal should be boring and predictable:
+
+1) Disable it in `featureFlags`
+2) Remove its routes/screens (or guard them behind the flag)
+3) Remove its API wiring and env vars
+4) Remove docs + navigation links
+
+## Next step
+
+As the template evolves, each feature should also declare:
+
+- the screens/routes it contributes
+- required permissions (notifications, camera, etc.)
+- required backend endpoints and env vars
+
+This makes “swap/remove features like building blocks” a first-class product experience.
+
+

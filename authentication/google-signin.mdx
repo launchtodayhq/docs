@@ -8,13 +8,12 @@ description: "Step-by-step guide to configuring Google Cloud Console for OAuth a
 This guide covers the configuration required to set up Google Sign-In with **Better Auth**.
 
 <Warning>
-  **Local mobile testing (Android)**: if your API is using an ngrok HTTPS URL, you must ensure the OAuth flow starts and ends on the **same origin**.
-  
-  Use the same base URL everywhere:
-  - API: `BETTER_AUTH_URL=https://xxxx.ngrok-free.app`
-  - Mobile: `EXPO_PUBLIC_API_URL=https://xxxx.ngrok-free.app`
-  
-  A mismatch (starting on `http://192.168.x.x:3001` but callback hitting ngrok) causes **state mismatch**.
+  **Local mobile testing (Android)**: if your API is using an ngrok HTTPS URL,
+  you must ensure the OAuth flow starts and ends on the **same origin**. Use the
+  same base URL everywhere: - API: `BETTER_AUTH_URL=https://xxxx.ngrok-free.app`
+  - Mobile: `EXPO_PUBLIC_API_URL=https://xxxx.ngrok-free.app` A mismatch
+  (starting on `http://192.168.x.x:3001` but callback hitting ngrok) causes
+  **state mismatch**.
 </Warning>
 
 ## Why This OAuth Flow?
@@ -73,7 +72,7 @@ You need **two separate client IDs** for different purposes:
 1. Go to **APIs & Services** → **Credentials**
 2. Click **Create Credentials** → **OAuth client ID**
 3. Select **iOS** as application type
-4. **Bundle ID**: Enter `com.launchhq.launch` (or your bundle identifier)
+4. **Bundle ID**: Enter `com.launchhq.mobile` (or your bundle identifier)
 5. Click **Create**
 
 **Important**: iOS clients don't have redirect URIs - they use bundle identifier-based authentication.
@@ -88,8 +87,7 @@ You need **two separate client IDs** for different purposes:
 
 `https://xxxx.ngrok-free.app/api/auth/callback/google`
 
-These must match exactly (scheme/host/path).
-6. Click **Create**
+These must match exactly (scheme/host/path). 6. Click **Create**
 
 ## Step 3: Download Configuration Files
 

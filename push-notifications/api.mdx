@@ -1,0 +1,92 @@
+---
+title: "API"
+description: "Create tokens and send push notifications"
+---
+
+## Create a Push API Token
+
+Push API tokens let you send notifications without exposing your primary auth session. They are intended for internal use, such as CLI tools or server-side scripts.
+
+Endpoint:
+
+```
+POST /api/push/token
+```
+
+Required headers:
+- `Authorization: Bearer <PUSH_TOKEN_ADMIN_SECRET>`
+
+Request body:
+```
+{
+  "userId": "USER_ID",
+  "name": "cli",
+  "expiresInDays": 30
+}
+```
+
+Response:
+```
+{
+  "token": "<raw_token>",
+  "expiresAt": "2026-02-16T10:00:00.000Z"
+}
+```
+
+### Create token via curl
+
+```
+curl -X POST "http://localhost:3001/api/push/token" \
+  -H "Authorization: Bearer <PUSH_TOKEN_ADMIN_SECRET>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "userId": "<USER_ID>",
+    "name": "cli",
+    "expiresInDays": 30
+  }'
+```
+
+## Send a Push
+
+The send endpoint accepts a token and routes the message through APNs.
+
+Endpoint:
+
+```
+POST /api/push/send
+```
+
+Required headers:
+- `Authorization: Bearer <raw_token>`
+
+How it works:
+- The API token is looked up in `push_api_tokens`.
+- If no `userId` is provided, it sends to the token owner.
+- Only iOS tokens (`platform: "ios"`) are used for APNs.
+
+Request body:
+```
+{
+  "title": "Hello",
+  "body": "Test push",
+  "data": { "screen": "settings" }
+}
+```
+
+Options:
+- `userId`: send to a specific user
+- `all: true`: broadcast to all iOS tokens
+- If neither is set, it sends to the token owner
+
+### Send push via curl
+
+```
+curl -X POST "http://localhost:3001/api/push/send" \
+  -H "Authorization: Bearer <RAW_TOKEN>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Hello",
+    "body": "Test push",
+    "data": { "screen": "settings" }
+  }'
+```

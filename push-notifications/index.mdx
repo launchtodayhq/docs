@@ -3,140 +3,66 @@ title: "Push Notifications"
 description: "Send and handle push notifications in your app"
 ---
 
-{/* TODO: Add push notifications demo video */}
-
-<Frame>
-  <div
-    style={{
-      background: "#1a1a2e",
-      padding: "60px",
-      textAlign: "center",
-      borderRadius: "8px",
-    }}
-  >
-    <p style={{ color: "#888", margin: 0 }}>
-      🎬 Video: Push Notifications Setup (Coming Soon)
-    </p>
-  </div>
-</Frame>
-
 ## Overview
 
-Push notifications keep users engaged with your app. Launch uses Expo Push Notifications for a unified iOS and Android experience.
+Push notifications help you reach users when they are away from the app. They are most effective when they are timely, relevant, and respectful of user preferences. In Launch, notifications are sent directly through APNs on iOS to give you full control over payloads, delivery, and routing (Android support is planned).
+
+APNs (Apple Push Notification service) is Apple’s gateway for delivering pushes to iOS devices. Your backend sends a signed request to APNs, and Apple routes it to the correct device using the app’s bundle ID. We use APNs directly instead of Expo Push so we can control authentication, payload structure, delivery timing, and future routing logic without relying on a relay.
 
 <CardGroup cols={2}>
-  <Card title="Expo Setup" icon="mobile" href="/push-notifications/expo-setup">
-    Configure Expo Push Notifications
+  <Card title="iOS (APNs)" icon="apple" href="/push-notifications/ios">
+    Configure APNs tokens and credentials
   </Card>
-  <Card
-    title="Backend Setup"
-    icon="server"
-    href="/push-notifications/backend-setup"
-  >
-    Send notifications from your API
+  <Card title="API" icon="server" href="/push-notifications/api">
+    Create tokens and send notifications via curl
   </Card>
-  <Card title="Handling" icon="bell" href="/push-notifications/handling">
-    Handle notifications in your app
+  <Card title="Guidance" icon="sparkles" href="/push-notifications/guidance">
+    Scheduling, queues, and best practices
   </Card>
-  <Card
-    title="Rich Notifications"
-    icon="image"
-    href="/push-notifications/rich-notifications"
-  >
-    Images, buttons, and custom actions
+  <Card title="Android (Placeholder)" icon="android" href="/push-notifications/android">
+    FCM setup coming soon
   </Card>
 </CardGroup>
 
 ## How It Works
 
 ```
-┌─────────────┐     ┌─────────────┐     ┌─────────────┐
-│  Your API   │────►│ Expo Push   │────►│  APNs/FCM   │
-│             │     │  Service    │     │             │
-└─────────────┘     └─────────────┘     └─────────────┘
-                                              │
-                                              ▼
-                                        ┌─────────────┐
-                                        │  User's     │
-                                        │  Device     │
-                                        └─────────────┘
+┌─────────────┐     ┌─────────────┐
+│  Your API   │────►│    APNs     │
+│             │     │             │
+└─────────────┘     └─────────────┘
+       │
+       ▼
+ ┌─────────────┐
+ │  iOS Device │
+ └─────────────┘
 ```
 
-1. Your backend sends notification to Expo Push Service
-2. Expo routes to APNs (iOS) or FCM (Android)
-3. Device receives and displays notification
-4. User taps → app opens with notification data
+1. The app requests permissions and registers a native device token.
+2. The token is stored per user in `device_tokens` on the backend.
+3. Your API sends a notification through APNs using your key credentials.
+4. The device receives and displays the notification.
+
+## API Flow (iOS)
+
+When a user opts in on the onboarding screen, the app registers a native device token and stores it in the backend. Your API then targets those tokens when sending a push. APNs uses your bundle ID as the topic so messages are routed to the correct app.
+
+Key pieces in this repo:
+- `apps/mobile/app/onboarding/push-notifications.tsx`
+- `apps/mobile/lib/notifications.ts`
+- `apps/api/src/lib/push/apns.ts`
+- `apps/api/src/routers/push.ts`
 
 ## Quick Start
 
-### 1. Get Push Token
+Start with the iOS setup guide to configure APNs credentials and entitlements. Once the app is rebuilt, use the onboarding screen to register a device token, then send a test push from your API.
 
-```typescript
-import * as Notifications from "expo-notifications";
+Start with the iOS guide: [iOS Setup](/push-notifications/ios)
 
-async function registerForPushNotifications() {
-  const { status } = await Notifications.requestPermissionsAsync();
-  if (status !== "granted") return;
+## Best Practices
 
-  const token = await Notifications.getExpoPushTokenAsync();
-  console.log("Push token:", token.data);
-
-  // Send token to your backend
-  await api.user.savePushToken({ token: token.data });
-}
-```
-
-### 2. Send from Backend
-
-```typescript
-// apps/api/src/lib/push.ts
-import { Expo } from "expo-server-sdk";
-
-const expo = new Expo();
-
-async function sendPushNotification(pushToken: string, message: string) {
-  await expo.sendPushNotificationsAsync([
-    {
-      to: pushToken,
-      title: "New Message",
-      body: message,
-      data: { screen: "messages" },
-    },
-  ]);
-}
-```
-
-### 3. Handle in App
-
-```typescript
-Notifications.addNotificationResponseReceivedListener((response) => {
-  const data = response.notification.request.content.data;
-  if (data.screen) {
-    router.push(data.screen);
-  }
-});
-```
-
-## Platform Requirements
-
-| Platform | Requirement                     |
-| -------- | ------------------------------- |
-| iOS      | APNs key (from Apple Developer) |
-| Android  | Firebase project (for FCM)      |
-
-<Tip>
-  For development, Expo Push works out of the box with Expo Go. Production
-  requires APNs/FCM configuration.
-</Tip>
-
-## Next Steps
-
-Start with [Expo Setup](/push-notifications/expo-setup) to configure push notifications for your app.
-
-
-
-
-
-
-
-
+- Ask for permission only when there is clear value.
+- Keep payloads short and actionable.
+- Avoid excessive sends; let users control frequency.
+- Use targeting for relevance instead of broadcasting by default.
+- For scheduling and queueing strategies, see [Guidance](/push-notifications/guidance).

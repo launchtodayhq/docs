@@ -1,0 +1,70 @@
+---
+title: "Guidance"
+description: "Scheduling, queues, and good practices for push"
+---
+
+## When to schedule
+
+Use scheduling when notifications are time-based, recurring, or tied to user preferences (daily digests, weekly summaries, reminders). Keep real-time notifications on-demand and reserve scheduled jobs for time-sensitive content.
+
+## Queue or send directly
+
+For low volume, you can call the push API directly. For anything that might spike (batch sends, large user sets, or repeated schedules), put messages into a queue first so delivery is controlled and resilient.
+
+Recommended patterns:
+- Direct send: small, user-triggered events (single-user notifications).
+- Queue-backed send: bulk sends, campaigns, or recurring schedules.
+
+## Scheduling options
+
+Common ways to schedule:
+- **Cron-based schedules** for recurring sends (daily, weekly, monthly).
+- **Delayed jobs** for "send in X minutes/hours".
+- **Per-user schedules** (store user timezone, enqueue at local time).
+
+If you want serverless scheduling without running workers, Upstash QStash can schedule HTTP calls with cron or delayed delivery and supports rate/parallelism control. If you already run workers, use your job system (BullMQ, Temporal, Sidekiq, etc.) for the same pattern.
+
+## Delivery flow control
+
+Push providers can throttle if you send too quickly. Add flow control to your queue or worker:
+- Rate limit throughput (messages per second).
+- Limit concurrency (parallel sends).
+- Ramp up large campaigns gradually (small batch, monitor errors, then scale).
+
+## Retries and error handling
+
+Not all failures should be retried:
+- **Retry** transient errors (network timeouts, 5xx).
+- **Do not retry** invalid tokens (`410 Unregistered`) or payload errors (4xx).
+- Use exponential backoff and cap the number of retries.
+
+## Token hygiene
+
+Device tokens can go stale. Keep them fresh and remove invalid ones:
+- Replace tokens whenever the app registers a new one.
+- Delete tokens that APNs marks as invalid.
+- Consider expiring tokens not seen recently (e.g., 60-90 days).
+
+In Launch, the backend only sends when both user preference and OS permission allow it:
+- `apps/api/src/routers/push.ts`
+- `apps/mobile/app/notifications.tsx`
+
+## Payload size and content
+
+Keep payloads small and actionable:
+- APNs payloads are limited to 4 KB for regular notifications.
+- Prefer concise text and put extra data in your API, not the payload.
+
+## Monitoring and operational safety
+
+Track delivery and error rates:
+- Pause or slow down if error rates spike.
+- Alert on 4xx/5xx increases.
+- Log APNs response codes to identify invalid tokens and throttling.
+
+## Implementation notes for Launch
+
+If you want to add scheduling later:
+- Create a "schedule" endpoint that enqueues to your queue provider.
+- Use the existing push send endpoints as the final delivery step.
+- Keep OS permission sync on app resume to prevent sending when the user disables notifications in Settings.

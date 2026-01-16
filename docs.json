@@ -57,7 +57,12 @@
           },
           {
             "group": "Push Notifications",
-            "pages": ["push-notifications/index"]
+            "pages": [
+              "push-notifications/index",
+              "push-notifications/ios",
+              "push-notifications/api",
+              "push-notifications/android"
+            ]
           },
           {
             "group": "Payments",

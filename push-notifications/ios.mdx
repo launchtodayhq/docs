@@ -1,0 +1,66 @@
+---
+title: "iOS (APNs)"
+description: "Configure APNs for direct push notifications"
+---
+
+## Requirements
+
+Before you can send pushes, you need an APNs key tied to your Apple Developer account and a build that includes the push entitlement. APNs uses your bundle ID to route notifications to the correct app.
+
+## Configure APNs
+
+1. Apple Developer Portal → Certificates, Identifiers & Profiles → Keys
+2. Create a new key with **Apple Push Notifications service (APNs)**
+3. Download the `.p8` file (only available once)
+4. Note your **Key ID** and **Team ID**
+
+## Environment Variables (API)
+
+Set these on the API server:
+
+```
+APNS_TEAM_ID=YOUR_TEAM_ID
+APNS_KEY_ID=YOUR_KEY_ID
+APNS_BUNDLE_ID=com.launchhq.mobile
+APNS_PRODUCTION=false
+APNS_KEY_BASE64=...base64 of .p8...
+```
+
+Notes:
+
+- Use `APNS_PRODUCTION=false` for dev builds.
+- Use `APNS_PRODUCTION=true` for TestFlight/App Store builds.
+
+## iOS Entitlement
+
+Ensure APNs entitlement is present in `apps/mobile/app.config.ts`:
+
+```
+ios: {
+  entitlements: {
+    "aps-environment": "development",
+  },
+}
+```
+
+Rebuild the iOS app after changing entitlements.
+
+## Device Token Registration
+
+The app registers a native device token when the user taps **Enable Notifications**:
+
+- `apps/mobile/lib/notifications.ts`
+- `apps/mobile/app/onboarding/push-notifications.tsx`
+
+The token is stored in the backend under `device_tokens` and used when your API sends through APNs.
+
+## OS Permission Sync
+
+The app re-checks iOS notification permissions whenever it becomes active and updates the backend, so device-level settings are respected even if the in-app toggle is on:
+
+- `apps/mobile/app/_layout.tsx`
+- `apps/mobile/app/notifications.tsx`
+
+## Delivery Notes
+
+APNs uses different endpoints for development and production. If the environment does not match the build type, APNs accepts the request but the device will not receive it. Make sure the topic matches your bundle ID (`com.launchhq.mobile`).

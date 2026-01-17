@@ -5,13 +5,16 @@ description: "Send and handle push notifications in your app"
 
 ## Overview
 
-Push notifications help you reach users when they are away from the app. They are most effective when they are timely, relevant, and respectful of user preferences. In Launch, notifications are sent directly through APNs on iOS to give you full control over payloads, delivery, and routing (Android support is planned).
+Push notifications help you reach users when they are away from the app. They are most effective when they are timely, relevant, and respectful of user preferences. In Launch, notifications are sent directly through APNs on iOS and FCM on Android to give you full control over payloads, delivery, and routing.
 
-APNs (Apple Push Notification service) is Apple’s gateway for delivering pushes to iOS devices. Your backend sends a signed request to APNs, and Apple routes it to the correct device using the app’s bundle ID. We use APNs directly instead of Expo Push so we can control authentication, payload structure, delivery timing, and future routing logic without relying on a relay.
+APNs (Apple Push Notification service) is Apple’s gateway for delivering pushes to iOS devices. FCM (Firebase Cloud Messaging) is Google’s gateway for Android. We send directly to both services instead of using Expo Push so we can control authentication, payload structure, delivery timing, and future routing logic without relying on a relay.
 
 <CardGroup cols={2}>
   <Card title="iOS (APNs)" icon="apple" href="/push-notifications/ios">
     Configure APNs tokens and credentials
+  </Card>
+  <Card title="Android (FCM)" icon="android" href="/push-notifications/android">
+    Configure Firebase Cloud Messaging
   </Card>
   <Card title="API" icon="server" href="/push-notifications/api">
     Create tokens and send notifications via curl
@@ -19,45 +22,47 @@ APNs (Apple Push Notification service) is Apple’s gateway for delivering pushe
   <Card title="Guidance" icon="sparkles" href="/push-notifications/guidance">
     Scheduling, queues, and best practices
   </Card>
-  <Card title="Android (Placeholder)" icon="android" href="/push-notifications/android">
-    FCM setup coming soon
-  </Card>
 </CardGroup>
 
 ## How It Works
 
 ```
 ┌─────────────┐     ┌─────────────┐
-│  Your API   │────►│    APNs     │
+│  Your API   │────►│  APNs/FCM   │
 │             │     │             │
 └─────────────┘     └─────────────┘
        │
        ▼
- ┌─────────────┐
- │  iOS Device │
- └─────────────┘
+┌──────────────────┐
+│ iOS/Android Apps │
+└──────────────────┘
 ```
 
 1. The app requests permissions and registers a native device token.
 2. The token is stored per user in `device_tokens` on the backend.
-3. Your API sends a notification through APNs using your key credentials.
+3. Your API sends a notification through APNs (iOS) or FCM (Android).
 4. The device receives and displays the notification.
 
-## API Flow (iOS)
+## API Flow (iOS + Android)
 
-When a user opts in on the onboarding screen, the app registers a native device token and stores it in the backend. Your API then targets those tokens when sending a push. APNs uses your bundle ID as the topic so messages are routed to the correct app.
+When a user opts in on the onboarding screen, the app registers a native device token and stores it in the backend. Your API then targets those tokens when sending a push. APNs uses your bundle ID as the topic, and FCM uses your Firebase project to route the message to the correct app.
 
 Key pieces in this repo:
 - `apps/mobile/app/onboarding/push-notifications.tsx`
 - `apps/mobile/lib/notifications.ts`
 - `apps/api/src/lib/push/apns.ts`
+- `apps/api/src/lib/push/fcm.ts`
+- `apps/api/src/routes/api/push.ts`
 - `apps/api/src/routers/push.ts`
 
 ## Quick Start
 
-Start with the iOS setup guide to configure APNs credentials and entitlements. Once the app is rebuilt, use the onboarding screen to register a device token, then send a test push from your API.
+Start with the iOS or Android setup guide to configure credentials and rebuild the app. Once the app is rebuilt, use the onboarding screen to register a device token, then send a test push from your API.
 
-Start with the iOS guide: [iOS Setup](/push-notifications/ios)
+Start here:
+- [iOS Setup](/push-notifications/ios)
+- [Android Setup](/push-notifications/android)
+- [API Setup](/push-notifications/api)
 
 ## Best Practices
 

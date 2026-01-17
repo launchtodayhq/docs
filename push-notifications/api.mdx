@@ -48,7 +48,7 @@ curl -X POST "http://localhost:3001/api/push/token" \
 
 ## Send a Push
 
-The send endpoint accepts a token and routes the message through APNs.
+The send endpoint accepts a token and routes the message through APNs (iOS) or FCM (Android).
 
 Endpoint:
 
@@ -61,8 +61,9 @@ Required headers:
 
 How it works:
 - The API token is looked up in `push_api_tokens`.
+- Device tokens are loaded from `device_tokens` and filtered by user and notification preferences.
 - If no `userId` is provided, it sends to the token owner.
-- Only iOS tokens (`platform: "ios"`) are used for APNs.
+- iOS tokens are sent via APNs and Android tokens via FCM.
 
 Request body:
 ```
@@ -75,7 +76,7 @@ Request body:
 
 Options:
 - `userId`: send to a specific user
-- `all: true`: broadcast to all iOS tokens
+- `all: true`: broadcast to all iOS and Android tokens
 - If neither is set, it sends to the token owner
 
 ### Send push via curl

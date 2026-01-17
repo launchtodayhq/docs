@@ -1,13 +1,82 @@
 ---
-title: "Android (Placeholder)"
-description: "FCM setup coming soon"
+title: "Android (FCM)"
+description: "Configure Firebase Cloud Messaging for Android pushes"
 ---
 
-## Status
+## Overview
 
-Android push notifications are not implemented yet.
+Android push notifications use Firebase Cloud Messaging (FCM). The app registers a native FCM token, stores it in `device_tokens`, and the API sends messages via the FCM HTTP v1 API.
 
-Planned work:
-- Add FCM v1 credentials
-- Register native FCM tokens
-- Send pushes via FCM for Android devices
+Key pieces in this repo:
+- `apps/mobile/lib/notifications.ts`
+- `apps/mobile/app/onboarding/push-notifications.tsx`
+- `apps/api/src/lib/push/fcm.ts`
+- `apps/api/src/routes/api/push.ts`
+- `apps/api/src/routers/push.ts`
+
+## Client Setup (Android)
+
+1. Download `google-services.json` from the Firebase console for the Android app.
+2. Place it at:
+
+```
+apps/mobile/lib/google-services.json
+```
+
+3. Confirm `app.config.ts` points to it:
+
+```
+android: {
+  googleServicesFile: "./lib/google-services.json"
+}
+```
+
+4. Rebuild the native project (required after adding `google-services.json`):
+
+```
+pnpm -C apps/mobile prebuild
+pnpm -C apps/mobile android
+```
+
+Notes:
+- FCM does not work in Expo Go. Use a dev client or a full build.
+- The app creates a notification channel on Android before requesting the token.
+
+## Backend Setup (FCM)
+
+FCM requires a Firebase **service account** (Admin SDK) JSON. Do not use `google-services.json`.
+
+Required env vars:
+- `FCM_PROJECT_ID`
+- `FCM_SERVICE_ACCOUNT_BASE64`
+
+Base64 encode your service account JSON (macOS):
+
+```
+base64 -i /absolute/path/to/service-account.json | pbcopy
+```
+
+Then set:
+
+```
+FCM_PROJECT_ID=your-firebase-project-id
+FCM_SERVICE_ACCOUNT_BASE64=<paste>
+```
+
+## Sending a Test Push
+
+Use the API guide to create a push token and send a test notification. The API sends via APNs for iOS tokens and FCM for Android tokens.
+
+See: [API Setup](/push-notifications/api)
+
+## Troubleshooting
+
+If you see:
+
+```
+Default FirebaseApp is not initialized in this process
+```
+
+Make sure:
+- You rebuilt the Android native project after adding `google-services.json`.
+- You are not running in Expo Go.

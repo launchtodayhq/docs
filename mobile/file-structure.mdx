@@ -11,117 +11,92 @@ The Launch mobile app follows a well-organized structure that makes it easy for 
 
 ```
 apps/mobile/
-├── app/                    # Expo Router screens
-│   ├── (app)/             # Protected app screens
-│   ├── _layout.tsx        # Root layout with auth
-│   ├── index.tsx          # Landing page
-│   └── login.tsx          # Authentication screen
-├── components/            # Reusable UI components
-│   ├── auth/              # Authentication components
-│   ├── ui/                # General UI elements
-│   ├── layout/            # Layout components
-│   ├── theme/             # Theme-related components
-│   ├── platform/          # Platform-specific components
-│   └── hooks/             # Custom React hooks
-├── config/                # App configuration
-│   └── launch.config.ts   # Centralized app settings
-├── constants/             # Design system constants
-│   ├── Colors.ts          # Color palette
-│   ├── Spacing.ts         # Spacing tokens
-│   └── Typography.ts      # Font definitions
-├── contexts/              # React contexts
-│   └── app-theme-context.tsx
-├── lib/                   # Utilities and clients
-│   ├── auth-client.ts     # Authentication client
-│   ├── device-info.ts     # Device information
-│   ├── trpc.ts           # API client
-│   └── useFormFactor.ts   # Device type detection
-└── themes/                # Theme definitions
-    └── pastel-themes.ts
+├── app/                         # Expo Router routes
+│   ├── _layout.tsx              # Root layout/providers/navigation
+│   ├── (tabs)/                  # Tabbed routes
+│   ├── auth/                    # Auth screens
+│   ├── onboarding/              # Onboarding flow
+│   ├── payments/                # Payments screens
+│   ├── file-uploads/            # Uploads screens
+│   ├── ai-chat.tsx              # AI chat screen
+│   └── notifications.tsx        # Notification settings
+├── components/                  # Reusable UI components (flat)
+├── features/                    # Feature modules + registry
+│   ├── feature-registry.tsx
+│   ├── ai/
+│   ├── payments/
+│   ├── file-uploads/
+│   └── sentry/
+├── lib/                         # Clients, hooks, services
+│   ├── auth/                    # Better Auth client + session context
+│   ├── trpc/                    # tRPC client
+│   ├── payments/                # Stripe/RevenueCat/Superwall
+│   ├── ai/                      # Providers, prompts, config
+│   ├── api/                     # API config + health
+│   ├── upload/                  # Upload helpers
+│   └── notifications.ts         # Push setup + registration
+├── constants/                   # Design tokens (colors/spacing/typography)
+├── contexts/                    # App/theme contexts
+├── modules/                     # Native modules (Expo Modules API)
+├── themes/                      # Theme definitions
+└── app.config.ts                # Expo config
 ```
 
 ## Key Patterns
 
 ### Component Organization
 
-Components are organized by purpose into logical folders:
+Components live in a flat `components/` folder. Grouping is done by naming and
+usage instead of subfolders (e.g., `auth-button.tsx`, `model-select.tsx`,
+`screen-container.tsx`). This keeps imports straightforward and avoids deep
+paths.
 
-- **`auth/`** - Authentication-related components (AuthButton, SignOutButton)
-- **`ui/`** - Reusable UI elements (AppText, LoadingState, SimpleCard)
-- **`layout/`** - Layout and navigation components (ScreenScrollView, IPadComingSoon)
-- **`theme/`** - Theme and styling components (ThemeToggle, ThemeSelector)
-- **`platform/`** - Platform-specific components (AnimatedCarousel, CyclingText, Logo)
-- **`hooks/`** - Custom React hooks (useColorScheme, useClientOnlyValue)
+### Configuration & Feature Flags
 
-### Import Strategy
+There is no `launch.config.ts` in the repo. App configuration and feature
+flags live in:
 
-Each component folder has an `index.ts` file for clean imports:
-
-```typescript
-// Instead of multiple imports
-import { AuthButton } from "@/components/auth/auth-button";
-import { SignOutButton } from "@/components/auth/sign-out-button";
-
-// Use category imports
-import { AuthButton, SignOutButton } from "@/components/auth";
-
-// Or use the main index for everything
-import { AuthButton, LoadingState, ThemeToggle } from "@/components";
-```
-
-### Configuration-Driven Development
-
-The `launch.config.ts` file serves as a single source of truth for:
-
-- **App metadata** (name, version, description)
-- **Screen copy** - All text content in one place
-- **Styling constants** (colors, border radius, animations)
-- **Feature flags** (enable/disable features)
-- **Provider configuration** (auth providers, API endpoints)
-
-### Copy Management System
-
-Text content is centralized using helper functions:
-
-```typescript
-// Get copy for specific screen
-const loginTitle = getCopy("login", "title");
-
-// Get copy with variables
-const welcome = getCopy("dashboard", "welcome", { name: "John" });
-
-// Get all copy for a screen
-const loginCopy = getScreenCopy("login");
-```
+- `app.config.ts` (Expo config, plugins, bundle identifiers)
+- `features/feature-registry.tsx` (feature enable/disable, providers)
 
 ## Screen Patterns
 
 ### Authentication Flow
 
 ```typescript
-// _layout.tsx - Route protection
-<Stack.Protected guard={!isLoggedIn}>
-  <Stack.Screen name="index" />
-  <Stack.Screen name="login" />
-</Stack.Protected>
+// app/_layout.tsx - Route protection
+<Stack.Screen name="auth" />
+<Stack.Screen name="onboarding" />
+<Stack.Screen name="(tabs)" />
+```
 
-<Stack.Protected guard={isLoggedIn}>
-  <Stack.Screen name="(app)" />
-</Stack.Protected>
+### Feature Registry
+
+The feature registry composes optional modules (payments, AI, uploads, Sentry)
+in one place:
+
+```tsx
+// apps/mobile/features/feature-registry.tsx
+export const featureRegistry = [
+  paymentsFeature(featureFlags),
+  aiFeature(featureFlags),
+  fileUploadsFeature(featureFlags),
+  sentryFeature(featureFlags),
+];
 ```
 
 ### Component Composition
 
 ```typescript
 // Dashboard screen using reusable components
-export default function Dashboard() {
+export default function HomeScreen() {
   const { data: session, isPending } = authClient.useSession();
 
   if (isPending) return <LoadingState />;
 
   return (
     <View>
-      <AppText>{getCopy("dashboard", "welcome")}</AppText>
+      <AppText>Welcome</AppText>
       <AppText>{session?.user?.email}</AppText>
       <SignOutButton />
     </View>
@@ -181,7 +156,7 @@ className = "font-sans-bold text-4xl";
 
 1. **Authentication state** - Use `authClient.useSession()`
 2. **Theme state** - Use `useTheme()` hook
-3. **Form factor detection** - Use `useFormFactor()` for device types
+3. **Form factor detection** - Use `useResponsive()` for device types
 4. **Local state** - Use React's `useState` and `useEffect`
 
 ### Styling Approach
@@ -195,16 +170,15 @@ className = "font-sans-bold text-4xl";
 
 ### New Screen
 
-1. Create screen file in `app/` directory
-2. Add route to `_layout.tsx` if protected
-3. Update copy in `launch.config.ts`
+1. Create screen file in `app/`
+2. Add route group or stack entry if needed
+3. Gate behind feature registry when optional
 4. Extract reusable components to `components/`
 
 ### New Component
 
-1. Create component in appropriate `components/` subfolder
-2. Add export to subfolder's `index.ts`
-3. Write TypeScript interface for props
-4. Use copy system for any text content
+1. Create component in `components/`
+2. Write TypeScript interface for props
+3. Add to the calling screen or feature module
 
 This structure ensures the codebase remains organized, scalable, and easy to understand for new developers.

@@ -7,173 +7,45 @@ description: "Guide to creating and using reusable components in the mobile app"
 
 The Launch mobile app uses a well-organized component system that promotes reusability, consistency, and maintainability.
 
-## Component Categories
+## Common Components
 
-### Authentication Components (`components/auth/`)
-
-Components related to user authentication and session management.
+Components live in a flat `components/` folder. Here are a few real examples
+from the codebase:
 
 <CodeGroup>
 ```typescript AuthButton
-import { AuthButton } from "@/components/auth";
-
-// Apple Sign-In
+import { AuthButton } from "@/components/auth-button";
 
 <AuthButton
   provider="apple"
   text="Continue with Apple"
   onPress={handleAppleSignIn}
 />
-
-// Google Sign-In
-
-<AuthButton
-  provider="google"
-  text="Continue with Google"
-  onPress={handleGoogleSignIn}
-/>
-
-// Email buttons
-
-<AuthButton provider="email-signup" text="Sign up" onPress={handleSignUp} />
 ```
 
-```typescript SignOutButton
-import { SignOutButton } from "@/components/auth";
-
-// Basic usage
-<SignOutButton />
-
-// With custom styling
-<SignOutButton
-  className="custom-styles"
-  onSignOut={() => console.log("Signed out")}
-  onError={(error) => console.error(error)}
-/>
-```
-
-</CodeGroup>
-
-### UI Components (`components/ui/`)
-
-General-purpose UI elements used throughout the app.
-
-<CodeGroup>
 ```typescript AppText
-import { AppText } from "@/components/ui";
+import { AppText } from "@/components/app-text";
 
 <AppText className="text-lg font-bold text-center">Hello World</AppText>
 ```
 
-```typescript LoadingState
-import { LoadingState } from "@/components/ui";
-
-// Full screen loading
-<LoadingState />
-
-// Inline loading
-<LoadingState
-  fullScreen={false}
-  text="Loading data..."
-  className="p-4"
-/>
-```
-
-```typescript SimpleCard
-import { SimpleCard } from "@/components/ui";
-
-<SimpleCard
-  data={{
-    id: "1",
-    image: require("./assets/card-image.png"),
-    color: "#FF6B6B"
-  }}
-/>
-```
-
-</CodeGroup>
-
-### Layout Components (`components/layout/`)
-
-Components that handle layout and navigation structure.
-
-<CodeGroup>
-```typescript ScreenScrollView
-import { ScreenScrollView } from "@/components/layout";
+```typescript ScreenContainer
+import { ScreenContainer } from "@/components/screen-container";
 
 export default function MyScreen() {
   return (
-    <ScreenScrollView>
-      <View>
-        {/* Your screen content */}
-      </View>
-    </ScreenScrollView>
+    <ScreenContainer>
+      {/* Your screen content */}
+    </ScreenContainer>
   );
 }
 ```
 
-```typescript IPadComingSoon
-import { IPadComingSoon } from "@/components/layout";
+```typescript ModelSelect
+import { ModelSelect } from "@/components/model-select";
 
-// Shown automatically on tablet devices
-// No manual usage needed - handled in _layout.tsx
+<ModelSelect value={model} onValueChange={setModel} />
 ```
-
-</CodeGroup>
-
-### Theme Components (`components/theme/`)
-
-Components for theme management and styling.
-
-<CodeGroup>
-```typescript ThemeToggle
-import { ThemeToggle } from "@/components/theme";
-
-// Usually placed in headers
-
-<Stack.Screen
-  options={{
-    headerRight: () => <ThemeToggle />,
-  }}
-/>
-```
-
-```typescript ThemeSelector
-import { ThemeSelectorBar } from "@/components/theme";
-
-<ThemeSelectorBar />
-```
-
-</CodeGroup>
-
-### Platform Components (`components/platform/`)
-
-Platform-specific or complex interactive components.
-
-<CodeGroup>
-```typescript AnimatedCarousel
-import { AnimatedCarousel } from "@/components/platform";
-
-<AnimatedCarousel data={carouselItems} marginLeft={20} marginRight={0} />
-```
-
-```typescript CyclingText
-import { CyclingText } from "@/components/platform";
-
-<CyclingText
-  appTypes={["social app", "e-commerce app"]}
-  typingSpeed={30}
-  pauseDuration={1500}
-  className="text-2xl font-bold"
-/>
-```
-
-```typescript Logo
-import { Logo } from "@/components/platform";
-
-<Logo width={100} />
-```
-
 </CodeGroup>
 
 ## Creating New Components
@@ -212,15 +84,13 @@ export function MyComponent({
 }
 ```
 
-### Export Pattern
+### Import Pattern
 
-Always export from the folder's index file:
+Components are imported directly from their files:
 
 ```typescript
-// components/ui/index.ts
-export { AppText } from "./app-text";
-export { LoadingState } from "./loading-state";
-export { MyComponent } from "./my-component"; // Add new component
+import { AppText } from "@/components/app-text";
+import { ScreenContainer } from "@/components/screen-container";
 ```
 
 ### TypeScript Best Practices
@@ -289,11 +159,10 @@ export function ThemedComponent() {
 Handle different screen sizes and form factors:
 
 ```typescript
-import { useFormFactor } from "@/lib/useFormFactor";
+import { useResponsive } from "@/components/useResponsive";
 
 export function ResponsiveComponent() {
-  const formFactor = useFormFactor();
-  const isTablet = formFactor.includes("tablet");
+  const { isTablet } = useResponsive();
 
   return (
     <View className={`p-4 ${isTablet ? "max-w-md mx-auto" : "w-full"}`}>
@@ -303,60 +172,11 @@ export function ResponsiveComponent() {
 }
 ```
 
-## Copy Integration
+## Copy Organization
 
-### Using the Copy System
-
-Components should use the centralized copy system:
-
-```typescript
-import { getCopy, getScreenCopy } from "@/config/launch.config";
-
-export function LoginForm() {
-  // Single copy item
-  const submitText = getCopy("login", "submitButton");
-
-  // Copy with variables
-  const welcomeText = getCopy("login", "welcome", { name: "John" });
-
-  // All copy for a screen
-  const allLoginCopy = getScreenCopy("login");
-
-  return (
-    <View>
-      <AppText>{welcomeText}</AppText>
-      <Button>{submitText}</Button>
-    </View>
-  );
-}
-```
-
-### Adding New Copy
-
-Update the config file when adding new components:
-
-```typescript
-// config/launch.config.ts
-export const LaunchConfig = {
-  copy: {
-    // Add new screen copy
-    settings: {
-      title: "Settings",
-      saveButton: "Save Changes",
-      resetButton: "Reset to Default",
-    },
-
-    // Add to common copy
-    common: {
-      loading: "Loading...",
-      error: "Something went wrong",
-      // Add new common copy
-      cancel: "Cancel",
-      confirm: "Confirm",
-    },
-  },
-};
-```
+Launch does not ship with a centralized copy system. Keep copy close to the
+component or feature module it belongs to, and extract shared strings into
+constants when needed.
 
 ## Testing Components
 
@@ -451,13 +271,13 @@ Use lazy loading for heavy components:
 
 ```typescript
 import { lazy, Suspense } from "react";
-import { LoadingState } from "@/components/ui";
+import { AppText } from "@/components/app-text";
 
 const HeavyComponent = lazy(() => import("./heavy-component"));
 
 export function ParentComponent() {
   return (
-    <Suspense fallback={<LoadingState />}>
+    <Suspense fallback={<AppText>Loading...</AppText>}>
       <HeavyComponent />
     </Suspense>
   );

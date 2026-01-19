@@ -5,6 +5,13 @@ description: "Step-by-step guide to configure RevenueCat with App Store Connect"
 
 This guide walks you through setting up RevenueCat from scratch.
 
+<Note>
+  **First run tip:** If you haven’t configured products yet, disable the payments
+  feature to avoid “offerings empty” errors:
+  `apps/mobile/features/feature-registry.tsx` → `featureFlags.payments = false`.
+  Re-enable after setup is complete.
+</Note>
+
 ## Prerequisites
 
 - Apple Developer account ($99/year)

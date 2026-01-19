@@ -173,7 +173,7 @@ const countdown = useCountdown({
 
 1. **Landing** (`/`) → **Sign Up** (`/signup`)
 2. **Sign Up** → **Verify OTP** (`/verify-otp?email=user@example.com`)
-3. **Verify OTP** → **Dashboard** (`/(app)`) via authentication guard
+3. **Verify OTP** → **Dashboard** (`/(tabs)`) via authentication guard
 
 ## Error Handling
 
@@ -235,7 +235,7 @@ await resend.emails.send({
 All components use your app's design system:
 
 - `@/constants/Colors.ts` for color definitions
-- `@/components/ui/app-text.tsx` for themed text
+- `@/components/app-text.tsx` for themed text
 - Dark mode automatically supported
 
 ## Troubleshooting

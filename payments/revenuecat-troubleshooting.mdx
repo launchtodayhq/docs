@@ -68,6 +68,33 @@ This is the most common error. Check these in order:
   the best solution.
 </Tip>
 
+### "None of the products registered in RevenueCat could be fetched from the Play Store"
+
+This is the Android version of “offerings empty.” Check these in order:
+
+<Steps>
+  <Step title="Feature disabled until configured">
+    If you haven’t set up products yet, disable payments to avoid noisy logs:
+    `apps/mobile/features/feature-registry.tsx` → `featureFlags.payments = false`.
+  </Step>
+  <Step title="Verify package name">
+    Your Android package name must match Play Console:
+    `app.config.ts` → `android.package`.
+  </Step>
+  <Step title="Products are active">
+    In Play Console → **Monetize** → **Products**, ensure each product is
+    Active and has pricing set.
+  </Step>
+  <Step title="Use a signed build">
+    Install a signed build (EAS or Play testing). Play Store products won’t
+    load in a debug build.
+  </Step>
+  <Step title="App is in testing track">
+    Upload a build to an internal/closed testing track and add your tester
+    account. Play Billing products usually require a Play-hosted build.
+  </Step>
+</Steps>
+
 ---
 
 ## Configuration Warnings

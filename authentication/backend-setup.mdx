@@ -11,43 +11,35 @@ The Launch API backend uses [Better Auth](https://better-auth.com) to provide se
 
 ### Core Setup
 
-The authentication system is configured in `apps/api/src/auth.ts`:
+The authentication system is configured in `apps/api/src/services/auth.ts`:
 
 ```typescript
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { expo } from "@better-auth/expo";
-import { PrismaClient } from "./generated/client";
+import { config } from "../config";
+import { prisma } from "../lib";
 
 export const auth = betterAuth({
-  secret: process.env.BETTER_AUTH_SECRET,
-  baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3001",
-  
+  secret: config.auth.secret,
+  baseURL: config.auth.baseUrl,
+
   database: prismaAdapter(prisma, {
-    provider: "postgresql",
+    provider: config.database.provider,
   }),
 
-  plugins: [
-    expo(), // Enable Expo/React Native integration
-  ],
+  trustedOrigins: config.cors.allowedOrigins,
+
+  plugins: [expo()],
 
   socialProviders: {
     apple: {
-      clientId: process.env.APPLE_CLIENT_ID!,
-      teamId: process.env.APPLE_TEAM_ID!,
-      keyId: process.env.APPLE_KEY_ID!,
-      privateKey: process.env.APPLE_PRIVATE_KEY_BASE64
-        ? Buffer.from(process.env.APPLE_PRIVATE_KEY_BASE64, "base64").toString("utf8")
-        : process.env.APPLE_PRIVATE_KEY!,
+      clientId: config.apple.clientId,
+      teamId: config.apple.teamId,
+      keyId: config.apple.keyId,
+      privateKey: config.apple.privateKey,
     },
   },
-
-  trustedOrigins: [
-    "http://localhost:3000",
-    "http://localhost:19006", 
-    "launch://",
-    ...(process.env.TRUSTED_ORIGINS?.split(",") || []),
-  ],
 });
 ```
 
@@ -162,7 +154,7 @@ pnpm prisma studio
 
 ### Route Handler
 
-The authentication routes are integrated in `apps/api/src/index.ts`:
+The authentication routes are integrated in `apps/api/src/app.ts`:
 
 ```typescript
 import { auth } from "./auth";

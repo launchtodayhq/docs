@@ -7,18 +7,18 @@ description: "Complete guide to setting up your development environment for the 
 
 Before getting started, ensure you have the following installed:
 
-- **Node.js** (v19 or higher)
+- **Node.js** (v20 or higher)
 - **pnpm** (package manager)
 - **Expo CLI** (`npm install -g @expo/cli`)
 - **iOS Simulator** (macOS only) or **Android Studio**
 
 ## Initial Setup
 
-### 1. Clone and Install
+### 1. Fork and Install
 
 ```bash
-# Clone the repository
-git clone <repository-url>
+# Fork the repository on GitHub, then clone your fork
+git clone https://github.com/<your-username>/launch.git
 cd Launch
 
 # Install dependencies
@@ -58,7 +58,7 @@ APPLE_PRIVATE_KEY_BASE64="base64_encoded_private_key"
 APPLE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----"
 
 # Google Sign-In (Optional)
-GOOGLE_CLIENT_ID="your-google-client-id"
+GOOGLE_WEB_CLIENT_ID="your-google-web-client-id"
 GOOGLE_CLIENT_SECRET="your-google-client-secret"
 
 # CORS and Security
@@ -67,7 +67,8 @@ TRUSTED_ORIGINS="http://localhost:3000,http://localhost:19006,launch://"
 
 **Mobile App Configuration**:
 
-The mobile app gets its configuration from `apps/mobile/config/launch.config.ts` and `apps/mobile/app.config.ts`.
+The mobile app config lives in `apps/mobile/app.config.ts`, and feature
+toggles/providers are defined in `apps/mobile/features/feature-registry.tsx`.
 
 ## Apple Sign-In Setup
 
@@ -159,14 +160,15 @@ Choose your platform:
 
 ### 3. Update API URL
 
-In `apps/mobile/lib/auth-client.ts`, update the baseURL to match your API:
+Set the API URL in your mobile env file:
 
-```typescript
-export const authClient = createAuthClient({
-  baseURL: "http://192.168.0.46:3001/api/auth", // Update this IP
-  // ... rest of config
-});
+```bash
+# apps/mobile/.env
+EXPO_PUBLIC_API_URL="http://localhost:3001"
 ```
+
+The auth client (`apps/mobile/lib/auth/client.ts`) and tRPC client read
+`EXPO_PUBLIC_API_URL` automatically.
 
 **Find your local IP:**
 
@@ -239,7 +241,7 @@ TRUSTED_ORIGINS="https://your-web-app.com,launch://,your-expo-scheme://"
 
 **Mobile App**:
 
-- Update `baseURL` in auth-client.ts to production API
+- Set `EXPO_PUBLIC_API_URL` in `apps/mobile/.env` to production API
 - Configure production Apple Sign-In domains
 - Test thoroughly on TestFlight before App Store submission
 

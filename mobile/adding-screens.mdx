@@ -33,17 +33,14 @@ Create your screen file in the `app/` directory:
 ```tsx
 import { View } from "react-native";
 import { useTheme } from "heroui-native";
-import { AppText } from "@/components/ui/app-text";
-import { ScreenScrollView } from "@/components/layout/screen-scroll-view";
+import { AppText } from "@/components/app-text";
+import { ScreenContainer } from "@/components/screen-container";
 
 export default function YourScreen() {
   const { colors } = useTheme();
 
   return (
-    <ScreenScrollView
-      style={{ backgroundColor: colors.background }}
-      contentInsetAdjustmentBehavior="automatic"
-    >
+    <ScreenContainer style={{ backgroundColor: colors.background }}>
       <View className="px-5 py-6">
         <AppText className="text-3xl font-bold mb-2">Your Screen Title</AppText>
 
@@ -53,16 +50,17 @@ export default function YourScreen() {
 
         {/* Your screen content here */}
       </View>
-    </ScreenScrollView>
+    </ScreenContainer>
   );
 }
 ```
 
-### 2. Register the Route in AppStack
+### 2. Customize Screen Options (Optional)
 
-Add the screen to the main navigation stack:
+Expo Router uses file-based routing, so your screen is registered automatically.
+If you want custom header options, add them to the layout:
 
-**File**: `apps/mobile/components/navigation/app-stack.tsx`
+**File**: `apps/mobile/app/_layout.tsx` or `apps/mobile/app/(tabs)/_layout.tsx`
 
 ```tsx
 <Stack.Screen
@@ -71,23 +69,14 @@ Add the screen to the main navigation stack:
     title: "Your Screen Title",
     presentation: "card",
     headerShown: true,
-    headerBackTitle: "Features", // Customize back button text
   }}
 />
 ```
 
-### 3. Add to Navigation Guards (if needed)
+### 3. Adjust Redirect Rules (if needed)
 
-If the screen should be accessible to authenticated users without redirect:
-
-**File**: `apps/mobile/lib/hooks/useAppNavigation.ts`
-
-```tsx
-const allowedModalRoutes = [
-  "/payments",
-  "/your-screen", // Add your route here
-];
-```
+If the screen should be reachable during onboarding or auth flows, update the
+redirect logic in `apps/mobile/lib/hooks/useAppNavigation.ts`.
 
 ### 4. Add Navigation from Other Screens
 
@@ -172,29 +161,11 @@ presentation: "fullScreenModal"; // Full screen overlay
 
 ## Navigation Guards
 
-The app includes automatic navigation guards that redirect users based on authentication state:
+Navigation guards live in `apps/mobile/lib/hooks/useAppNavigation.ts` and handle:
 
-### Protected Routes
-
-Routes that require authentication and will redirect if not authenticated:
-
-```tsx
-const protectedRoutes = ["/(tabs)", "/(tabs)/explore", "/(tabs)/profile"];
-```
-
-### Allowed Modal Routes
-
-Routes that authenticated users can access outside the main tabs flow:
-
-```tsx
-const allowedModalRoutes = ["/payments", "/your-screen"];
-```
-
-### How It Works
-
-- **Unauthenticated users**: Redirected to login
-- **Authenticated users**: Can access tabs and allowed modal routes
-- **Incomplete onboarding**: Redirected to onboarding flow
+- Redirecting unauthenticated users to auth
+- Redirecting users with incomplete onboarding
+- Sending fully onboarded users to the main tabs
 
 ## Common Issues and Solutions
 
@@ -212,13 +183,10 @@ grandParentNav?.navigate("your-screen" as never);
 
 ### Issue: Automatic Redirect Away from Screen
 
-**Problem**: User gets redirected back to tabs immediately.
+**Problem**: User gets redirected back to onboarding or tabs.
 
-**Solution**: Add route to `allowedModalRoutes` in `useAppNavigation.ts`:
-
-```tsx
-const allowedModalRoutes = ["/payments", "/your-screen"];
-```
+**Solution**: Update redirect logic in `useAppNavigation.ts` so the new route is
+reachable for your target user state.
 
 ### Issue: Wrong Back Button Text
 
@@ -234,7 +202,7 @@ headerBackTitle: "Features"; // Shows "< Features"
 
 ### 1. Consistent Screen Structure
 
-- Use `ScreenScrollView` for layout consistency
+- Use `ScreenContainer` for layout consistency
 - Follow the established padding/margin patterns
 - Use theme colors via `useTheme()`
 
@@ -252,7 +220,7 @@ headerBackTitle: "Features"; // Shows "< Features"
 
 ### 4. Navigation Guards
 
-- Add new routes to `allowedModalRoutes` if they should be accessible
+- Update redirect rules in `useAppNavigation.ts` when adding new flows
 - Consider authentication requirements
 - Test navigation flows thoroughly
 
@@ -265,17 +233,14 @@ Here's a complete example following all best practices:
 ```tsx
 import { View } from "react-native";
 import { useTheme } from "heroui-native";
-import { AppText } from "@/components/ui/app-text";
-import { ScreenScrollView } from "@/components/layout/screen-scroll-view";
+import { AppText } from "@/components/app-text";
+import { ScreenContainer } from "@/components/screen-container";
 
 export default function AIChatScreen() {
   const { colors } = useTheme();
 
   return (
-    <ScreenScrollView
-      style={{ backgroundColor: colors.background }}
-      contentInsetAdjustmentBehavior="automatic"
-    >
+    <ScreenContainer style={{ backgroundColor: colors.background }}>
       <View className="px-5 py-6">
         <AppText className="text-3xl font-bold mb-2">AI Chat</AppText>
 
@@ -285,7 +250,7 @@ export default function AIChatScreen() {
 
         {/* Provider selection and setup content */}
       </View>
-    </ScreenScrollView>
+    </ScreenContainer>
   );
 }
 ```
@@ -302,12 +267,6 @@ export default function AIChatScreen() {
     headerBackTitle: "Features",
   }}
 />
-```
-
-**Navigation Guard**:
-
-```tsx
-const allowedModalRoutes = ["/payments", "/ai-chat"];
 ```
 
 **Navigation from FeatureCard**:

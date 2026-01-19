@@ -26,13 +26,13 @@ graph LR
 ### Key Components
 
 <Card title="Auth Client" icon="key">
-  **Location**: `lib/auth-client.ts` Central authentication client that handles
+  **Location**: `lib/auth/client.ts` Central authentication client that handles
   all auth operations, session management, and device tracking.
 </Card>
 
 <Card title="Route Protection" icon="shield">
-  **Location**: `app/_layout.tsx` Uses Expo Router's `Stack.Protected` to
-  declaratively protect routes based on authentication state.
+  **Location**: `app/_layout.tsx` and `lib/hooks/useAppNavigation.ts`. Navigation
+  guards redirect users based on session and onboarding state.
 </Card>
 
 <Card title="Device Tracking" icon="mobile">
@@ -44,7 +44,7 @@ graph LR
 
 ### 1. Auth Client Setup
 
-The authentication client is configured in `lib/auth-client.ts`:
+The authentication client is configured in `lib/auth/client.ts`:
 
 ```typescript
 export const authClient = createAuthClient({
@@ -92,34 +92,14 @@ export const authClient = createAuthClient({
 
 ### 2. Route Protection
 
-Authentication state determines which screens users can access:
-
-```typescript
-function RootLayoutNav() {
-  const { data: session, isPending } = authClient.useSession();
-  const isLoggedIn = !!session;
-
-  return (
-    <Stack>
-      {/* Public routes - only when NOT logged in */}
-      <Stack.Protected guard={!isLoggedIn}>
-        <Stack.Screen name="index" />      {/* Landing page */}
-        <Stack.Screen name="login" />      {/* Login screen */}
-      </Stack.Protected>
-
-      {/* Protected routes - only when logged in */}
-      <Stack.Protected guard={isLoggedIn}>
-        <Stack.Screen name="(app)" />      {/* Main app */}
-      </Stack.Protected>
-    </Stack>
-  );
-}
-```
+Authentication state determines which screens users can access. The current
+implementation handles redirects in `useAppNavigation.ts` and keeps the route
+stack defined in `app/_layout.tsx`.
 
 **Benefits:**
 
-- **Declarative**: Clear separation of public vs protected routes
-- **Automatic**: No manual navigation logic needed
+- **Centralized**: Redirect rules live in one hook
+- **Automatic**: Users are routed based on auth and onboarding state
 - **Type Safe**: Expo Router provides full TypeScript support
 
 ### 3. Session Management

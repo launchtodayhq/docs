@@ -5,19 +5,19 @@ description: "Set up passwordless email authentication using one-time passwords 
 
 ## Overview
 
-Launch includes a complete email authentication system using one-time passwords (OTP). This provides a passwordless, secure sign-in experience that works seamlessly with the existing social authentication flows.
+Email sign-in is fully wired with Better Auth + Resend. Users enter their email,
+receive a 6-digit code, and verify it in-app to create a session.
 
-## Features
+## Features (UI)
 
-- **Passwordless Authentication**: Users sign in with just their email address
-- **6-digit OTP Codes**: Secure verification codes sent via email
-- **Auto-verification**: Automatically verifies when the 6th digit is entered
-- **Resend Functionality**: 30-second countdown with resend capability
-- **React Query Integration**: Optimistic loading states and error handling
-- **Haptic Feedback**: Success and error vibrations on mobile devices
-- **Dark Mode Support**: Fully themed for light and dark modes
+- Email capture screen with validation
+- Haptic feedback on submit
+- Dark mode support
 
 ## Backend Setup
+
+The backend supports email OTP via Resend. You can wire the mobile flow to these
+endpoints once your UI is ready.
 
 ### 1. Install Resend
 
@@ -91,46 +91,12 @@ If code isn't received:
 - **Visual Feedback**: Shows countdown and loading states
 - **Automatic Restart**: Timer restarts after successful resend
 
-## Code Structure
+## Current Implementation
 
-### Mutations (React Query)
+The email sign-in flow lives at:
 
-All email authentication logic is organized in domain-specific mutations:
-
-```
-📁 apps/mobile/lib/mutations/auth/
-├── email-otp.ts              # OTP mutations
-└── index.ts                  # Auth exports
-```
-
-**Available Mutations:**
-
-- `useSendEmailOtpMutation` - Send OTP to email
-- `useVerifyEmailOtpMutation` - Verify OTP code
-- `useResendEmailOtpMutation` - Resend OTP code
-
-### Usage Example
-
-```typescript
-import { useSendEmailOtpMutation } from "@/lib/mutations";
-
-function SignUpScreen() {
-  const sendEmailOtpMutation = useSendEmailOtpMutation();
-
-  const handleEmailSignUp = () => {
-    sendEmailOtpMutation.mutate(email);
-  };
-
-  return (
-    <Button
-      disabled={sendEmailOtpMutation.isPending}
-      onPress={handleEmailSignUp}
-    >
-      {sendEmailOtpMutation.isPending ? "Sending..." : "Continue"}
-    </Button>
-  );
-}
-```
+- `apps/mobile/app/auth/email-signin.tsx` (send code)
+- `apps/mobile/app/auth/verify-email-otp.tsx` (enter code)
 
 ## UI Components
 
@@ -169,25 +135,17 @@ const countdown = useCountdown({
 });
 ```
 
-## Navigation Flow
+## Navigation Flow (Example)
 
-1. **Landing** (`/`) → **Sign Up** (`/signup`)
-2. **Sign Up** → **Verify OTP** (`/verify-otp?email=user@example.com`)
-3. **Verify OTP** → **Dashboard** (`/(tabs)`) via authentication guard
+Route from the email screen to the verification screen, then the auth guard
+redirects to the authenticated app on success.
 
 ## Error Handling
 
 ### Current Implementation
 
-- Console logging for debugging
-- Haptic feedback for user awareness
-- Visual error states (red borders, shake animations)
-
-### TODO: User-Facing Errors
-
-- Toast notifications for network errors
-- Inline error messages for invalid codes
-- Rate limiting feedback
+- Haptic feedback for success and failure
+- Inline OTP error animation on invalid codes
 
 ## Testing
 
@@ -259,3 +217,8 @@ All components use your app's design system:
 1. Ensure authentication guard is properly configured
 2. Check session state management
 3. Verify route protection in `_layout.tsx`
+
+## Remove / Disable
+
+If you are not shipping email sign-in, remove the route at
+`apps/mobile/app/auth/email-signin.tsx` and any related API configuration.

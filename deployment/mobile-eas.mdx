@@ -24,6 +24,8 @@ description: "Build and distribute your app with Expo Application Services"
 
 Expo Application Services (EAS) handles building and submitting your app to the App Store and Google Play.
 
+For most apps, EAS is the only deployment workflow you need.
+
 ## Prerequisites
 
 - Expo account ([expo.dev](https://expo.dev))
@@ -64,6 +66,18 @@ This creates `eas.json`:
     "production": {}
   }
 }
+```
+
+## Development Builds (Required for Native SDKs)
+
+Some integrations (RevenueCat, push notifications, background uploads) require
+a development build and will not work in Expo Go.
+
+Create a dev client:
+
+```bash
+eas build --platform ios --profile development
+eas build --platform android --profile development
 ```
 
 ## 2. Build for iOS
@@ -122,7 +136,7 @@ For production builds, configure environment variables in `eas.json`:
   "build": {
     "production": {
       "env": {
-        "API_URL": "https://your-api.railway.app"
+        "EXPO_PUBLIC_API_URL": "https://your-api.railway.app"
       }
     }
   }
@@ -148,15 +162,11 @@ For production builds, configure environment variables in `eas.json`:
 ## Next Steps
 
 <CardGroup cols={2}>
-  <Card title="iOS Submission" icon="apple" href="/app-stores/ios-submission">
-    Submit to App Store Connect
+  <Card title="App Store Submission" icon="apple" href="/app-stores/index">
+    Submission checklist and required assets
   </Card>
-  <Card
-    title="Android Submission"
-    icon="google-play"
-    href="/app-stores/android-submission"
-  >
-    Submit to Google Play Console
+  <Card title="Security Checklist" icon="check" href="/security/checklist">
+    Final pre-launch review
   </Card>
 </CardGroup>
 

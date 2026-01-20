@@ -93,6 +93,25 @@ Check your API logs for webhook activity:
 💾 Payment saved to database for user: usr_xxx
 ```
 
+## Test Checklist
+
+- Webhook endpoint responds to Stripe test events
+- `STRIPE_WEBHOOK_SECRET` matches the dashboard
+- Subscription/payment records update in the database
+
+## Troubleshooting
+
+If events are not received, verify ngrok URL and webhook configuration in
+Stripe Dashboard.
+
+## Remove / Disable
+
+To disable payments while you configure Stripe, set:
+
+`apps/mobile/features/feature-registry.tsx` → `featureFlags.payments = false`
+
+For production removal guidance, see [Removing Features](/essentials/removing-features).
+
 ## Next Steps
 
 <CardGroup cols={2}>

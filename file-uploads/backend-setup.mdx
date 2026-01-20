@@ -161,6 +161,24 @@ const STORAGE_QUOTA = 5 * 1024 * 1024 * 1024; // 5GB
   </Accordion>
 </AccordionGroup>
 
+## Test Checklist
+
+- API starts without S3 errors
+- `requestUploadUrl` returns a presigned URL
+- Uploaded file can be confirmed in the database
+
+## Troubleshooting
+
+If uploads fail, re-check S3 credentials and bucket CORS settings.
+
+## Remove / Disable
+
+To disable uploads while you configure S3, set:
+
+`apps/mobile/features/feature-registry.tsx` → `featureFlags.fileUploads = false`
+
+For production removal guidance, see [Removing Features](/essentials/removing-features).
+
 
 
 

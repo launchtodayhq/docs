@@ -81,16 +81,34 @@ function UpgradeButton() {
 ## File Structure
 
 ```
-lib/payments/
+apps/mobile/lib/payments/
 ├── config.ts              # API keys, provider selection
 ├── revenuecat/
 │   ├── provider.tsx       # RevenueCatProvider context
 │   └── index.ts           # Exports
 └── types.ts               # Shared types
 
-app/payments/
+apps/mobile/app/payments/
 └── revenuecat.tsx         # Paywall screen (uses RevenueCat UI)
 ```
+
+## Test Checklist
+
+- Offerings load in the paywall
+- Sandbox purchase succeeds
+- Entitlement state updates in-app
+
+## Troubleshooting
+
+See [RevenueCat Troubleshooting](/payments/revenuecat-troubleshooting).
+
+## Remove / Disable
+
+To disable RevenueCat while you configure products, set:
+
+`apps/mobile/features/feature-registry.tsx` → `featureFlags.payments = false`
+
+For production removal guidance, see [Removing Features](/essentials/removing-features).
 
 ## Next Steps
 

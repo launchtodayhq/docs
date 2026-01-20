@@ -55,14 +55,36 @@ Key pieces in this repo:
 - `apps/api/src/routes/api/push.ts`
 - `apps/api/src/routers/push.ts`
 
-## Quick Start
+## Setup
 
-Start with the iOS or Android setup guide to configure credentials and rebuild the app. Once the app is rebuilt, use the onboarding screen to register a device token, then send a test push from your API.
+1. Configure credentials:
+   - [iOS Setup](/push-notifications/ios)
+   - [Android Setup](/push-notifications/android)
+2. Rebuild the app (push entitlements require a native build).
+3. Use the onboarding screen to register a device token.
+4. Send a test push from your API: [API Setup](/push-notifications/api)
 
-Start here:
-- [iOS Setup](/push-notifications/ios)
-- [Android Setup](/push-notifications/android)
-- [API Setup](/push-notifications/api)
+## How It Works
+
+- The app registers a native device token
+- Tokens are stored in `device_tokens` on the backend
+- The API sends via APNs (iOS) or FCM (Android)
+
+## Test Checklist
+
+- iOS device receives a test push
+- Android device receives a test push
+- Token is stored on the backend for the signed-in user
+
+## Troubleshooting
+
+Start with platform setup guides, then see [Troubleshooting](/troubleshooting).
+
+## Remove / Disable
+
+If you are not shipping push, skip the onboarding step and remove token
+registration in `apps/mobile/lib/notifications.ts`. For production removal
+guidance, see [Removing Features](/essentials/removing-features).
 
 ## Best Practices
 

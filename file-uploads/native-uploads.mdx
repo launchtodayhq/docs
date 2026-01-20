@@ -193,6 +193,25 @@ Check native logs:
 - **iOS**: Xcode Console
 - **Android**: `adb logcat | grep LaunchReactNativeFileUploader`
 
+## Test Checklist
+
+- Large file (>40MB) uses native upload
+- Progress events fire and UI updates
+- Upload completes after backgrounding the app
+
+## Troubleshooting
+
+If native uploads stall, verify device background permissions and check native
+logs for errors.
+
+## Remove / Disable
+
+To disable uploads while you configure S3, set:
+
+`apps/mobile/features/feature-registry.tsx` → `featureFlags.fileUploads = false`
+
+For production removal guidance, see [Removing Features](/essentials/removing-features).
+
 
 
 

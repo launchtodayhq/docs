@@ -40,9 +40,41 @@ Launch includes multiple payment integration options to help you monetize your a
   subscription management or A/B testing.
 </Note>
 
-## Getting Started
+## Setup
 
-1. **[Stripe](/payments/stripe)** - Start here for the most flexible option
-2. **[RevenueCat](/payments/revenuecat)** - Add if you need cross-platform subscription sync
-3. **[Superwall](/payments/superwall)** - Add if you want to A/B test paywalls
-4. **[Paddle](/payments/paddle)** - Use if you need merchant of record services
+1. Choose a provider:
+   - [Stripe](/payments/stripe)
+   - [RevenueCat](/payments/revenuecat)
+   - [Superwall](/payments/superwall)
+2. Follow the setup guide for your provider.
+3. Ensure `featureFlags.payments = true` in
+   `apps/mobile/features/feature-registry.tsx`.
+
+## How It Works
+
+Launch wraps payment providers behind a unified interface. The provider is
+selected in `apps/mobile/lib/payments/config.ts`, and the UI reads from the
+provider layer.
+
+## Test Checklist
+
+- Paywall screen renders
+- Products/prices load from the provider
+- Test purchase completes and updates entitlement state
+
+## Troubleshooting
+
+Use provider-specific troubleshooting:
+
+- [RevenueCat Troubleshooting](/payments/revenuecat-troubleshooting)
+- [Superwall Troubleshooting](/payments/superwall-troubleshooting)
+
+For general issues, see [Troubleshooting](/troubleshooting).
+
+## Remove / Disable
+
+To disable payments while you configure providers, set:
+
+`apps/mobile/features/feature-registry.tsx` → `featureFlags.payments = false`
+
+For production removal guidance, see [Removing Features](/essentials/removing-features).

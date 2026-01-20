@@ -165,6 +165,25 @@ const result = await DocumentPicker.getDocumentAsync({
 const PHOTO_SIZE = 84; // Thumbnail size in pixels
 ```
 
+## Test Checklist
+
+- Select a photo and upload successfully
+- Large file triggers multipart or native upload
+- Upload progress updates in UI
+
+## Troubleshooting
+
+If uploads fail, verify permissions and `EXPO_PUBLIC_API_URL` in
+`apps/mobile/.env`.
+
+## Remove / Disable
+
+To disable uploads while you configure S3, set:
+
+`apps/mobile/features/feature-registry.tsx` → `featureFlags.fileUploads = false`
+
+For production removal guidance, see [Removing Features](/essentials/removing-features).
+
 
 
 

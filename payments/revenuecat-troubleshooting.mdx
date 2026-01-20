@@ -266,3 +266,11 @@ Look for these log patterns:
     Official documentation
   </Card>
 </CardGroup>
+
+## Remove / Disable
+
+To disable payments while you configure RevenueCat, set:
+
+`apps/mobile/features/feature-registry.tsx` → `featureFlags.payments = false`
+
+For production removal guidance, see [Removing Features](/essentials/removing-features).

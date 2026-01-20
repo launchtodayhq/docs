@@ -72,35 +72,9 @@ graph TB
   functionality, reducing prop drilling and simplifying component interactions.
 </Card>
 
-## Supported Providers
+## Setup
 
-### OpenAI
-
-```typescript
-// Available models
-- gpt-4o          // Latest multimodal model
-- gpt-4           // Most capable reasoning model
-- gpt-3.5-turbo   // Fast and cost-effective
-```
-
-### Anthropic
-
-```typescript
-// Available models
--claude -
-  3 -
-  5 -
-  sonnet - // Best balance of speed and capability
-  claude -
-  3 -
-  opus; // Most powerful for complex tasks
-```
-
-## Quick Start
-
-### 1. Configure Your API Keys
-
-Add your API keys to the backend environment:
+1. Add API keys to your backend `.env`:
 
 ```bash
 # OpenAI
@@ -110,18 +84,21 @@ OPENAI_API_KEY=sk-...
 ANTHROPIC_API_KEY=sk-ant-...
 ```
 
-### 2. Using the Chat Screen
+2. Ensure the AI feature flag is enabled:
 
-The chat screen is available at `/ai-chat`.
+`apps/mobile/features/feature-registry.tsx` → `featureFlags.ai = true`
 
-High-level flow:
+3. Open the chat screen at `/ai-chat`.
+
+## How It Works
 
 - Mobile streams tokens from the API via `POST /api/ai/stream` (SSE)
 - Chat history is persisted via tRPC procedures under `chat.*`
+- System prompts are defined in `apps/mobile/lib/ai/prompts/index.ts`
 
-### 3. Customizing System Prompts
+## Customizing System Prompts
 
-System prompts define the AI's persona and behavior. They're configured in `lib/ai/prompts/index.ts`:
+System prompts define the AI's persona and behavior:
 
 ```typescript
 export const systemPrompts = {
@@ -268,20 +245,24 @@ The chat feature exposes the following tRPC procedures:
 | `chat.addMessage`  | Mutation | Add a message to a chat            |
 | `chat.updateTitle` | Mutation | Update chat title                  |
 
-## Next Steps
+## Test Checklist
 
-<Columns cols={2}>
-  <Card title="Extending Providers" icon="plug" href="/ai-features/providers">
-    Learn how to add custom AI providers.
-  </Card>
-  <Card
-    title="Custom System Prompts"
-    icon="message"
-    href="/ai-features/system-prompts"
-  >
-    Create specialized AI personas for your app.
-  </Card>
-</Columns>
+- Chat screen loads and streams responses
+- New chats are saved and appear in history
+- Switching models updates the active provider
+
+## Troubleshooting
+
+If streaming fails, verify API keys and server logs. For general issues, start
+with [Troubleshooting](/troubleshooting).
+
+## Remove / Disable
+
+To disable AI while you configure providers, set:
+
+`apps/mobile/features/feature-registry.tsx` → `featureFlags.ai = false`
+
+For production removal guidance, see [Removing Features](/essentials/removing-features).
 
 
 

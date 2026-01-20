@@ -238,6 +238,25 @@ To add more types, modify `ALLOWED_MIME_TYPES` in `apps/api/src/routers/upload.t
 | Maximum file size   | 5 GB   |
 | Default user quota  | 500 MB |
 
+## Test Checklist
+
+- `requestUploadUrl` returns a presigned URL
+- Upload succeeds and `confirmUpload` marks the file as uploaded
+- Multipart uploads complete successfully
+
+## Troubleshooting
+
+If you see `BAD_REQUEST` or `QUOTA_EXCEEDED`, confirm allowed MIME types and
+storage quota configuration.
+
+## Remove / Disable
+
+To disable uploads while you configure S3, set:
+
+`apps/mobile/features/feature-registry.tsx` → `featureFlags.fileUploads = false`
+
+For production removal guidance, see [Removing Features](/essentials/removing-features).
+
 
 
 

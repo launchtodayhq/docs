@@ -420,3 +420,20 @@ app.use(async (ctx, next) => {
 - [Apple Sign-In Setup](/authentication/apple-signin) - Configure Apple authentication
 - [Google Sign-In Setup](/authentication/google-signin) - Add Google authentication
 - [Mobile Integration](/mobile/authentication) - Connect mobile app to backend
+
+## Test Checklist
+
+- API starts without auth errors
+- `/api/auth/*` endpoints respond
+- Login creates a user/session
+
+## Troubleshooting
+
+If auth fails, verify env vars and restart the API server. For general help, see
+[Troubleshooting](/troubleshooting).
+
+## Remove / Disable
+
+If you are not using a provider, remove its env vars and provider config in
+`apps/api/src/services/auth.ts`. For production removal guidance, see
+[Removing Features](/essentials/removing-features).

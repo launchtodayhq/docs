@@ -66,6 +66,20 @@ Launch automatically selects the best upload strategy based on file size:
   </Card>
 </CardGroup>
 
+## Setup
+
+1. Configure S3 and backend env vars: [Backend Setup](/file-uploads/backend-setup)
+2. Integrate the mobile UI: [Mobile Setup](/file-uploads/mobile-setup)
+3. Enable the feature flag:
+
+`apps/mobile/features/feature-registry.tsx` → `featureFlags.fileUploads = true`
+
+## How It Works
+
+- Mobile requests presigned URLs from the API
+- Uploads go directly to S3
+- The API confirms and records uploads
+
 ## Quick Links
 
 <CardGroup cols={2}>
@@ -82,6 +96,25 @@ Launch automatically selects the best upload strategy based on file size:
     Complete API documentation for upload endpoints.
   </Card>
 </CardGroup>
+
+## Test Checklist
+
+- Select a photo and upload successfully
+- Large file triggers multipart or native upload
+- Uploaded file appears in the list
+
+## Troubleshooting
+
+Start with [Troubleshooting](/troubleshooting) and verify S3 credentials and
+CORS configuration.
+
+## Remove / Disable
+
+To disable uploads while you configure S3, set:
+
+`apps/mobile/features/feature-registry.tsx` → `featureFlags.fileUploads = false`
+
+For production removal guidance, see [Removing Features](/essentials/removing-features).
 
 
 

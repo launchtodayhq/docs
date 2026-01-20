@@ -1,0 +1,54 @@
+---
+title: "Prerequisites"
+description: "Install the tools required to run Launch"
+---
+
+This guide covers the minimum tooling needed to run `apps/mobile` and
+`apps/api` locally.
+
+## Required Tools
+
+<Steps>
+  <Step title="Node.js 20+">
+    Install with nvm (recommended):
+    ```bash
+    nvm install 20
+    nvm use 20
+    node --version
+    ```
+  </Step>
+  <Step title="pnpm">
+    ```bash
+    npm install -g pnpm
+    pnpm --version
+    ```
+  </Step>
+  <Step title="Expo CLI">
+    ```bash
+    npm install -g @expo/cli
+    expo --version
+    ```
+  </Step>
+  <Step title="Git">
+    ```bash
+    git --version
+    ```
+  </Step>
+  <Step title="PostgreSQL">
+    Use Docker or install PostgreSQL locally.
+    See [Quickstart](/quickstart) for both options.
+  </Step>
+</Steps>
+
+## Mobile Runtime Options
+
+- **Expo Go (fastest)**: run on a physical device with the Expo Go app
+- **iOS Simulator**: requires Xcode
+- **Android Emulator**: requires Android Studio
+
+If you are using a physical device, make sure it is on the same Wi‑Fi
+network as your computer.
+
+## Next Step
+
+Continue to [Quickstart](/quickstart) to set up the monorepo and start the app.

@@ -371,10 +371,9 @@ Use these Stripe test cards:
 
 After completing this setup, you can:
 
-1. **[Implement tRPC Middlewares](/payments/feature-catalog)** - Add entitlement checking
-2. **Create Usage Tracking** - Monitor document uploads
-3. **Build Pricing Screen** - Let users choose plans
-4. **Add Billing Management** - Customer portal integration
+1. **Build Pricing Screen** - Let users choose plans
+2. **Add Billing Management** - Customer portal integration
+3. **Review Paywall Best Practices** - [Paywall Best Practices](/payments/paywall-best-practices)
 
 ## Getting Help
 
@@ -386,3 +385,11 @@ If you run into issues:
 4. **Verify environment variables** - Restart servers after changes
 
 Your Stripe integration should now be fully functional! 🎉
+
+## Remove / Disable
+
+To disable payments while you configure Stripe, set:
+
+`apps/mobile/features/feature-registry.tsx` → `featureFlags.payments = false`
+
+For production removal guidance, see [Removing Features](/essentials/removing-features).

@@ -129,6 +129,24 @@ try {
 }
 ```
 
+## Test Checklist
+
+- `stripe.getProducts` returns products
+- `stripe.createPaymentIntent` returns a client secret
+- `stripe.createCheckoutSession` returns a valid URL
+
+## Troubleshooting
+
+If API calls fail, verify Stripe keys in `apps/api/.env` and restart the API.
+
+## Remove / Disable
+
+To disable payments while you configure Stripe, set:
+
+`apps/mobile/features/feature-registry.tsx` → `featureFlags.payments = false`
+
+For production removal guidance, see [Removing Features](/essentials/removing-features).
+
 ## Next Steps
 
 <CardGroup cols={2}>

@@ -26,8 +26,8 @@ graph LR
 ### Key Components
 
 <Card title="Auth Client" icon="key">
-  **Location**: `lib/auth/client.ts` Central authentication client that handles
-  all auth operations, session management, and device tracking.
+  **Location**: `apps/mobile/lib/auth/client.ts`. Central authentication client
+  that handles Better Auth requests, secure storage, and device headers.
 </Card>
 
 <Card title="Route Protection" icon="shield">
@@ -36,8 +36,8 @@ graph LR
 </Card>
 
 <Card title="Device Tracking" icon="mobile">
-  **Location**: `lib/device-info.ts` Automatically captures device information
-  for security and analytics purposes.
+  **Location**: `apps/mobile/lib/utils/device-info.ts`. Captures device
+  information for security and analytics purposes.
 </Card>
 
 ## Implementation Details
@@ -104,12 +104,13 @@ stack defined in `app/_layout.tsx`.
 
 ### 3. Session Management
 
-Sessions are handled automatically with the following behavior:
+Sessions are managed by a lightweight provider that calls Better Auth to fetch
+the current session on app start and after auth events:
 
 - **Persistence**: Sessions survive app restarts via SecureStore
-- **Auto-refresh**: Sessions refresh automatically before expiration
-- **Instant Updates**: Auth state changes trigger immediate UI updates
-- **Error Handling**: Network errors gracefully handled with retry logic
+- **Manual refresh**: `SessionProvider` calls `authClient.getSession()` on mount
+  and exposes a `refetch()` helper used after sign-in/sign-out
+- **Navigation**: `useAppNavigation` derives the auth/onboarding target route
 
 ### 4. Device Information Tracking
 
@@ -166,15 +167,35 @@ await authClient.signIn.social({
 
 ### Google Sign-In
 
-Prepared for future implementation with consistent UI patterns.
+Implemented via Better Auth's Expo client. The login screen calls
+`authClient.signIn.social({ provider: "google" })`, which opens the OAuth flow
+in a browser and returns to the app via the `launch://` scheme.
 
-### Email/Password
+### Email Sign-In (OTP)
 
-Supports traditional email authentication with the following features:
+Email OTP sign-in is wired end-to-end. The flow uses Better Auth's email OTP
+plugin and a dedicated verification screen:
 
-- Password validation
-- Account creation
-- Password reset (when email is configured)
+- `apps/mobile/app/auth/email-signin.tsx` (send code)
+- `apps/mobile/app/auth/verify-email-otp.tsx` (enter code)
+- `docs/authentication/email-signin.mdx` (setup details)
+
+## Platform-specific Behavior
+
+### iOS
+
+- **Apple Sign-In** uses the native `expo-apple-authentication` flow to obtain
+  an Apple identity token and then calls Better Auth
+  `signIn.social({ provider: "apple", idToken })`.
+- **Google Sign-In** uses Better Auth's Expo client for browser-based OAuth and
+  deep links back to the app via the `launch://` scheme.
+
+### Android
+
+- **Google Sign-In** uses the same Better Auth Expo client flow as iOS (browser
+  OAuth + deep link). Ensure your auth flow starts and ends on the same origin
+  to avoid state mismatch errors.
+- **Apple Sign-In** is not available on Android.
 
 ## Security Features
 
@@ -304,4 +325,3 @@ See the [Environment Setup Guide](/mobile/environment-setup) for complete config
 
 - [Environment Setup](/mobile/environment-setup) - Configure your development environment
 - [File Structure](/mobile/file-structure) - Understand the mobile app organization
-- [API Reference](/api-reference/introduction) - Backend authentication endpoints

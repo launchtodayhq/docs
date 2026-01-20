@@ -22,26 +22,8 @@ description: "Get Launch running in under 10 minutes"
 
 ## Prerequisites
 
-Before starting, ensure you have:
-
-<Steps>
-  <Step title="Node.js 20+">
-    ```bash
-    node --version
-    ```
-  </Step>
-  <Step title="pnpm">
-    ```bash
-    npm install -g pnpm
-    ```
-  </Step>
-  <Step title="Expo CLI">
-    ```bash
-    npm install -g @expo/cli
-    ```
-  </Step>
-  <Step title="PostgreSQL">Either local install or Docker</Step>
-</Steps>
+If you are new to the codebase, read [Start Here](/getting-started/start-here)
+first. Then complete the [Prerequisites](/getting-started/prerequisites).
 
 ## 1. Fork & Install
 
@@ -127,33 +109,19 @@ You should see:
 🚀 Server running on http://localhost:3001
 ```
 
+<Note>
+  The mobile app needs the API and database running to work end-to-end. If the
+  backend is not running, sign-in and data fetches will fail.
+</Note>
+
 ## 6. Configure the Mobile App
 
-The mobile app talks to the API via `EXPO_PUBLIC_API_URL`.
-
-Set it in your Expo env (example):
-
-```bash
-# apps/mobile/.env
-EXPO_PUBLIC_API_URL="http://localhost:3001"
-```
-
-If you’re testing on a physical device, `localhost` won’t work. Use your machine LAN IP (e.g. `http://192.168.x.x:3001`) or an HTTPS tunnel.
+Follow [Run the Mobile App](/getting-started/run-mobile) to set
+`EXPO_PUBLIC_API_URL` and start Expo.
 
 ## 7. Start the Mobile App
 
-Open a new terminal:
-
-```bash
-cd apps/mobile
-pnpm start
-```
-
-Then press:
-
-- `i` for iOS Simulator
-- `a` for Android Emulator
-- Scan QR for physical device
+Open the app on a device or simulator using Expo.
 
 {/* TODO: Add screenshot of running app */}
 
@@ -189,24 +157,8 @@ Launch includes optional feature modules (payments, AI, file uploads). If you ha
 
 See: [Feature Registry](/mobile/feature-registry)
 
-## Common Issues
-
-<AccordionGroup>
-  <Accordion title="Can't connect to API from device">
-    Update the API URL to your computer's local IP: ```bash # Find your IP
-    ifconfig | grep "inet " | grep -v 127.0.0.1 ``` Then update
-    `apps/mobile/.env` (`EXPO_PUBLIC_API_URL`) with your IP.
-  </Accordion>
-
-  <Accordion title="Database connection error">
-    Ensure PostgreSQL is running: ```bash docker-compose up -d # or brew
-    services start postgresql ```
-  </Accordion>
-
-  <Accordion title="Metro bundler error">
-    Clear cache and restart: ```bash pnpm start --clear ```
-  </Accordion>
-</AccordionGroup>
+Need help? See [Troubleshooting](/troubleshooting) or the
+[Run the Mobile App](/getting-started/run-mobile) guide.
 
 ## Next Steps
 

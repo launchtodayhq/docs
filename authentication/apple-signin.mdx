@@ -198,7 +198,7 @@ export const authClient = createAuthClient({
 ### Apple Sign-In Implementation
 
 ```typescript
-// apps/mobile/app/login.tsx
+// apps/mobile/app/auth/login.tsx
 const handleAppleSignIn = async () => {
   try {
     const nonce = await Crypto.digestStringAsync(
@@ -354,4 +354,9 @@ if (__DEV__) {
 
 - [Backend Authentication Setup](/authentication/backend-setup) - Configure the API backend
 - [Google Sign-In Setup](/authentication/google-signin) - Add Google authentication
-- [Email Authentication](/authentication/email-auth) - Set up email/password auth
+- [Email Sign-In](/authentication/email-signin) - Set up email sign-in
+
+## Remove / Disable
+
+To disable Apple Sign-In, remove Apple env vars and remove the Apple provider
+configuration in `apps/api/src/services/auth.ts`.

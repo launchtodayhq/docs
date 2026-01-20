@@ -197,6 +197,19 @@ All content is centralized in a single `PAYWALL_CONTENT` object for easy customi
   </Card>
 </CardGroup>
 
+## Apply in Launch
+
+The default paywall lives in `apps/mobile/app/payments/stripe.tsx`. Customize
+copy and options in the `PAYWALL_CONTENT` object.
+
+## Remove / Disable
+
+To disable payments while you configure providers, set:
+
+`apps/mobile/features/feature-registry.tsx` → `featureFlags.payments = false`
+
+For production removal guidance, see [Removing Features](/essentials/removing-features).
+
 
 
 

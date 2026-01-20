@@ -86,16 +86,34 @@ In the Superwall dashboard, you link Campaigns to Placements.
 ## File Structure
 
 ```
-lib/payments/
+apps/mobile/lib/payments/
 ├── config.ts              # API keys, provider selection
 ├── superwall/
 │   ├── provider.tsx       # SuperwallPaymentProvider context
 │   └── index.ts           # Exports
 └── types.ts               # Shared types
 
-app/payments/
+apps/mobile/app/payments/
 └── superwall.tsx          # Paywall screen
 ```
+
+## Test Checklist
+
+- Paywall appears from the placement
+- Prices display correctly (not NaN)
+- Sandbox purchase succeeds
+
+## Troubleshooting
+
+See [Superwall Troubleshooting](/payments/superwall-troubleshooting).
+
+## Remove / Disable
+
+To disable Superwall while you configure products, set:
+
+`apps/mobile/features/feature-registry.tsx` → `featureFlags.payments = false`
+
+For production removal guidance, see [Removing Features](/essentials/removing-features).
 
 ## Next Steps
 

@@ -66,6 +66,25 @@ The included paywall screen (`app/payments/stripe.tsx`) supports:
   </Step>
 </Steps>
 
+## Test Checklist
+
+- Products load in the paywall
+- Test purchase succeeds (Stripe test card)
+- Webhooks hit `/webhooks/stripe` and update DB
+
+## Troubleshooting
+
+Start with [Stripe Setup](/payments/stripe-setup) and
+[Stripe Webhooks](/payments/stripe-webhooks).
+
+## Remove / Disable
+
+To disable Stripe while you configure providers, set:
+
+`apps/mobile/features/feature-registry.tsx` → `featureFlags.payments = false`
+
+For production removal guidance, see [Removing Features](/essentials/removing-features).
+
 ## File Structure
 
 ```

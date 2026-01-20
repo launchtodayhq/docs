@@ -1,0 +1,62 @@
+---
+title: "Run the Mobile App"
+description: "Start Expo and open the app on device or simulator"
+---
+
+This guide assumes your backend is running locally.
+
+## 1. Set the API URL
+
+Create or edit `apps/mobile/.env`:
+
+```bash
+EXPO_PUBLIC_API_URL="http://localhost:3001"
+```
+
+If you are using a physical device, replace `localhost` with your machine's
+LAN IP (for example `http://192.168.1.50:3001`).
+
+## 2. Start Expo
+
+```bash
+cd apps/mobile
+pnpm start
+```
+
+## 3. Open the App
+
+- Press `i` for iOS Simulator
+- Press `a` for Android Emulator
+- Scan the QR code with Expo Go for a device
+
+<Note>
+  Some integrations (like RevenueCat and push notifications) require a physical
+  device and a development build. Expo Go will not support them.
+</Note>
+
+## Success Check
+
+You should see the Launch onboarding flow on first run.
+
+{/* TODO: Add a screenshot of the onboarding screen */}
+<Frame>
+  <div
+    style={{
+      background: "#f5f5f5",
+      padding: "36px",
+      textAlign: "center",
+      borderRadius: "8px",
+    }}
+  >
+    <p style={{ color: "#666", margin: 0 }}>
+      📸 Screenshot: Launch onboarding (Coming Soon)
+    </p>
+  </div>
+</Frame>
+
+## Troubleshooting
+
+- **Can't reach the API from a device**: verify `EXPO_PUBLIC_API_URL` uses your
+  LAN IP and that your device is on the same network.
+- **Metro errors**: restart with `pnpm start --clear`.
+- **Changes not applied**: close the app and reload the Expo bundle.

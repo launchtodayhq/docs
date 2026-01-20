@@ -15,7 +15,15 @@
         "groups": [
           {
             "group": "Getting Started",
-            "pages": ["index", "quickstart", "project-structure", "tech-stack"]
+            "pages": [
+              "index",
+              "getting-started/start-here",
+              "getting-started/prerequisites",
+              "quickstart",
+              "getting-started/run-mobile",
+              "project-structure",
+              "tech-stack"
+            ]
           },
           {
             "group": "Essentials",
@@ -34,6 +42,14 @@
               "mobile/components",
               "mobile/adding-screens",
               "mobile/onboarding"
+            ]
+          },
+          {
+            "group": "Backend",
+            "pages": [
+              "backend/index",
+              "backend/railway-deployment",
+              "backend/environment-variables"
             ]
           },
           {
@@ -101,14 +117,6 @@
           {
             "group": "AI Features",
             "pages": ["ai-features/overview"]
-          },
-          {
-            "group": "Backend",
-            "pages": [
-              "backend/index",
-              "backend/railway-deployment",
-              "backend/environment-variables"
-            ]
           },
           {
             "group": "Deployment",

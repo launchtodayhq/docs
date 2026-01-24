@@ -5,16 +5,19 @@ description: "Complete guide to authentication implementation in the mobile app"
 
 ## Overview
 
-The Launch mobile app uses [Better Auth](https://better-auth.com) with Expo integration for a secure, seamless authentication experience. This guide explains how authentication works throughout the app.
+The Launch mobile app uses [Better Auth](https://better-auth.com) with Expo
+integration for a secure, seamless authentication experience. This guide
+explains how authentication works in the mobile client and how it connects to
+the API.
 
 ## Prerequisites
 
 - Backend running with auth routes enabled
-- `EXPO_PUBLIC_API_URL` set in `apps/mobile/.env`
+- `EXPO_PUBLIC_API_URL` set in `apps/mobile/.env` (from `apps/mobile/example.env`)
 
 ## Steps
 
-1. Configure auth providers in the API
+1. Configure auth providers in the API: [Backend Authentication Setup](/authentication/backend-setup)
 2. Verify mobile auth screens in `apps/mobile/app/auth`
 3. Test sign‑in on device or simulator
 
@@ -208,16 +211,16 @@ plugin and a dedicated verification screen:
   to avoid state mismatch errors.
 - **Apple Sign-In** is not available on Android.
 
-## Security Features
+## Security Notes
 
-### Session Security
+Sessions are stored in SecureStore, OAuth redirects use the `launch://` scheme,
+and device metadata is attached to auth requests for tracing and support.
 
-- **Secure Storage**: All tokens stored in device keychain/keystore
-- **HTTPS Only**: All network requests use secure connections
-- **Token Rotation**: Automatic token refresh prevents long-lived sessions
-- **Device Binding**: Sessions tied to specific device characteristics
+## Next Steps
 
-### Request Security
+- [Apple Sign-In Setup](/authentication/apple-signin)
+- [Google Sign-In Setup](/authentication/google-signin)
+- [Email Sign-In with OTP](/authentication/email-signin)
 
 - **CORS Protection**: Configured trusted origins prevent unauthorized access
 - **Request Signing**: Device headers provide request authenticity

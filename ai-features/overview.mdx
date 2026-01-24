@@ -15,8 +15,8 @@ with additional providers and custom system prompts.
 
 ## Prerequisites
 
-- Backend running with AI env vars set
-- `EXPO_PUBLIC_API_URL` set in `apps/mobile/.env`
+- Backend running with AI env vars set (copy from `apps/api/example.env` first)
+- `EXPO_PUBLIC_API_URL` set in `apps/mobile/.env` (from `apps/mobile/example.env`)
 
 <Tip>
   This feature is gated by the mobile feature registry flag: `ai`. See
@@ -81,7 +81,14 @@ graph TB
 
 ## Steps
 
-1. Add API keys to your backend `.env`:
+1. Copy the example env (if not already):
+
+```bash
+cd apps/api
+cp example.env .env
+```
+
+2. Add API keys to your backend `.env`:
 
 ```bash
 # OpenAI (required for AI chat)
@@ -91,22 +98,30 @@ OPENAI_API_KEY=sk-...
 ANTHROPIC_API_KEY=sk-ant-...
 ```
 
-2. Ensure the AI feature flag is enabled:
+3. Ensure the AI feature flag is enabled:
 
 `apps/mobile/features/feature-registry.tsx` → `featureFlags.ai = true`
 
-3. (Optional) Enable Anthropic models in the mobile picker:
+4. (Optional) Enable Anthropic models in the mobile picker:
 
 `apps/mobile/lib/ai/providers/index.ts` → add `anthropicProvider` to the
 `providers` array.
 
-4. Open the chat screen at `/ai-chat`.
+5. Open the chat screen at `/ai-chat`.
 
 ## How It Works
 
 - Mobile streams tokens from the API via `POST /api/ai/stream` (SSE)
 - Chat history is persisted via tRPC procedures under `chat.*`
 - System prompts are defined in `apps/mobile/lib/ai/prompts/index.ts`
+
+## Key Files
+
+- API streaming: `apps/api/src/routes/ai-stream.ts`
+- AI providers: `apps/api/src/services/openai.ts` and `apps/api/src/services/anthropic.ts`
+- Chat persistence: `apps/api/src/routers/chat.ts`
+- Mobile streaming client: `apps/mobile/lib/api/streaming.ts`
+- Chat UI and hooks: `apps/mobile/features/chat/`
 
 ## Customizing System Prompts
 
@@ -129,120 +144,8 @@ export const systemPrompts = {
 };
 ```
 
-## Usage Examples
-
-### Basic Chat Integration
-
-```typescript
-import { ChatProvider, useChatContext } from "@/features/chat";
-
-function App() {
-  return (
-    <ChatProvider>
-      <ChatScreen />
-    </ChatProvider>
-  );
-}
-
-function ChatScreen() {
-  const { messages, sendMessage, isStreaming } = useChatContext();
-
-  return (
-    <View>
-      {messages.map((msg) => (
-        <ChatBubble key={msg.id} message={msg} />
-      ))}
-      <Input onSubmit={sendMessage} disabled={isStreaming} />
-    </View>
-  );
-}
-```
-
-### Switching Models
-
-```typescript
-const { setModel, currentModel } = useChatContext();
-
-// Switch to a different model
-setModel("claude-3-5-sonnet");
-```
-
-### Using System Prompts
-
-```typescript
-import { getSystemPrompt } from "@/lib/ai";
-
-const { setSystemPrompt } = useChatContext();
-
-// Set a predefined persona
-const mentorPrompt = getSystemPrompt("staff-engineer-mentor");
-setSystemPrompt(mentorPrompt.prompt);
-```
-
-## UI Components
-
-### Model Selector
-
-A dropdown component for selecting AI models with provider grouping:
-
-```typescript
-<ModelSelect
-  value={selectedModel}
-  onValueChange={setSelectedModel}
-/>
-```
-
-### Prompt Suggestions
-
-Contextual prompt cards that adapt to the current system prompt:
-
-```typescript
-<PromptSuggestions
-  onSelect={handlePromptSelect}
-  maxWidth={inputWidth}
-/>
-```
-
-### Chat History Sheet
-
-A bottom sheet displaying conversation history:
-
-```typescript
-<ChatHistorySheet
-  isOpen={showHistory}
-  onClose={() => setShowHistory(false)}
-  onSelectChat={loadChat}
-/>
-```
-
-## Database Schema
-
-Conversations are persisted using the following schema:
-
-```prisma
-model Chat {
-  id           String        @id @default(cuid())
-  userId       String
-  title        String        @db.VarChar(255)
-  model        String        @default("gpt-4")
-  systemPrompt String?       @db.Text
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-
-  user         User          @relation(fields: [userId], references: [id])
-  messages     ChatMessage[]
-}
-
-model ChatMessage {
-  id        String   @id @default(cuid())
-  chatId    String
-  role      String   @db.VarChar(20)
-  content   String   @db.Text
-  createdAt DateTime @default(now())
-
-  chat      Chat     @relation(fields: [chatId], references: [id])
-}
-```
+Conversations are persisted in Prisma under the `Chat` and `ChatMessage` models
+in `apps/api/prisma/schema.prisma`.
 
 ## API Endpoints
 
@@ -275,11 +178,6 @@ To disable AI while you configure providers, set:
 `apps/mobile/features/feature-registry.tsx` → `featureFlags.ai = false`
 
 For production removal guidance, see [Removing Features](/essentials/removing-features).
-
-## Troubleshooting
-
-- **Streaming fails**: check `OPENAI_API_KEY` and API logs
-- **No models shown**: confirm provider list in `lib/ai/providers/index.ts`
 
 ## Next Steps
 

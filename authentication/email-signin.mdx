@@ -13,6 +13,11 @@ receive a 6-digit code, and verify it in-app to create a session.
 - Resend account + API key
 - Backend running with email OTP enabled
 
+<Tip>
+  Start with [Backend Authentication Setup](/authentication/backend-setup) so
+  your API and env file are in place.
+</Tip>
+
 ## Steps
 
 1. Configure Resend API key
@@ -30,18 +35,15 @@ receive a 6-digit code, and verify it in-app to create a session.
 The backend supports email OTP via Resend. You can wire the mobile flow to these
 endpoints once your UI is ready.
 
-### 1. Install Resend
+### 1. Resend Dependency
 
-The email system uses [Resend](https://resend.com/) for reliable email delivery:
-
-```bash
-cd apps/api
-npm install resend
-```
+The email system uses [Resend](https://resend.com/) and is already included in
+`apps/api/package.json`.
 
 ### 2. Configure Environment Variables
 
-Add your Resend API key to your environment variables:
+Add your Resend API key to your environment variables (copy from
+`apps/api/example.env` first):
 
 ```env
 # apps/api/.env

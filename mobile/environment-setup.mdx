@@ -3,269 +3,56 @@ title: "Environment Setup"
 description: "Complete guide to setting up your development environment for the mobile app"
 ---
 
+## Overview
+
+This page covers the native toolchain and key configuration locations for the
+mobile app. For the step-by-step run flow, see [Start the Mobile App](/getting-started/run-mobile).
+
 ## Prerequisites
 
-Before getting started, ensure you have the following installed:
-
-- **Node.js** (v20 or higher)
-- **pnpm** (package manager)
+- **Node.js** 24+
+- **pnpm**
 - **Expo CLI** (`npm install -g @expo/cli`)
-- **iOS Simulator** (macOS only) or **Android Studio**
+- **Xcode** (iOS) or **Android Studio**
+- Optional: a physical iOS device on the same Wi‑Fi network
 
 ## Steps
 
-## Initial Setup
+1. Copy the example env:
 
-### 1. Fork and Install
+   ```bash
+   cd apps/mobile
+   cp example.env .env
+   ```
 
-```bash
-# Fork the repository on GitHub, then clone your fork
-git clone https://github.com/launchtodayhq/launch.git
-cd launch
+2. Install dependencies:
 
-# Install dependencies
-pnpm install
+   ```bash
+   pnpm install
+   ```
 
-# Navigate to mobile app
-cd apps/mobile
-```
+3. Prebuild (prompts for bundle ID):
 
-### 2. Environment Variables
+   ```bash
+   pnpm prebuild
+   ```
 
-Create an environment file in the API backend (`apps/api/.env`):
+4. Run the app:
 
-```bash
-cd apps/api
-touch .env
-```
+   ```bash
+   pnpm ios
+   pnpm android
+   ```
 
-#### Required Environment Variables
+## Key Config Locations
 
-**API Backend** (`apps/api/.env`) — see the full list in
-[Backend Environment Variables](/backend/environment-variables):
-
-```bash
-# Database
-DATABASE_URL="postgresql://user:password@localhost:5432/launch"
-
-# Better Auth
-BETTER_AUTH_SECRET="your-super-secret-key-here"
-BETTER_AUTH_URL="http://localhost:3001"
-
-# Apple Sign-In (iOS)
-APPLE_CLIENT_ID="your.app.bundle.id"
-APPLE_TEAM_ID="YOUR_TEAM_ID"
-APPLE_KEY_ID="YOUR_KEY_ID"
-APPLE_PRIVATE_KEY_BASE64="base64_encoded_private_key"
-# OR
-APPLE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----"
-
-# Google Sign-In (Optional)
-GOOGLE_WEB_CLIENT_ID="your-google-web-client-id"
-GOOGLE_CLIENT_SECRET="your-google-client-secret"
-
-# CORS and Security
-TRUSTED_ORIGINS="http://localhost:3000,http://localhost:19006,launch://"
-```
-
-**Mobile App Configuration**:
-
-The mobile app config lives in `apps/mobile/app.config.ts`, and feature
-toggles/providers are defined in `apps/mobile/features/feature-registry.tsx`.
-
-## Apple Sign-In Setup
-
-### 1. Apple Developer Account
-
-1. Log in to [Apple Developer Console](https://developer.apple.com)
-2. Create or select your App ID
-3. Enable **Sign In with Apple** capability
-4. Configure domains and return URLs (for web)
-
-### 2. Generate Private Key
-
-1. Go to **Keys** section in Apple Developer Console
-2. Create a new key with **Sign In with Apple** enabled
-3. Download the `.p8` file
-4. Convert to base64 for environment variable:
-
-```bash
-# Convert .p8 file to base64
-base64 -i AuthKey_KEYID.p8 | tr -d '\n'
-```
-
-### 3. Mobile App Configuration
-
-In `apps/mobile/app.config.ts`:
-
-```typescript
-ios: {
-  usesAppleSignIn: true,
-  bundleIdentifier: "com.launchhq.mobile", // Must match APPLE_CLIENT_ID
-}
-```
-
-## Database Setup
-
-### 1. PostgreSQL Installation
-
-**macOS (Homebrew):**
-
-```bash
-brew install postgresql
-brew services start postgresql
-```
-
-**Docker:**
-
-```bash
-# Use the provided docker-compose.yml in apps/api/
-cd apps/api
-docker-compose up -d
-```
-
-### 2. Database Migration
-
-```bash
-cd apps/api
-
-# Generate Prisma client
-pnpm prisma generate
-
-# Run migrations
-pnpm prisma migrate dev
-```
-
-## Development Workflow
-
-### 1. Start the Backend
-
-```bash
-cd apps/api
-pnpm dev
-```
-
-The API will be available at `http://localhost:3001`
-
-### 2. Start the Mobile App
-
-```bash
-cd apps/mobile
-pnpm start
-```
-
-Choose your platform:
-
-- `i` for iOS Simulator
-- `a` for Android Emulator
-- `w` for Web
-- Scan QR code for physical device
-
-### 3. Update API URL
-
-Set the API URL in your mobile env file:
-
-```bash
-# apps/mobile/.env
-EXPO_PUBLIC_API_URL="http://localhost:3001"
-```
-
-The auth client (`apps/mobile/lib/auth/client.ts`) and tRPC client read
-`EXPO_PUBLIC_API_URL` automatically.
-
-**Find your local IP:**
-
-```bash
-# macOS/Linux
-ifconfig | grep "inet " | grep -v 127.0.0.1
-
-# Windows
-ipconfig
-```
-
-## Testing Authentication
-
-### 1. Apple Sign-In Testing
-
-- **iOS Simulator**: Use any Apple ID in development
-- **Physical Device**: Must use real Apple ID
-- **TestFlight**: Works with real Apple IDs
-
-### 2. Development Tips
-
-- Check Expo logs for authentication errors
-- Use `console.log` statements in auth flows
-- Verify API endpoints with tools like Insomnia/Postman
-- Check database for user records after successful auth
-
-## Troubleshooting
-
-### Common Issues
-
-<AccordionGroup>
-  <Accordion title="Metro bundler issues">
-    **Solution**: Clear cache and restart
-    ```bash
-    pnpm start --clear
-    ```
-  </Accordion>
-
-<Accordion title="Apple Sign-In not working">
-  **Causes**: - Incorrect bundle identifier - Missing private key - Wrong
-  environment variables **Solution**: 1. Verify `APPLE_CLIENT_ID` matches bundle
-  identifier 2. Check private key format in environment variables 3. Ensure
-  Apple Developer configuration is correct
-</Accordion>
-
-<Accordion title="Database connection errors">
-  **Solution**: 1. Verify PostgreSQL is running 2. Check `DATABASE_URL` format
-  3. Ensure database exists and migrations are run
-</Accordion>
-
-  <Accordion title="CORS errors">
-    **Solution**: Add your development URLs to `TRUSTED_ORIGINS`:
-    ```bash
-    TRUSTED_ORIGINS="http://localhost:3000,http://localhost:19006,launch://,exp://192.168.0.46:8081"
-    ```
-  </Accordion>
-</AccordionGroup>
-
-## Production Deployment
-
-### Environment Variables
-
-**Production API** (`.env.production`):
-
-```bash
-DATABASE_URL="your-production-database-url"
-BETTER_AUTH_URL="https://your-api-domain.com"
-TRUSTED_ORIGINS="https://your-web-app.com,launch://,your-expo-scheme://"
-```
-
-**Mobile App**:
-
-- Set `EXPO_PUBLIC_API_URL` in `apps/mobile/.env` to production API
-- Configure production Apple Sign-In domains
-- Test thoroughly on TestFlight before App Store submission
-
-### Deployment Checklist
-
-- [ ] Environment variables configured
-- [ ] Database migrations run
-- [ ] Apple Sign-In domains configured
-- [ ] API endpoints tested
-- [ ] Authentication flow tested
-- [ ] Push notification certificates (if applicable)
-- [ ] App Store/Play Store metadata
-
-## Troubleshooting
-
-- **Auth failures**: verify `BETTER_AUTH_URL` and provider env vars
-- **Expo build errors**: re-run with `pnpm start --clear`
-- **Device can’t reach API**: use your LAN IP in `EXPO_PUBLIC_API_URL`
+- `apps/mobile/app.config.ts` — bundle IDs, native plugins, build settings
+- `apps/mobile/features/feature-registry.tsx` — feature flags and providers
+- `apps/mobile/lib/env.ts` — reads `EXPO_PUBLIC_*` values from `.env`
 
 ## Next Steps
 
-- [Authentication Guide](/mobile/authentication) - Deep dive into auth implementation
-- [File Structure](/mobile/file-structure) - Understanding the codebase organization
-- [Component Development](/mobile/components) - Creating reusable components
+- [Start the Backend](/quickstart)
+- [Start the Mobile App](/getting-started/run-mobile)
+- [Authentication Setup](/authentication/backend-setup)
+

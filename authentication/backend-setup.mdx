@@ -10,13 +10,14 @@ The Launch API backend uses [Better Auth](https://better-auth.com) to provide se
 ## Prerequisites
 
 - PostgreSQL database configured
-- `apps/api/.env` created
+- `apps/api/.env` created from `apps/api/example.env`
 
 ## Steps
 
-1. Configure Better Auth in `apps/api/src/services/auth.ts`
-2. Set required env vars in `apps/api/.env`
-3. Start the API server with `pnpm api:dev`
+1. Copy `apps/api/example.env` to `apps/api/.env` and set auth vars
+2. Configure providers in `apps/api/src/services/auth.ts` (Apple/Google as needed)
+3. Run migrations in `apps/api`
+4. Start the API server with `pnpm dev`
 
 ## Better Auth Configuration
 

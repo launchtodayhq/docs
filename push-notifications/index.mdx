@@ -12,6 +12,7 @@ Push notifications help you reach users when they are away from the app. They ar
 - Apple Developer account (APNs)
 - Firebase project (FCM)
 - Development build for native entitlements
+- Backend env vars set for APNs/FCM (copy from `apps/api/example.env`)
 
 APNs (Apple Push Notification service) is Apple’s gateway for delivering pushes to iOS devices. FCM (Firebase Cloud Messaging) is Google’s gateway for Android. We send directly to both services instead of using Expo Push so we can control authentication, payload structure, delivery timing, and future routing logic without relying on a relay.
 
@@ -69,12 +70,6 @@ Key pieces in this repo:
 2. Rebuild the app (push entitlements require a native build).
 3. Use the onboarding screen to register a device token.
 4. Send a test push from your API: [API Setup](/push-notifications/api)
-
-## How It Works
-
-- The app registers a native device token
-- Tokens are stored in `device_tokens` on the backend
-- The API sends via APNs (iOS) or FCM (Android)
 
 ## Test Checklist
 

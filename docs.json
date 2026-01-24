@@ -32,35 +32,9 @@
             "group": "Getting Started",
             "pages": [
               "getting-started/prerequisites",
-              "project-structure",
               "quickstart",
-              "getting-started/run-mobile"
-            ]
-          },
-          {
-            "group": "Essentials",
-            "pages": [
-              "essentials/error-handling-observability",
-              "essentials/incident-debugging",
-              "essentials/type-safety"
-            ]
-          },
-          {
-            "group": "Mobile App",
-            "pages": [
-              "mobile/environment-setup",
-              "mobile/file-structure",
-              "mobile/authentication",
-              "mobile/components",
-              "mobile/adding-screens",
-              "mobile/onboarding"
-            ]
-          },
-          {
-            "group": "Backend",
-            "pages": [
-              "backend/index",
-              "backend/environment-variables"
+              "getting-started/run-mobile",
+              "project-structure"
             ]
           },
           {
@@ -71,25 +45,6 @@
               "authentication/google-signin",
               "authentication/email-signin",
               "authentication/troubleshooting"
-            ]
-          },
-          {
-            "group": "File Uploads",
-            "pages": [
-              "file-uploads/index",
-              "file-uploads/backend-setup",
-              "file-uploads/mobile-setup",
-              "file-uploads/native-uploads",
-              "file-uploads/api-reference"
-            ]
-          },
-          {
-            "group": "Push Notifications",
-            "pages": [
-              "push-notifications/index",
-              "push-notifications/ios",
-              "push-notifications/api",
-              "push-notifications/android"
             ]
           },
           {
@@ -126,8 +81,53 @@
             ]
           },
           {
+            "group": "File Uploads",
+            "pages": [
+              "file-uploads/index",
+              "file-uploads/backend-setup",
+              "file-uploads/mobile-setup",
+              "file-uploads/native-uploads",
+              "file-uploads/api-reference"
+            ]
+          },
+          {
+            "group": "Push Notifications",
+            "pages": [
+              "push-notifications/index",
+              "push-notifications/ios",
+              "push-notifications/api",
+              "push-notifications/android"
+            ]
+          },
+          {
             "group": "AI Features",
             "pages": ["ai-features/overview"]
+          },
+          {
+            "group": "Mobile App",
+            "pages": [
+              "mobile/environment-setup",
+              "mobile/file-structure",
+              "mobile/authentication",
+              "mobile/components",
+              "mobile/adding-screens",
+              "mobile/onboarding"
+            ]
+          },
+          {
+            "group": "Backend",
+            "pages": [
+              "backend/index",
+              "backend/environment-variables"
+            ]
+          },
+          {
+            "group": "Essentials",
+            "pages": [
+              "essentials/error-handling-observability",
+              "essentials/incident-debugging",
+              "essentials/type-safety"
+            ]
           },
           {
             "group": "Deployment",

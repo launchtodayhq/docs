@@ -18,29 +18,6 @@ description: "Common issues and how to fix them"
 
 Quick fixes for the most common problems you'll encounter.
 
-<CardGroup cols={2}>
-  <Card title="Build Errors" icon="hammer" href="/troubleshooting/build-errors">
-    Metro bundler, native build failures
-  </Card>
-  <Card
-    title="Runtime Errors"
-    icon="bug"
-    href="/troubleshooting/runtime-errors"
-  >
-    Crashes, exceptions, and errors
-  </Card>
-  <Card
-    title="Authentication"
-    icon="lock"
-    href="/troubleshooting/authentication"
-  >
-    Sign-in failures, token issues
-  </Card>
-  <Card title="Networking" icon="wifi" href="/troubleshooting/networking">
-    API connection, CORS, SSL issues
-  </Card>
-</CardGroup>
-
 ## Quick Fixes
 
 ### Metro Bundler Issues
@@ -87,8 +64,12 @@ pnpm prisma migrate dev
 
 <AccordionGroup>
   <Accordion title="'Unable to resolve module'">
-    **Cause**: Missing dependency or incorrect import **Fix**: ```bash pnpm
-    install pnpm start --clear ```
+    **Cause**: Missing dependency or incorrect import
+    **Fix**:
+    ```bash
+    pnpm install
+    pnpm start --clear
+    ```
   </Accordion>
 
   <Accordion title="'Network request failed'">

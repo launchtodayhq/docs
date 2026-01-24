@@ -1,12 +1,15 @@
 ---
-title: "Quickstart"
-description: "Get Launch running in under 10 minutes"
+title: "Start the Backend"
+description: "Start the API and database for Launch"
 ---
+
+This guide focuses on getting the API and database running locally. You do not
+need to configure integrations to boot the backend.
 
 ## Prerequisites
 
-If you are new to the codebase, read [Start Here](/getting-started/start-here)
-first. Then complete the [Prerequisites](/getting-started/prerequisites).
+If you are new to the codebase, complete the
+[Prerequisites](/getting-started/prerequisites) first.
 
 ## Steps
 
@@ -45,25 +48,12 @@ pnpm install
 ## 3. Configure Environment
 
 ```bash
-# Create your API env file
 cd apps/api
-touch .env
+cp example.env .env
 ```
 
-Edit `.env` with your values (see full list in
-[Backend Environment Variables](/backend/environment-variables)):
-
-```bash
-# Database
-DATABASE_URL="postgresql://postgres:postgres@localhost:5432/launch"
-
-# Auth (generate a random string)
-BETTER_AUTH_SECRET="your-super-secret-key-at-least-32-chars"
-BETTER_AUTH_URL="http://localhost:3001"
-
-# CORS
-TRUSTED_ORIGINS="http://localhost:3000,http://localhost:19006,launch://"
-```
+For quickstart, the example values are enough to boot the API. You can customize
+them later if needed.
 
 ## 4. Run Migrations
 
@@ -91,55 +81,17 @@ You should see:
   backend is not running, sign-in and data fetches will fail.
 </Note>
 
-## 6. Configure the Mobile App
-
-Follow [Run the Mobile App](/getting-started/run-mobile) to set
-`EXPO_PUBLIC_API_URL` and start Expo.
-
-## 7. Start the Mobile App
-
-Open the app on a device or simulator using Expo.
-
-## 8. Test It Works
-
-1. Open the app
-2. Tap "Sign In"
-3. Create an account with email
-4. You should see the home screen!
-
-<Check>**Congratulations!** You have Launch running locally.</Check>
-
-## 9. Feature flags (optional)
-
-Launch includes optional feature modules (payments, AI, file uploads). If you haven’t set up the required keys yet, you can disable features in one place:
-
-`apps/mobile/features/feature-registry.tsx`
-
-See: [Feature Registry](/mobile/feature-registry)
-
-## Troubleshooting
-
-- **Backend not running**: start `pnpm dev` in `apps/api`
-- **Mobile can’t reach API**: check `EXPO_PUBLIC_API_URL`
-- **Database errors**: verify `DATABASE_URL` and run migrations
-
 ## Next Steps
 
 <CardGroup cols={2}>
-  <Card title="Project Structure" icon="folder" href="/project-structure">
-    Understand how the codebase is organized
+  <Card title="Run the Mobile App" icon="device-mobile" href="/getting-started/run-mobile">
+    Start Expo and open the app
   </Card>
   <Card
-    title="Add Authentication"
-    icon="lock"
-    href="/authentication/backend-setup"
+    title="Project Structure"
+    icon="folder"
+    href="/project-structure"
   >
-    Set up Apple & Google Sign-In
-  </Card>
-  <Card title="Add Payments" icon="credit-card" href="/payments">
-    Integrate Stripe or RevenueCat
-  </Card>
-  <Card title="Deploy" icon="rocket" href="/deployment">
-    Deploy to production
+    Understand how the codebase is organized
   </Card>
 </CardGroup>

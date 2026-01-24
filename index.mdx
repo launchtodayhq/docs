@@ -5,9 +5,13 @@ description: "A production-ready React Native + Expo starter"
 
 ## Build and Ship Faster
 
-Launch is a production-ready starter kit for React Native and Expo. It gives you a real app baseline with the systems you typically need before launch.
+Launch is a production-ready React Native + Expo starter that gives you a real
+app baseline with the systems you typically need before launch. It is designed
+to get you building quickly without locking you into a rigid product shape.
 
-One codebase covers **iOS**, **Android**, **iPad**, and **Android tablets**. Use it for a consumer app, SaaS companion, or internal tool—then customize the product layer.
+One codebase covers **iOS**, **Android**, **iPad**, and **Android tablets**. Use
+it for a consumer app, SaaS companion, or internal tool—then customize the
+product layer to match your needs.
 
 <Tip>
   **Start here:** The [Quickstart](/quickstart) gets you from clone to a running
@@ -16,107 +20,80 @@ One codebase covers **iOS**, **Android**, **iPad**, and **Android tablets**. Use
 
 ---
 
-## What You Can Build
+## Foundations Included
 
 Launch isn't opinionated about the product. It provides the foundations so you can move faster:
 
 ### Authentication
 
-**Better Auth** powers the backend with Apple Sign-In, Google Sign-In, and email OTP. Sessions persist securely via Expo SecureStore, and protected routes keep auth‑gated screens consistent.
+**Better Auth** provides the authentication layer for the app and API, with Apple Sign-In, Google Sign-In, and email OTP. Sessions persist securely via Expo SecureStore, and protected routes keep auth‑gated screens consistent.
 
 → [Set up authentication](/authentication/backend-setup) · [Better Auth](https://www.better-auth.com/)
 
 ### Payments and Subscriptions
 
-Integrate **Stripe** for one‑time payments, **RevenueCat** for subscriptions, or **Superwall** for paywalls. The backend handles webhooks, receipt validation, and subscription status.
+Integrate **Stripe** for one‑time payments or subscriptions, **RevenueCat** for subscription management and entitlements, and **Superwall** for paywall presentation and experiments. The backend handles webhooks, receipt validation, and subscription status.
 
 → [Explore payment options](/payments) · [Stripe](https://stripe.com/gb) · [RevenueCat](https://www.revenuecat.com/) · [Superwall](https://superwall.com/)
 
 ### File Uploads
 
-Upload photos, documents, or large media with **AWS S3** presigned URLs. Smaller files upload directly, larger files use multipart uploads, and native background uploads handle long‑running transfers.
+Upload photos, documents, or large media using **AWS S3** presigned URLs. Smaller files upload directly to S3; large files use multipart uploads; long‑running transfers run in the background with native upload support.
 
 → [Learn about file uploads](/file-uploads) · [AWS S3](https://aws.amazon.com/s3/)
 
 ### AI Features
 
-Add AI chat with streaming responses. Connect to OpenAI or Anthropic, persist conversations, and customize prompts.
+Add AI chat with streaming responses via a custom backend. The API proxies OpenAI or Anthropic requests (with auth), streams responses over SSE, and keeps models and prompt handling centralized.
 
 → [Add AI features](/ai-features/overview)
 
 ### Push Notifications
 
-Register devices, manage tokens, and send notifications across iOS and Android with FCM/APNS wiring already in place.
+Register devices, manage tokens, and send notifications across iOS and Android. FCM and APNs are wired in, with server routes for sending pushes and running simple campaigns (by cohort, platform, or user list).
 
 → [Set up push notifications](/push-notifications) · [Firebase](https://firebase.google.com/) · [Apple APNs](https://developer.apple.com/documentation/usernotifications/sending-notification-requests-to-apns)
 
 ### Onboarding and Theming
 
-Ship a guided onboarding flow with phone OTP, and a light/dark theme system wired across the app.
+Ship a guided onboarding flow with name capture, optional phone OTP, and push permission setup. Theming includes light/dark preference storage plus a HeroUI theme layer you can swap per app style.
 
 → [See onboarding flow](/mobile/onboarding)
 
 ---
 
-## The Stack
+## How Features Plug In
 
-Launch uses a modern, well‑maintained stack:
+Launch uses a **Feature Registry** to keep optional modules (payments, AI, uploads, Sentry, OneSignal) in one place. Each feature declares whether it is enabled, which providers it mounts, which routes it adds, and what setup or env vars it requires. The app composes enabled providers in order, so you can add or remove a feature without hunting through the codebase.
 
-| Layer          | Technology          | Why                                          |
-| -------------- | ------------------- | -------------------------------------------- |
-| **Mobile**     | React Native + Expo | iOS, Android, iPad, and Android tablets      |
-| **Navigation** | Expo Router         | File-based routing, deep linking built-in    |
-| **UI**         | HeroUI + NativeWind | Component library with Tailwind-style styling ([HeroUI Native](https://v3.heroui.com/docs/native/getting-started)) |
-| **API**        | tRPC                | End-to-end type safety, no code generation   |
-| **Database**   | Prisma + PostgreSQL | Type-safe queries, easy migrations           |
-| **Auth**       | Better Auth         | Modern auth with social providers            |
-| **Monorepo**   | Turborepo           | Fast builds, shared code                     |
-
-Everything is TypeScript. Types flow from your database schema to your mobile UI. Change a field in Prisma, and TypeScript catches everywhere that needs updating.
-
-### Integrations
-
-Launch comes pre-configured with production-ready integrations:
-
-- **AWS S3** — Secure file storage with presigned URLs → [File uploads](/file-uploads)
-- **Better Auth** — Modern authentication with social providers → [Auth setup](/authentication/backend-setup)
-- **Stripe** — Payments and subscriptions → [Stripe setup](/payments/stripe-setup)
-- **RevenueCat** — Cross-platform in-app purchases → [RevenueCat setup](/payments/revenuecat-setup)
-- **Superwall** — Dynamic paywalls and A/B testing → [Superwall setup](/payments/superwall-setup)
-- **OpenAI / Anthropic** — AI chat with streaming → [AI features](/ai-features/overview)
-- **Expo EAS** — Cloud builds and OTA updates → [EAS deployment](/deployment/mobile-eas)
-- **Firebase (FCM)** — Push delivery for Android → [Push notifications](/push-notifications)
-- **APNs** — Push delivery for iOS → [Push notifications](/push-notifications)
-
-### Feature Registry (Start Here)
-
-Before diving into integrations, Launch uses a **Feature Registry** to enable or
-disable major modules (payments, AI, uploads) in one place. This keeps the app
-stable while you configure providers and prevents noisy errors during first-run
-setup.
-
-→ [How the feature registry works](/mobile/feature-registry)
+→ [Feature registry guide](/mobile/feature-registry)
 
 ---
 
-## From Clone to Launch
+## Stack and Integrations
 
-<Steps>
-  <Step title="Clone & Install">
-    Get the monorepo, install dependencies, and start the dev servers. Takes
-    about 5 minutes.
-  </Step>
-  <Step title="Configure Your Backend">
-    Set up PostgreSQL, add your API keys, and run migrations. Your backend is
-    ready.
-  </Step>
-  <Step title="Build Your Features">
-    Authentication, payments, and uploads are ready. Focus on your product.
-  </Step>
-  <Step title="Deploy & Ship">
-    Deploy the API, build with EAS, and submit to the stores.
-  </Step>
-</Steps>
+Launch is fully TypeScript with end‑to‑end types from Prisma to the mobile UI.
+
+**Stack**
+
+- **Mobile:** React Native + Expo
+- **Navigation:** Expo Router
+- **UI:** HeroUI + NativeWind ([HeroUI Native](https://v3.heroui.com/docs/native/getting-started))
+- **API:** tRPC
+- **Database:** Prisma + PostgreSQL
+- **Auth:** Better Auth
+- **Monorepo:** Turborepo
+
+**Integrations**
+
+- **AWS S3** → [File uploads](/file-uploads)
+- **Stripe** → [Stripe setup](/payments/stripe-setup)
+- **RevenueCat** → [RevenueCat setup](/payments/revenuecat-setup)
+- **Superwall** → [Superwall setup](/payments/superwall-setup)
+- **OpenAI / Anthropic** → [AI features](/ai-features/overview)
+- **Expo EAS** → [EAS deployment](/deployment/mobile-eas)
+- **Firebase (FCM)** → [Push notifications](/push-notifications)
+- **APNs** → [Push notifications](/push-notifications)
 
 <CardGroup cols={2}>
   <Card title="Start Building" icon="rocket" href="/quickstart">
@@ -130,16 +107,6 @@ setup.
     Understand how everything fits together
   </Card>
 </CardGroup>
-
----
-
-## Why Launch?
-
-**Save weeks of setup.** Auth, payments, uploads, API scaffolding, and routing are already wired.
-
-**Production defaults.** Security, error handling, and observability are built in.
-
-**Stay in control.** No lock‑in. You own the code and can extend or remove anything.
 
 ---
 

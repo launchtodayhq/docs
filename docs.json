@@ -14,25 +14,32 @@
         "tab": "Guides",
         "groups": [
           {
-            "group": "Getting Started",
+            "group": "Intro",
             "pages": [
               "index",
-              "getting-started/start-here",
+              "intro/why-launch"
+            ]
+          },
+          {
+            "group": "Feature Registry",
+            "pages": [
+              "mobile/feature-registry",
+              "essentials/removing-features",
+              "feature-registry/requesting-features"
+            ]
+          },
+          {
+            "group": "Getting Started",
+            "pages": [
               "getting-started/prerequisites",
-              "quickstart",
-              "getting-started/run-mobile",
               "project-structure",
-              "tech-stack"
+              "quickstart",
+              "getting-started/run-mobile"
             ]
           },
           {
             "group": "Essentials",
             "pages": [
-              "essentials/removing-features",
-              "essentials/removal-auth-session",
-              "essentials/removal-payments",
-              "essentials/removal-ai",
-              "essentials/removal-file-uploads",
               "essentials/error-handling-observability",
               "essentials/incident-debugging",
               "essentials/type-safety"
@@ -43,7 +50,6 @@
             "pages": [
               "mobile/environment-setup",
               "mobile/file-structure",
-              "mobile/feature-registry",
               "mobile/authentication",
               "mobile/components",
               "mobile/adding-screens",

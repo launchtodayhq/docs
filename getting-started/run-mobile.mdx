@@ -1,6 +1,6 @@
 ---
-title: "Run the Mobile App"
-description: "Start Expo and open the app on device or simulator"
+title: "Start the Mobile App"
+description: "Install dependencies and run the mobile app"
 ---
 
 This guide assumes your backend is running locally.
@@ -12,29 +12,36 @@ This guide assumes your backend is running locally.
 
 ## Steps
 
-## 1. Set the API URL
-
-Create or edit `apps/mobile/.env`:
-
-```bash
-EXPO_PUBLIC_API_URL="http://localhost:3001"
-```
-
-If you are using a physical device, replace `localhost` with your machine's
-LAN IP (for example `http://192.168.1.50:3001`).
-
-## 2. Start Expo
+## 1. Copy the Example Environment File
 
 ```bash
 cd apps/mobile
-pnpm start
+cp example.env .env
 ```
 
-## 3. Open the App
+## 2. Install Dependencies
 
-- Press `i` for iOS Simulator
-- Press `a` for Android Emulator
-- Scan the QR code with Expo Go for a device
+```bash
+pnpm install
+```
+
+## 3. Prebuild
+
+```bash
+pnpm prebuild
+```
+
+You will be prompted to set your bundle ID during prebuild.
+
+## 4. Run the App
+
+```bash
+pnpm ios
+pnpm android
+```
+
+Choose either iOS or Android. You can run on a simulator or a physical device.
+For iOS, a physical device on the same Wi‑Fi network is supported.
 
 <Note>
   Some integrations (like RevenueCat and push notifications) require a physical
@@ -45,14 +52,7 @@ pnpm start
 
 You should see the Launch onboarding flow on first run.
 
-## Troubleshooting
-
-- **Can't reach the API from a device**: verify `EXPO_PUBLIC_API_URL` uses your
-  LAN IP and that your device is on the same network.
-- **Metro errors**: restart with `pnpm start --clear`.
-- **Changes not applied**: close the app and reload the Expo bundle.
-
 ## Next Steps
 
-- [Quickstart](/quickstart)
+- [Project Structure](/project-structure)
 - [Authentication Setup](/authentication/backend-setup)

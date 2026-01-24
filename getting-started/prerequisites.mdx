@@ -6,16 +6,14 @@ description: "Install the tools required to run Launch"
 This guide covers the minimum tooling needed to run `apps/mobile` and
 `apps/api` locally.
 
-## Steps
-
 ## Required Tools
 
 <Steps>
-  <Step title="Node.js 20+">
+  <Step title="Node.js 24+">
     Install with nvm (recommended):
     ```bash
-    nvm install 20
-    nvm use 20
+    nvm install 24
+    nvm use 24
     node --version
     ```
   </Step>
@@ -36,9 +34,8 @@ This guide covers the minimum tooling needed to run `apps/mobile` and
     git --version
     ```
   </Step>
-  <Step title="PostgreSQL">
-    Use Docker or install PostgreSQL locally.
-    See [Quickstart](/quickstart) for both options.
+  <Step title="Docker">
+    Docker is the easiest way to run PostgreSQL locally.
   </Step>
 </Steps>
 
@@ -50,6 +47,20 @@ This guide covers the minimum tooling needed to run `apps/mobile` and
 
 If you are using a physical device, make sure it is on the same Wi‑Fi
 network as your computer.
+
+## Expo Go Limitations
+
+Some native SDKs do not work in Expo Go. You will need a physical device and a
+development build for:
+
+- RevenueCat
+- Push notifications
+- Other native SDKs with custom config plugins
+
+## Store Accounts (for release)
+
+- **Apple App Store Connect** requires a paid Apple Developer account.
+- **Google Play Console** requires a paid developer account.
 
 ## Troubleshooting
 

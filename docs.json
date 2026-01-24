@@ -29,7 +29,13 @@
             "group": "Essentials",
             "pages": [
               "essentials/removing-features",
-              "essentials/error-handling-observability"
+              "essentials/removal-auth-session",
+              "essentials/removal-payments",
+              "essentials/removal-ai",
+              "essentials/removal-file-uploads",
+              "essentials/error-handling-observability",
+              "essentials/incident-debugging",
+              "essentials/type-safety"
             ]
           },
           {
@@ -48,7 +54,6 @@
             "group": "Backend",
             "pages": [
               "backend/index",
-              "backend/railway-deployment",
               "backend/environment-variables"
             ]
           },
@@ -58,7 +63,8 @@
               "authentication/backend-setup",
               "authentication/apple-signin",
               "authentication/google-signin",
-              "authentication/email-signin"
+              "authentication/email-signin",
+              "authentication/troubleshooting"
             ]
           },
           {
@@ -110,8 +116,7 @@
                   "payments/superwall-troubleshooting"
                 ]
               },
-              "payments/paywall-best-practices",
-              "payments/paddle"
+              "payments/paywall-best-practices"
             ]
           },
           {
@@ -137,6 +142,10 @@
           {
             "group": "Troubleshooting",
             "pages": ["troubleshooting/index"]
+          },
+          {
+            "group": "Coming Soon",
+            "pages": ["backend/railway-deployment", "payments/paddle"]
           }
         ]
       }
@@ -169,13 +178,13 @@
     "links": [
       {
         "label": "GitHub",
-        "href": "https://github.com/your-repo/launch"
+        "href": "https://github.com/launchtodayhq/launch"
       }
     ],
     "primary": {
       "type": "button",
       "label": "Get Started",
-      "href": "https://github.com/your-repo/launch"
+      "href": "https://github.com/launchtodayhq/launch"
     }
   },
   "contextual": {
@@ -193,7 +202,7 @@
   "footer": {
     "socials": {
       "x": "https://x.com/launchhq",
-      "github": "https://github.com/your-repo/launch",
+      "github": "https://github.com/launchtodayhq/launch",
       "linkedin": "https://linkedin.com/company/launchhq"
     }
   }

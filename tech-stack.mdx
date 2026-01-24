@@ -11,17 +11,28 @@ description: "Versions and dependencies"
 | React Native | 0.81.5 |
 | React | 19.1.0 |
 | Next.js | 15.3.1 |
-| TypeScript | 5.9 |
-| Node.js | 20+ |
+| TypeScript | 5.9.2 |
+| Node.js | 20.18.1+ |
+
+## Prerequisites
+
+- Keep local versions aligned with `package.json`
+- Use `nvm use` at the repo root
+
+## Steps
+
+1. Verify versions in `apps/mobile/package.json`, `apps/web/package.json`,
+   and `apps/api/package.json`
+2. Update this page when dependencies change
 
 ## Mobile
 
 | Package | Version |
 |---------|---------|
-| expo | ~54.0.23 |
-| expo-router | ~6.0.14 |
-| react-native-reanimated | ~4.1.5 |
-| heroui-native | 1.0.0-beta.6 |
+| expo | ~54.0.31 |
+| expo-router | ~6.0.22 |
+| react-native-reanimated | ~4.1.6 |
+| heroui-native | 1.0.0-beta.10 |
 | @tanstack/react-query | ^5.89.0 |
 | @trpc/client | ^11.5.1 |
 | better-auth | ^1.3.11 |
@@ -34,6 +45,7 @@ description: "Versions and dependencies"
 | @heroui/react | 2.x |
 | tailwindcss | 4.1.11 |
 | framer-motion | 11.18.2 |
+| react | 18.3.1 |
 
 ## API
 
@@ -41,7 +53,7 @@ description: "Versions and dependencies"
 |---------|---------|
 | koa | ^2.15.3 |
 | @trpc/server | ^11.0.0 |
-| @prisma/client | ^6.15.0 |
+| @prisma/client | ^7.3.0 |
 | better-auth | ^1.3.8 |
 | openai | ^5.21.0 |
 | stripe | ^18.5.0 |
@@ -68,7 +80,17 @@ description: "Versions and dependencies"
 
 ## Last Updated
 
-December 2024
+January 2026
+
+## Troubleshooting
+
+- **Versions drift**: compare this page to each app’s `package.json`
+- **Node mismatch**: run `nvm use` at repo root
+
+## Next Steps
+
+- [Project Structure](/project-structure)
+- [Quickstart](/quickstart)
 
 
 

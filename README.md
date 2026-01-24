@@ -10,10 +10,10 @@ These docs are part of the Launch product. The main goal is **trust + learning**
 npm i -g mint
 ```
 
-2. Run the docs locally from `Launch/docs/`:
+2. Run the docs locally from `launch/docs/`:
 
 ```bash
-cd Launch/docs
+cd launch/docs
 mint dev
 ```
 

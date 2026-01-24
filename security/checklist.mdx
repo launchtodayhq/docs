@@ -7,6 +7,13 @@ description: "Pre-launch security review checklist"
 
 Complete this checklist before deploying to production.
 
+## Prerequisites
+
+- Production environment configured
+- Access to logs and secrets manager
+
+## Steps
+
 ### 🔐 Authentication
 
 - [ ] **Strong password requirements** - Minimum 8 characters, mixed case, numbers
@@ -74,6 +81,15 @@ After launching, maintain security by:
 - **Stay informed** - Follow security advisories for your stack
 
 <Note>Security is ongoing. Schedule monthly reviews of this checklist.</Note>
+
+## Troubleshooting
+
+- **Checklist blocked**: identify missing env vars and fix first
+- **Audit failing**: run `pnpm audit` and review vulnerabilities
+
+## Next Steps
+
+- [Security Overview](/security/index)
 
 
 

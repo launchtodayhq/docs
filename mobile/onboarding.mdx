@@ -8,6 +8,13 @@ description: "Overview of the current onboarding flow and where to extend it"
 Launch ships with a lightweight onboarding flow focused on phone-based sign-in
 and optional notification permissions.
 
+## Prerequisites
+
+- Auth flow enabled
+- Onboarding routes available in `apps/mobile/app/onboarding`
+
+## Steps
+
 ## Current Flow
 
 The onboarding routes live in `apps/mobile/app/onboarding/`:
@@ -37,3 +44,12 @@ To add steps:
 - **Root Layout**: `apps/mobile/app/_layout.tsx`
 - **Onboarding Screens**: `apps/mobile/app/onboarding/*.tsx`
 - **Navigation Logic**: `apps/mobile/lib/hooks/useAppNavigation.ts`
+
+## Troubleshooting
+
+- **Onboarding loops**: verify `useAppNavigation.ts` state checks
+- **Route not found**: confirm file exists under `app/onboarding`
+
+## Next Steps
+
+- [Mobile Authentication](/mobile/authentication)

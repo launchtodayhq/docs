@@ -1,0 +1,84 @@
+---
+title: "Incident Debugging"
+description: "How to trace a user issue from mobile → API → database"
+---
+
+## Goal
+
+When a user reports a problem, you should be able to answer:
+
+- What request failed?
+- Why did it fail?
+- What data was affected?
+
+This guide uses Launch’s trace IDs to connect the dots across the app and API.
+
+## Prerequisites
+
+- You can access API logs
+- You can query the database
+- You know the user’s email or user ID
+
+## Steps
+
+### 1) Capture a trace ID
+
+From the client:
+
+- In error UI, capture the `traceId` returned by the API.
+- If you’re testing locally, inspect the network response headers for
+  `X-Trace-Id`.
+
+### 2) Find the API request
+
+Search logs for the trace ID:
+
+```
+traceId=<id>
+```
+
+Look for:
+
+- `path`, `method`, `status`
+- `error` message
+- `userId` (if logged)
+
+### 3) Identify the failing operation
+
+Examples:
+
+- `POST /api/ai/stream` → provider/network error
+- `POST /trpc/stripe.createPaymentIntent` → Stripe config error
+- `POST /trpc/upload.requestUploadUrl` → S3 config error
+
+### 4) Check database state
+
+Use the `userId` from logs to verify:
+
+- `users` row exists
+- Related records are created (e.g., `payments`, `subscriptions`, `files`)
+
+### 5) Fix and verify
+
+- Apply the fix (env, code, config)
+- Reproduce the issue
+- Confirm logs show a success response for the same flow
+
+## Example: payment failed → no access
+
+1. User reports: “Payment succeeded but no access”
+2. Find trace ID from client error response
+3. In API logs, locate `payment_intent.succeeded`
+4. Verify `payments` and `user_entitlements` for that `userId`
+5. If entitlements missing, confirm Stripe product metadata and webhook logs
+
+## Troubleshooting
+
+- **No trace ID in response**: confirm API is returning `X-Trace-Id`
+- **No logs for trace ID**: check log level and whether the request hit the API
+- **Missing `userId`**: ensure auth/session is valid for the request
+
+## Next steps
+
+- Add Sentry breadcrumbs with `traceId`
+- Create a playbook for your top 3 user‑reported issues

@@ -1,0 +1,64 @@
+---
+title: "Auth & Session (Core)"
+description: "Why auth/session is core, and how to disable providers safely"
+---
+
+## Why this is core
+
+Launch uses Better Auth for sessions and user identity. This layer is woven into
+routing, device tracking, and data access. Removing it would require a full
+re-architecture, so it is **not** supported as a feature deletion.
+
+## Prerequisites
+
+- You want to keep core sessions
+- You only need to disable providers
+
+## Steps
+
+1. Remove provider UI entry points
+2. Remove provider env vars
+3. Restart the API
+
+## What you can disable
+
+You can still remove **providers** and entry points:
+
+- Apple Sign-In
+- Google Sign-In
+- Email OTP flows
+
+## Disable Apple / Google
+
+1. Remove provider UI buttons:
+   - `apps/mobile/app/auth/*`
+2. Remove env vars from the API:
+   - `APPLE_*` and `GOOGLE_*`
+3. Restart the API server to pick up env changes.
+
+Better Auth only registers providers when the env vars are present, so removing
+them disables the provider.
+
+## Disable Email OTP
+
+1. Remove Email Sign-In entry points and screens:
+   - `apps/mobile/app/auth/email-signin.tsx`
+2. Remove email-specific UI hooks if unused.
+3. Remove `RESEND_API_KEY` from the API.
+
+## What not to remove
+
+- Session cookies and auth middleware
+- Auth-related tRPC procedures used by the app
+
+If you need a fully unauthenticated product, treat it as a new product baseline
+and plan a custom refactor instead of “removing auth.”
+
+## Troubleshooting
+
+- **Provider still shows**: check auth screen entry points
+- **Sign‑in still enabled**: verify env vars are removed
+
+## Next Steps
+
+- [Removing Features](/essentials/removing-features)

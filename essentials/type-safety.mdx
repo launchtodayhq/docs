@@ -1,0 +1,82 @@
+---
+title: "Type safety across apps"
+description: "How Launch shares API types between backend, mobile, and web"
+---
+
+## Overview
+
+Launch uses tRPC to share API types across the API, mobile app, and web app.
+The API defines a single router, and both clients import the router type
+directly from the API package.
+
+## Prerequisites
+
+- API package built and available
+- `apps/api/src/types.ts` exports `AppRouter`
+
+## Steps
+
+1. Define routers in `apps/api/src/router.ts`
+2. Export `AppRouter` from `apps/api/src/types.ts`
+3. Import `AppRouter` in mobile and web
+
+## Single source of truth
+
+- **Router definition**: `apps/api/src/router.ts`
+- **Type export**: `apps/api/src/types.ts`
+
+```ts
+// apps/api/src/types.ts
+export type { AppRouter } from "./router";
+```
+
+Because `apps/api/package.json` exposes `types`, both clients can import
+`AppRouter` from the `api` package without any manual codegen.
+
+## Mobile client usage
+
+```ts
+// apps/mobile/lib/trpc/client.ts
+import type { AppRouter } from "api";
+import { createTRPCReact } from "@trpc/react-query";
+
+export const trpc = createTRPCReact<AppRouter>();
+```
+
+## Web client usage
+
+```ts
+// apps/web/lib/trpc.ts
+import type { AppRouter } from "api";
+import { createTRPCReact } from "@trpc/react-query";
+
+export const trpc = createTRPCReact<AppRouter>();
+```
+
+## Extending routers safely
+
+1. Add a new router in `apps/api/src/routers/`
+2. Register it in `apps/api/src/router.ts`
+3. Use the typed hooks on mobile/web immediately
+
+Type safety is automatic as long as:
+
+- The client imports `AppRouter` from `api`
+- You avoid `any` or casting tRPC hooks
+
+## Common pitfalls
+
+- **Missing router registration**: If a router isn’t added to `appRouter`,
+  clients won’t see it.
+- **Casting away types**: Avoid `as any` or `as unknown` at the tRPC boundary.
+- **Out-of-date builds**: Restart the mobile/web dev server after adding new
+  procedures to pick up updated types.
+
+## Troubleshooting
+
+- **Types missing**: ensure `apps/api/package.json` points to `types`
+- **Type errors in mobile**: restart dev server to pick up changes
+
+## Next Steps
+
+- [Feature Registry](/mobile/feature-registry)

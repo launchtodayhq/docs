@@ -7,6 +7,16 @@ description: "How the Launch monorepo is organized"
 
 Launch is a Turborepo monorepo with three applications that share type definitions and work together seamlessly.
 
+## Prerequisites
+
+- None (this is a reference page)
+
+## Steps
+
+1. Identify the app you’re working on (mobile, API, web)
+2. Use the matching section below to navigate folders
+3. Jump to the linked deeper‑dive pages
+
 ```
 Launch/
 ├── apps/
@@ -122,6 +132,11 @@ apps/web/
 | `apps/api/prisma/schema.prisma` | Database models and relationships                 |
 | `turbo.json`                    | Turborepo build pipeline configuration            |
 | `pnpm-workspace.yaml`           | Workspace package definitions                     |
+
+## Troubleshooting
+
+- **Can’t find a screen**: check `apps/mobile/app/`
+- **Missing API route**: check `apps/api/src/router.ts` for registration
 
 ## Next Steps
 

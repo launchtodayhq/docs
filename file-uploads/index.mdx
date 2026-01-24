@@ -13,6 +13,11 @@ Launch includes a production-ready file upload system that supports:
 - **Parallel uploads** for multiple files
 - **Progress tracking** with persistence across navigation
 
+## Prerequisites
+
+- S3 bucket and credentials
+- Backend running with S3 env vars
+
 ## Architecture
 
 ```
@@ -66,7 +71,7 @@ Launch automatically selects the best upload strategy based on file size:
   </Card>
 </CardGroup>
 
-## Setup
+## Steps
 
 1. Configure S3 and backend env vars: [Backend Setup](/file-uploads/backend-setup)
 2. Integrate the mobile UI: [Mobile Setup](/file-uploads/mobile-setup)
@@ -115,6 +120,11 @@ To disable uploads while you configure S3, set:
 `apps/mobile/features/feature-registry.tsx` → `featureFlags.fileUploads = false`
 
 For production removal guidance, see [Removing Features](/essentials/removing-features).
+
+## Next Steps
+
+- [Backend Setup](/file-uploads/backend-setup)
+- [Mobile Setup](/file-uploads/mobile-setup)
 
 
 

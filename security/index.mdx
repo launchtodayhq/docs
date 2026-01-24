@@ -7,6 +7,11 @@ description: "Security best practices for your production app"
 
 Security is critical for any production app handling user data. This section covers essential security practices for Launch applications.
 
+## Prerequisites
+
+- Production environment configured
+- Access to deployment logs and secrets manager
+
 <CardGroup cols={2}>
   <Card title="Mobile Security" icon="lock" href="/security/mobile-security">
     Secure storage, data protection, and device security
@@ -47,6 +52,8 @@ Launch includes these security features out of the box:
   </Accordion>
 </AccordionGroup>
 
+## Steps
+
 ## Quick Security Wins
 
 <Steps>
@@ -67,6 +74,16 @@ Launch includes these security features out of the box:
   **Before launching**, complete the [Security Checklist](/security/checklist)
   to ensure you haven't missed any critical security measures.
 </Warning>
+
+## Troubleshooting
+
+- **Leaky logs**: review logging config and sanitize inputs
+- **Auth failures**: verify provider env vars and callback URLs
+
+## Next Steps
+
+- [Security Checklist](/security/checklist)
+- [Mobile Security](/security/mobile-security)
 
 
 

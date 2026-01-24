@@ -7,6 +7,11 @@ description: "Choose the right payment integration for your mobile app"
 
 Launch includes multiple payment integration options to help you monetize your app. Choose the one that best fits your needs.
 
+## Prerequisites
+
+- Payments feature enabled in `apps/mobile/features/feature-registry.tsx`
+- Backend env vars set for your chosen provider
+
 <CardGroup cols={2}>
   <Card title="Stripe" icon="stripe" href="/payments/stripe">
     Direct payment processing with full control. Best for web + mobile apps or
@@ -40,7 +45,7 @@ Launch includes multiple payment integration options to help you monetize your a
   subscription management or A/B testing.
 </Note>
 
-## Setup
+## Steps
 
 1. Choose a provider:
    - [Stripe](/payments/stripe)
@@ -78,3 +83,8 @@ To disable payments while you configure providers, set:
 `apps/mobile/features/feature-registry.tsx` → `featureFlags.payments = false`
 
 For production removal guidance, see [Removing Features](/essentials/removing-features).
+
+## Next Steps
+
+- [Stripe Setup](/payments/stripe-setup)
+- [RevenueCat Setup](/payments/revenuecat-setup)

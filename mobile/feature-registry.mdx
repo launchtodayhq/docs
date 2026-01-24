@@ -5,13 +5,24 @@ description: "Enable, disable, and swap app features as building blocks"
 
 ## What this is
 
-Launch treats major product capabilities (auth/session, payments, etc.) as **features** that can be enabled/disabled and composed centrally.
+Launch treats major optional capabilities (payments, AI, uploads, etc.) as
+**features** that can be enabled/disabled and composed centrally.
+
+Auth/session is core infrastructure and is **not** modeled as a removable
+feature. You can disable specific auth providers, but the session layer stays.
 
 The goal is to make it easy for engineers to:
 
 - delete a feature without hunting through the app
 - swap a provider implementation (e.g., payments) without rewriting UI
 - understand what a feature contributes (providers, screens, env requirements)
+
+## Prerequisites
+
+- Familiarity with `apps/mobile/features`
+- Optional features enabled via flags
+
+## Steps
 
 ## The registry (source of truth)
 
@@ -25,6 +36,8 @@ It defines:
 - whether they are enabled
 - the order of provider composition
 - optional docs links and dependencies
+- required env vars and permissions
+- removal checklists for clean deletion
 
 ## How provider composition works
 
@@ -104,12 +117,21 @@ World-class removal should be boring and predictable:
 
 ## Next step
 
-As the template evolves, each feature should also declare:
+As the template evolves, each feature should declare its contract in one place:
 
-- the screens/routes it contributes
-- required permissions (notifications, camera, etc.)
-- required backend endpoints and env vars
+- screens/routes it contributes
+- required env vars and permissions
+- removal steps (disable vs delete)
 
 This makes “swap/remove features like building blocks” a first-class product experience.
+
+## Troubleshooting
+
+- **Feature not visible**: verify `featureFlags` and entry points
+- **Provider not mounted**: check `FeatureProviders` order
+
+## Next Steps
+
+- [Removing Features](/essentials/removing-features)
 
 

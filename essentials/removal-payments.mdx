@@ -1,0 +1,54 @@
+---
+title: "Remove Payments"
+description: "Disable or delete payments (Stripe, RevenueCat, Superwall)"
+---
+
+## Prerequisites
+
+- Payments feature flagged
+- Access to mobile + API code
+
+## Steps
+
+## Disable (quick)
+
+1. Toggle in `apps/mobile/features/feature-registry.tsx`:
+   - `payments: false`
+2. Hide UI entry points (tiles/buttons):
+   - `apps/mobile/app/(tabs)/features/index.tsx`
+3. Guard routes with `FeatureGuard` if needed.
+
+## Delete (production)
+
+### Mobile
+
+- Remove payments routes:
+  - `apps/mobile/app/payments/*`
+- Remove payments provider and helpers:
+  - `apps/mobile/lib/payments/*`
+- Remove SDKs from `apps/mobile/package.json`.
+
+### API
+
+- Remove Stripe router and webhooks:
+  - `apps/api/src/routers/stripe.ts`
+  - `apps/api/src/routes/stripe-webhooks.ts`
+- Remove any subscription logic if unused:
+  - `apps/api/src/services/subscription.ts`
+- Remove Stripe env vars:
+  - `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PUBLISHABLE_KEY`
+
+## Verify
+
+- No payments screens are reachable
+- No Stripe endpoints are mounted
+- No Stripe env vars are required at boot
+
+## Troubleshooting
+
+- **Paywall still reachable**: remove entry points and routes
+- **Stripe endpoints still active**: remove router wiring
+
+## Next Steps
+
+- [Removing Features](/essentials/removing-features)

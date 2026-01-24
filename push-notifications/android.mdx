@@ -31,7 +31,10 @@ android: {
 }
 ```
 
-4. Rebuild the native project (required after adding `google-services.json`):
+4. Replace placeholder values in `app.config.ts` (package name / bundle ID, URL
+   schemes, EAS project ID, Stripe merchant identifier) to match your app.
+
+5. Rebuild the native project (required after adding `google-services.json`):
 
 ```
 pnpm -C apps/mobile prebuild
@@ -41,6 +44,13 @@ pnpm -C apps/mobile android
 Notes:
 - FCM does not work in Expo Go. Use a dev client or a full build.
 - The app creates a notification channel on Android before requesting the token.
+
+## Why this file is required
+
+`google-services.json` is consumed by the Android build tooling to configure
+Firebase/FCM. Without it, Android cannot register for a push token and FCM
+pushes will fail. This repo ships a placeholder file so you can commit safely,
+but you must replace it with the Firebase config for your own app.
 
 ## Backend Setup (FCM)
 

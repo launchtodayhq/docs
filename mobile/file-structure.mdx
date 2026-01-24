@@ -7,6 +7,12 @@ description: "Understanding the organization and patterns used in the mobile app
 
 The Launch mobile app follows a well-organized structure that makes it easy for developers to find components, understand data flow, and maintain the codebase.
 
+## Prerequisites
+
+- Basic familiarity with Expo Router
+
+## Steps
+
 ## Directory Structure
 
 ```
@@ -14,12 +20,18 @@ apps/mobile/
 ├── app/                         # Expo Router routes
 │   ├── _layout.tsx              # Root layout/providers/navigation
 │   ├── (tabs)/                  # Tabbed routes
+│   │   ├── home/                # Home tab screens
+│   │   ├── features/            # Feature catalog screens
+│   │   └── settings/            # Settings tab screens
 │   ├── auth/                    # Auth screens
 │   ├── onboarding/              # Onboarding flow
 │   ├── payments/                # Payments screens
 │   ├── file-uploads/            # Uploads screens
 │   ├── ai-chat.tsx              # AI chat screen
-│   └── notifications.tsx        # Notification settings
+│   ├── notifications.tsx        # Notification settings
+│   ├── appearance.tsx           # Theme and appearance
+│   ├── delete-account.tsx       # Account deletion
+│   └── error-screen/            # Global error fallback
 ├── components/                  # Reusable UI components (flat)
 ├── features/                    # Feature modules + registry
 │   ├── feature-registry.tsx
@@ -34,22 +46,25 @@ apps/mobile/
 │   ├── ai/                      # Providers, prompts, config
 │   ├── api/                     # API config + health
 │   ├── upload/                  # Upload helpers
-│   └── notifications.ts         # Push setup + registration
+│   ├── hooks/                   # Shared hooks
+│   ├── mutations/               # Client mutations
+│   ├── notifications.ts         # Push setup + registration
+│   └── google-services.json     # Firebase config (Android, placeholder)
 ├── constants/                   # Design tokens (colors/spacing/typography)
 ├── contexts/                    # App/theme contexts
 ├── modules/                     # Native modules (Expo Modules API)
 ├── themes/                      # Theme definitions
-└── app.config.ts                # Expo config
+└── app.config.ts                # Expo config (replace placeholders)
 ```
 
 ## Key Patterns
 
 ### Component Organization
 
-Components live in a flat `components/` folder. Grouping is done by naming and
-usage instead of subfolders (e.g., `auth-button.tsx`, `model-select.tsx`,
-`screen-container.tsx`). This keeps imports straightforward and avoids deep
-paths.
+Components live primarily in a flat `components/` folder. Grouping is done by
+naming and usage instead of deep subfolders (e.g., `auth-button.tsx`,
+`model-select.tsx`, `screen-container.tsx`). Small subfolders like `__tests__`
+exist for tests, but the main component surface stays flat for easy imports.
 
 ### Configuration & Feature Flags
 
@@ -58,6 +73,11 @@ flags live in:
 
 - `app.config.ts` (Expo config, plugins, bundle identifiers)
 - `features/feature-registry.tsx` (feature enable/disable, providers)
+
+`app.config.ts` is required by Expo to wire native identifiers (bundle ID /
+package name), deep link schemes, and plugin configuration. The repo ships
+placeholder values so you can commit safely—replace them with your own before
+building.
 
 ## Screen Patterns
 
@@ -147,7 +167,7 @@ className = "font-sans-bold text-4xl";
 
 ### Component Creation
 
-1. **Reusable components** go in appropriate `components/` subfolders
+1. **Reusable components** go in `components/` (flat, with minimal subfolders)
 2. **Screen-specific components** can stay in the screen file if they won't be reused
 3. **Always export** from the folder's `index.ts` file
 4. **Use TypeScript interfaces** for props
@@ -182,3 +202,13 @@ className = "font-sans-bold text-4xl";
 3. Add to the calling screen or feature module
 
 This structure ensures the codebase remains organized, scalable, and easy to understand for new developers.
+
+## Troubleshooting
+
+- **File not routing**: confirm file name and path under `app/`
+- **Import issues**: use `@/` aliases consistently
+
+## Next Steps
+
+- [Adding Screens](/mobile/adding-screens)
+- [Component Development](/mobile/components)

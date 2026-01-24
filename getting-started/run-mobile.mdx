@@ -5,6 +5,13 @@ description: "Start Expo and open the app on device or simulator"
 
 This guide assumes your backend is running locally.
 
+## Prerequisites
+
+- Backend running on `http://localhost:3001`
+- `apps/mobile/.env` available
+
+## Steps
+
 ## 1. Set the API URL
 
 Create or edit `apps/mobile/.env`:
@@ -38,25 +45,14 @@ pnpm start
 
 You should see the Launch onboarding flow on first run.
 
-{/* TODO: Add a screenshot of the onboarding screen */}
-<Frame>
-  <div
-    style={{
-      background: "#f5f5f5",
-      padding: "36px",
-      textAlign: "center",
-      borderRadius: "8px",
-    }}
-  >
-    <p style={{ color: "#666", margin: 0 }}>
-      📸 Screenshot: Launch onboarding (Coming Soon)
-    </p>
-  </div>
-</Frame>
-
 ## Troubleshooting
 
 - **Can't reach the API from a device**: verify `EXPO_PUBLIC_API_URL` uses your
   LAN IP and that your device is on the same network.
 - **Metro errors**: restart with `pnpm start --clear`.
 - **Changes not applied**: close the app and reload the Expo bundle.
+
+## Next Steps
+
+- [Quickstart](/quickstart)
+- [Authentication Setup](/authentication/backend-setup)

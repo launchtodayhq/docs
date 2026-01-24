@@ -1,0 +1,52 @@
+---
+title: "Remove File Uploads"
+description: "Disable or delete file uploads (S3 + native uploader)"
+---
+
+## Prerequisites
+
+- Uploads feature flagged
+- Access to mobile + API code
+
+## Steps
+
+## Disable (quick)
+
+1. Toggle in `apps/mobile/features/feature-registry.tsx`:
+   - `fileUploads: false`
+2. Remove or gate entry points:
+   - `apps/mobile/app/(tabs)/features/index.tsx`
+
+## Delete (production)
+
+### Mobile
+
+- Remove upload screens:
+  - `apps/mobile/app/file-uploads/*`
+- Remove upload helpers and native module usage:
+  - `apps/mobile/lib/upload/*`
+  - `apps/mobile/modules/*` (file uploader module)
+- Remove upload-related SDKs from `apps/mobile/package.json` if unused.
+
+### API
+
+- Remove upload routers and S3 helpers:
+  - `apps/api/src/routers/upload.ts`
+  - `apps/api/src/lib/s3.ts`
+- Remove S3 env vars:
+  - `S3_BUCKET`, `S3_REGION`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`
+
+## Verify
+
+- No upload screens are reachable
+- No S3 endpoints are mounted
+- No S3 env vars are required at boot
+
+## Troubleshooting
+
+- **Uploads still visible**: remove entry points and routes
+- **S3 errors continue**: remove S3 env vars and restart
+
+## Next Steps
+
+- [Removing Features](/essentials/removing-features)

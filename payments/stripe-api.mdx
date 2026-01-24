@@ -60,6 +60,57 @@ const { url } = await mutation.mutateAsync({
 });
 ```
 
+### `stripe.getSubscriptionStatus`
+
+Returns the current Stripe subscription for the authenticated user (if any), plus
+the local subscription record used for display.
+
+```typescript
+const { data } = trpc.stripe.getSubscriptionStatus.useQuery();
+
+// Returns
+{
+  hasSubscription: true,
+  subscription: { id: "sub_xxx", status: "active", cancel_at_period_end: false },
+  localSubscription: {
+    id: "sub_xxx",
+    status: "active",
+    cancelAtPeriodEnd: false,
+    currentPeriodEnd: "2026-01-23T12:34:56.000Z",
+  },
+}
+```
+
+### `stripe.cancelSubscription`
+
+Schedules a subscription to cancel at period end.
+
+```typescript
+const mutation = trpc.stripe.cancelSubscription.useMutation();
+await mutation.mutateAsync();
+```
+
+### `stripe.resumeSubscription`
+
+Resumes a subscription that was scheduled to cancel at period end.
+
+```typescript
+const mutation = trpc.stripe.resumeSubscription.useMutation();
+await mutation.mutateAsync();
+```
+
+### `stripe.changeSubscriptionPlan`
+
+Switches between subscription prices (monthly ↔ annual). Upgrades take effect
+immediately with proration; downgrades take effect at renewal.
+
+```typescript
+const mutation = trpc.stripe.changeSubscriptionPlan.useMutation();
+await mutation.mutateAsync({
+  priceId: "price_new",
+});
+```
+
 ## API Structure
 
 **Location:** `apps/api/src/routers/stripe.ts`
@@ -94,6 +145,24 @@ export const stripeRouter = router({
     .mutation(async ({ input, ctx }) => {
       // Create checkout session
     }),
+
+  getSubscriptionStatus: protectedProcedure.query(async ({ ctx }) => {
+    // Return Stripe subscription and local subscription record
+  }),
+
+  cancelSubscription: protectedProcedure.mutation(async ({ ctx }) => {
+    // Set cancel_at_period_end to true
+  }),
+
+  resumeSubscription: protectedProcedure.mutation(async ({ ctx }) => {
+    // Set cancel_at_period_end to false
+  }),
+
+  changeSubscriptionPlan: protectedProcedure
+    .input(z.object({ priceId: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      // Swap subscription price with proration rules
+    }),
 });
 ```
 
@@ -102,6 +171,10 @@ export const stripeRouter = router({
 - `getProducts` - Public, no authentication required
 - `createPaymentIntent` - Protected, requires authenticated user
 - `createCheckoutSession` - Protected, requires authenticated user
+- `getSubscriptionStatus` - Protected, requires authenticated user
+- `cancelSubscription` - Protected, requires authenticated user
+- `resumeSubscription` - Protected, requires authenticated user
+- `changeSubscriptionPlan` - Protected, requires authenticated user
 
 ## Customer Management
 
@@ -134,6 +207,10 @@ try {
 - `stripe.getProducts` returns products
 - `stripe.createPaymentIntent` returns a client secret
 - `stripe.createCheckoutSession` returns a valid URL
+- `stripe.getSubscriptionStatus` returns subscription info (if subscribed)
+- `stripe.cancelSubscription` sets `cancel_at_period_end`
+- `stripe.resumeSubscription` clears `cancel_at_period_end`
+- `stripe.changeSubscriptionPlan` swaps price with correct proration
 
 ## Troubleshooting
 

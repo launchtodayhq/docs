@@ -9,18 +9,17 @@ The payment system uses a flexible database schema designed to support multiple 
 
 ## Schema Design Philosophy
 
-### Plans → Entitlements → Meters Pattern
+### Plans and Subscriptions
 
-The schema follows a three-layer architecture:
+The schema focuses on:
 
-1. **Plans** define what users pay for
-2. **Entitlements** define what features users get
-3. **Meters** track and limit feature usage
+1. **Plans** for pricing metadata
+2. **Subscriptions** for ongoing access
+3. **Payments** for charge history
 
 This separation allows you to:
 
 - Change pricing without affecting feature logic
-- Add new features without schema changes
 - Support multiple billing models simultaneously
 - Switch payment providers easily
 
@@ -59,51 +58,13 @@ Tracks active user subscriptions with full Stripe integration:
 - References a `Plan`
 - Synced with Stripe via webhooks
 
-### Entitlement System
+### Payment Model
 
-#### Entitlement Model
+Stores individual Stripe payment intents:
 
-Defines available features in your application:
-
-- Unique key-based identification (`pro_docs`, `ai_pro`)
-- Human-readable names and descriptions
-- Reusable across multiple plans
-
-#### PlanEntitlement Model
-
-Junction table mapping which entitlements come with each plan:
-
-- Many-to-many relationship between Plans and Entitlements
-- Allows flexible plan composition
-- Easy to modify without affecting existing subscriptions
-
-#### UserEntitlement Model
-
-Tracks which entitlements each user currently has:
-
-- Direct user-to-entitlement mapping
-- Supports expiration dates for temporary access
-- Active/inactive status for fine-grained control
-- Updated automatically via Stripe webhooks
-
-### Usage Tracking
-
-#### Meter Model
-
-Defines trackable usage metrics:
-
-- Unique key identification (`docs.uploads.month`)
-- Configurable reset periods (monthly, yearly, never)
-- Human-readable descriptions
-
-#### UsageCounter Model
-
-Tracks individual user usage against meters:
-
-- Current count and optional limits
-- Period-based tracking (e.g., "2025-01" for January 2025)
-- Automatic reset handling based on meter configuration
-- Unique constraints prevent duplicate counting
+- Links users to Stripe payment intents and customers
+- Tracks success/failure status
+- Records paid timestamps
 
 ## Indexing Strategy
 
@@ -112,8 +73,7 @@ The schema includes strategic indexes for performance:
 ### Primary Lookups
 
 - `User.email` - Authentication and user lookup
-- `Entitlement.key` - Feature access checks
-- `Meter.key` - Usage tracking queries
+- `Payment.stripePaymentIntentId` - Payment lookup
 
 ### Stripe Integration
 
@@ -121,57 +81,35 @@ The schema includes strategic indexes for performance:
 - `Subscription.stripeSubscriptionId` - Webhook processing
 - `Subscription.userId` - User subscription queries
 
-### Usage Queries
-
-- `UsageCounter.userId` - User usage lookups
-- `UsageCounter.period` - Period-based queries
-- `UserEntitlement.userId` + `isActive` - Active entitlement checks
-
 ## Relationships Overview
 
 ```
 User
 ├── subscriptions[] → Subscription
-├── userEntitlements[] → UserEntitlement
-└── usageCounters[] → UsageCounter
+└── payments[] → Payment
 
 Subscription
 ├── user → User
 └── plan → Plan
 
 Plan
-├── subscriptions[] → Subscription
-└── entitlements[] → PlanEntitlement
+└── subscriptions[] → Subscription
 
-Entitlement
-├── planEntitlements[] → PlanEntitlement
-└── userEntitlements[] → UserEntitlement
-
-Meter
-└── usageCounters[] → UsageCounter
 ```
 
 ## Example Scenarios
 
-### Checking Feature Access
+### Payment History
 
-1. Query `UserEntitlement` for user + entitlement key
-2. Verify `isActive = true` and `expiresAt` (if set)
-3. Allow or deny feature access
-
-### Usage Tracking
-
-1. Query `UsageCounter` for user + meter + current period
-2. Check if `count < limit` (or limit is null)
-3. Increment count if within limits
-4. Show paywall if limit exceeded
+1. Query `Payment` for user + recent records
+2. Display status and timestamps
+3. Use Stripe IDs for reconciliation if needed
 
 ### Subscription Changes
 
 1. Stripe webhook updates `Subscription` status
-2. System recalculates `UserEntitlements` based on new plan
-3. Usage limits updated via `UsageCounter` relationships
-4. User immediately sees new access levels
+2. System updates internal `Subscription` status
+3. User immediately sees new access levels
 
 ## Migration Commands
 

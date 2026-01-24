@@ -13,6 +13,17 @@ Launch aims to teach a high-quality baseline:
 - logs don’t leak secrets/PII
 - every incident can be traced across mobile ↔ API ↔ database
 
+## Prerequisites
+
+- API logs accessible
+- Error reporting configured (optional)
+
+## Steps
+
+1. Ensure trace IDs are returned by the API
+2. Sanitize logs and error payloads
+3. Add client‑side error reporting
+
 ## What to implement (recommended baseline)
 
 ### 1) Correlation IDs
@@ -24,6 +35,12 @@ Every API request should have a stable identifier (`requestId` / `traceId`) that
 - client error reports (Sentry breadcrumbs)
 
 This is the foundation of debugging “what happened to this user” in Datadog/Sentry.
+
+**Launch implementation:**
+
+- API responses include `X-Trace-Id`
+- Server logs attach the same `traceId`
+- Error responses include `{ traceId }` for easy copy/paste
 
 ### 2) Safe logging
 
@@ -83,5 +100,18 @@ Recommended:
 - ensure error responses don’t leak internal stack traces
 - ensure logs are sanitized
 - confirm you can correlate a mobile error → API logs using a requestId/traceId
+
+## Incident debugging
+
+Use the step‑by‑step guide in [Incident Debugging](/essentials/incident-debugging).
+
+## Troubleshooting
+
+- **Missing trace IDs**: verify middleware and headers
+- **No logs in prod**: confirm log level and sink
+
+## Next Steps
+
+- [Incident Debugging](/essentials/incident-debugging)
 
 

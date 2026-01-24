@@ -13,6 +13,8 @@ Apple Sign-In provides a secure and privacy-focused authentication method for iO
 - **iOS App** with unique Bundle Identifier
 - **Access to Apple Developer Console**
 
+## Steps
+
 ## Step 1: Apple Developer Console Setup
 
 ### 1.1 Create/Configure App ID
@@ -124,6 +126,16 @@ const base64Key = Buffer.from(keyContent).toString('base64');
 
 console.log('APPLE_PRIVATE_KEY_BASE64="' + base64Key + '"');
 ```
+
+## Troubleshooting
+
+- **Sign‑in not available**: ensure `usesAppleSignIn: true` in `app.config.ts`
+- **Invalid client**: confirm bundle ID matches `APPLE_CLIENT_ID`
+
+## Next Steps
+
+- [Backend Auth Setup](/authentication/backend-setup)
+- [Google Sign-In](/authentication/google-signin)
 
 Run with: `node convert-p8.js`
 

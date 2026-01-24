@@ -7,6 +7,12 @@ description: "Send and handle push notifications in your app"
 
 Push notifications help you reach users when they are away from the app. They are most effective when they are timely, relevant, and respectful of user preferences. In Launch, notifications are sent directly through APNs on iOS and FCM on Android to give you full control over payloads, delivery, and routing.
 
+## Prerequisites
+
+- Apple Developer account (APNs)
+- Firebase project (FCM)
+- Development build for native entitlements
+
 APNs (Apple Push Notification service) is Apple’s gateway for delivering pushes to iOS devices. FCM (Firebase Cloud Messaging) is Google’s gateway for Android. We send directly to both services instead of using Expo Push so we can control authentication, payload structure, delivery timing, and future routing logic without relying on a relay.
 
 <CardGroup cols={2}>
@@ -55,7 +61,7 @@ Key pieces in this repo:
 - `apps/api/src/routes/api/push.ts`
 - `apps/api/src/routers/push.ts`
 
-## Setup
+## Steps
 
 1. Configure credentials:
    - [iOS Setup](/push-notifications/ios)
@@ -93,3 +99,8 @@ guidance, see [Removing Features](/essentials/removing-features).
 - Avoid excessive sends; let users control frequency.
 - Use targeting for relevance instead of broadcasting by default.
 - For scheduling and queueing strategies, see [Guidance](/push-notifications/guidance).
+
+## Next Steps
+
+- [iOS Setup](/push-notifications/ios)
+- [Android Setup](/push-notifications/android)

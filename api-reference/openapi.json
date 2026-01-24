@@ -1,94 +1,29 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "OpenAPI Plant Store",
-    "description": "A sample API that uses a plant store as an example to demonstrate features in the OpenAPI specification",
+    "title": "Launch API",
+    "description": "REST endpoints for Launch. tRPC procedures are not listed here.",
     "license": {
-      "name": "MIT"
+      "name": "Private"
     },
     "version": "1.0.0"
   },
   "servers": [
     {
-      "url": "http://sandbox.mintlify.com"
-    }
-  ],
-  "security": [
-    {
-      "bearerAuth": []
+      "url": "http://localhost:3001"
     }
   ],
   "paths": {
-    "/plants": {
+    "/health": {
       "get": {
-        "description": "Returns all plants from the system that the user has access to",
-        "parameters": [
-          {
-            "name": "limit",
-            "in": "query",
-            "description": "The maximum number of results to return",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
+        "summary": "Basic health check",
         "responses": {
           "200": {
-            "description": "Plant response",
+            "description": "Service is healthy",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Plant"
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "description": "Creates a new plant in the store",
-        "requestBody": {
-          "description": "Plant to add to the store",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NewPlant"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "plant response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Plant"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "$ref": "#/components/schemas/HealthStatus"
                 }
               }
             }
@@ -96,57 +31,29 @@
         }
       }
     },
-    "/plants/{id}": {
-      "delete": {
-        "description": "Deletes a single plant based on the ID supplied",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "ID of plant to delete",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
+    "/health/detailed": {
+      "get": {
+        "summary": "Detailed health check",
         "responses": {
-          "204": {
-            "description": "Plant deleted",
-            "content": {}
-          },
-          "400": {
-            "description": "unexpected error",
+          "200": {
+            "description": "Service is healthy",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "$ref": "#/components/schemas/HealthDetailed"
                 }
               }
             }
-          }
-        }
-      }
-    }
-  },
-  "webhooks": {
-    "/plant/webhook": {
-      "post": {
-        "description": "Information about a new plant added to the store",
-        "requestBody": {
-          "description": "Plant added to the store",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NewPlant"
+          },
+          "503": {
+            "description": "Service is unhealthy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthDetailed"
+                }
               }
             }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Return a 200 status to indicate that the data was received successfully"
           }
         }
       }
@@ -154,63 +61,56 @@
   },
   "components": {
     "schemas": {
-      "Plant": {
-        "required": [
-          "name"
-        ],
+      "HealthStatus": {
         "type": "object",
         "properties": {
-          "name": {
-            "description": "The name of the plant",
+          "status": {
             "type": "string"
           },
-          "tag": {
-            "description": "Tag to specify the type",
-            "type": "string"
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "uptime": {
+            "type": "number"
           }
-        }
+        },
+        "required": ["status", "timestamp", "uptime"]
       },
-      "NewPlant": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Plant"
+      "HealthDetailed": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
           },
-          {
-            "required": [
-              "id"
-            ],
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "uptime": {
+            "type": "number"
+          },
+          "checks": {
             "type": "object",
             "properties": {
-              "id": {
-                "description": "Identification number of the plant",
-                "type": "integer",
-                "format": "int64"
+              "database": {
+                "type": "string"
+              },
+              "memory": {
+                "type": "object",
+                "properties": {
+                  "used": {
+                    "type": "integer"
+                  },
+                  "total": {
+                    "type": "integer"
+                  }
+                }
               }
             }
           }
-        ]
-      },
-      "Error": {
-        "required": [
-          "error",
-          "message"
-        ],
-        "type": "object",
-        "properties": {
-          "error": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "message": {
-            "type": "string"
-          }
-        }
-      }
-    },
-    "securitySchemes": {
-      "bearerAuth": {
-        "type": "http",
-        "scheme": "bearer"
+        },
+        "required": ["status", "timestamp", "uptime", "checks"]
       }
     }
   }

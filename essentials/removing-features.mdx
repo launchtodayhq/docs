@@ -7,7 +7,21 @@ description: "How to disable vs delete features (and what “world class” remo
 
 Use the feature registry to **explore and learn**, then **delete features you won’t ship**.
 
+Auth/session is core infrastructure and **not** a removable feature. You can
+disable specific auth providers, but the session layer stays.
+
 Disabling is great for the template experience, but deletion is cleaner for production apps.
+
+## Prerequisites
+
+- Identify which features you will ship
+- Access to both mobile and API code
+
+## Steps
+
+1. Disable the feature in the registry
+2. Remove entry points and routes
+3. Remove backend endpoints and env vars
 
 ## Disable vs delete
 
@@ -49,6 +63,13 @@ Best for:
 - Remove external integrations (Stripe/S3 keys, webhook routes, etc.)
 - Remove database models/migrations if they’re truly feature-specific
 
+## Removal guides (recommended)
+
+- [Auth & Session (core)](/essentials/removal-auth-session)
+- [Payments](/essentials/removal-payments)
+- [AI Chat](/essentials/removal-ai)
+- [File Uploads](/essentials/removal-file-uploads)
+
 ## Example: removing Payments
 
 1. Disable in `apps/mobile/features/feature-registry.tsx` (`payments: false`)
@@ -79,5 +100,14 @@ Best for:
    - `apps/api/src/routers/upload.ts`
    - `apps/api/src/lib/s3.ts`
 5. Remove S3 env vars
+
+## Troubleshooting
+
+- **Feature still visible**: check feature flags and entry points
+- **Build errors**: remove unused deps and clean install
+
+## Next Steps
+
+- [Feature Registry](/mobile/feature-registry)
 
 

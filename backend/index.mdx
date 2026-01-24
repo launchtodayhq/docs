@@ -3,7 +3,20 @@ title: "Backend Overview"
 description: "Server-side API and deployment options"
 ---
 
-The Launch backend is a lightweight Node server designed for mobile-first products: authentication, payments, uploads, and a type-safe API surface for the app.
+The Launch backend is a lightweight Node server designed for mobile-first
+products: authentication, payments, uploads, and a type-safe API surface for
+the app.
+
+## Prerequisites
+
+- PostgreSQL database available
+- `.env` values configured for the features you will use
+
+## Steps
+
+1. Configure env vars: [Environment Variables](/backend/environment-variables)
+2. Run migrations in `apps/api`
+3. Start the server with `pnpm api:dev`
 
 ## Tech Stack
 
@@ -56,6 +69,11 @@ The backend can be deployed to various platforms:
 | Vercel   | Serverless | Edge functions, fast cold starts |
 | Fly.io   | Container  | Global distribution              |
 | AWS      | Various    | Enterprise, custom infra         |
+
+## Troubleshooting
+
+- **Database connection errors**: confirm `DATABASE_URL`
+- **Auth provider errors**: verify provider env vars
 
 ## Next Steps
 

@@ -3,34 +3,19 @@ title: "Quickstart"
 description: "Get Launch running in under 10 minutes"
 ---
 
-{/* TODO: Add quickstart video walkthrough */}
-
-<Frame>
-  <div
-    style={{
-      background: "#1a1a2e",
-      padding: "60px",
-      textAlign: "center",
-      borderRadius: "8px",
-    }}
-  >
-    <p style={{ color: "#888", margin: 0 }}>
-      🎬 Video: From Clone to Running App in 10 Minutes (Coming Soon)
-    </p>
-  </div>
-</Frame>
-
 ## Prerequisites
 
 If you are new to the codebase, read [Start Here](/getting-started/start-here)
 first. Then complete the [Prerequisites](/getting-started/prerequisites).
 
+## Steps
+
 ## 1. Fork & Install
 
 ```bash
 # Fork the repository on GitHub, then clone your fork
-git clone https://github.com/<your-username>/launch.git
-cd Launch
+git clone https://github.com/launchtodayhq/launch.git
+cd launch
 
 # Install all dependencies
 pnpm install
@@ -60,11 +45,13 @@ pnpm install
 ## 3. Configure Environment
 
 ```bash
+# Create your API env file
 cd apps/api
-cp env.example .env
+touch .env
 ```
 
-Edit `.env` with your values:
+Edit `.env` with your values (see full list in
+[Backend Environment Variables](/backend/environment-variables)):
 
 ```bash
 # Database
@@ -73,16 +60,6 @@ DATABASE_URL="postgresql://postgres:postgres@localhost:5432/launch"
 # Auth (generate a random string)
 BETTER_AUTH_SECRET="your-super-secret-key-at-least-32-chars"
 BETTER_AUTH_URL="http://localhost:3001"
-
-# AI (optional)
-# OPENAI_API_KEY="..."
-# ANTHROPIC_API_KEY="..."
-
-# File uploads (optional)
-# S3_BUCKET="..."
-# S3_REGION="..."
-# S3_ACCESS_KEY_ID="..."
-# S3_SECRET_ACCESS_KEY="..."
 
 # CORS
 TRUSTED_ORIGINS="http://localhost:3000,http://localhost:19006,launch://"
@@ -123,23 +100,6 @@ Follow [Run the Mobile App](/getting-started/run-mobile) to set
 
 Open the app on a device or simulator using Expo.
 
-{/* TODO: Add screenshot of running app */}
-
-<Frame>
-  <div
-    style={{
-      background: "#f5f5f5",
-      padding: "40px",
-      textAlign: "center",
-      borderRadius: "8px",
-    }}
-  >
-    <p style={{ color: "#666", margin: 0 }}>
-      📸 Screenshot: Launch App Running (Coming Soon)
-    </p>
-  </div>
-</Frame>
-
 ## 8. Test It Works
 
 1. Open the app
@@ -157,8 +117,11 @@ Launch includes optional feature modules (payments, AI, file uploads). If you ha
 
 See: [Feature Registry](/mobile/feature-registry)
 
-Need help? See [Troubleshooting](/troubleshooting) or the
-[Run the Mobile App](/getting-started/run-mobile) guide.
+## Troubleshooting
+
+- **Backend not running**: start `pnpm dev` in `apps/api`
+- **Mobile can’t reach API**: check `EXPO_PUBLIC_API_URL`
+- **Database errors**: verify `DATABASE_URL` and run migrations
 
 ## Next Steps
 

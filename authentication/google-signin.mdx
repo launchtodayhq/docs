@@ -7,6 +7,14 @@ description: "Step-by-step guide to configuring Google Cloud Console for OAuth a
 
 This guide covers the configuration required to set up Google Sign-In with **Better Auth**.
 
+## Prerequisites
+
+- Google Cloud project
+- Backend env vars available
+- Development build (not Expo Go)
+
+## Steps
+
 <Warning>
   **Local mobile testing (Android)**: if your API is using an ngrok HTTPS URL,
   you must ensure the OAuth flow starts and ends on the **same origin**. Use the
@@ -117,6 +125,26 @@ The mobile app does not require Google OAuth env vars for the default Better
 Auth flow, since OAuth happens via the backend. If you choose to use the
 optional native AuthSession flow in `apps/mobile/lib/auth/google.ts`, you'll
 need to add the iOS and web client IDs there.
+
+### Optional: Expo AuthSession (Android)
+
+When using the native AuthSession flow on Android, the redirect must be HTTPS.
+Launch uses the Expo auth proxy URL:
+
+`https://auth.expo.io/@<owner>/<slug>`
+
+Make sure the `owner` and `slug` match your Expo account and
+`apps/mobile/app.config.ts`.
+
+## Troubleshooting
+
+- **State mismatch**: ensure API and mobile use the same base URL
+- **Invalid client**: check Google client ID/secret
+
+## Next Steps
+
+- [Auth Troubleshooting](/authentication/troubleshooting)
+- [Email Sign-In](/authentication/email-signin)
 
 ## How the OAuth Flow Works
 

@@ -3,29 +3,49 @@ title: "Environment Variables"
 description: "Configure your backend environment"
 ---
 
-<Info>
-  This guide is coming soon. It will cover all environment variables needed for
-  the backend.
-</Info>
+## Prerequisites
 
-## Required Variables
+- Know which features you plan to enable
+- Access to your deployment environment for setting secrets
 
-| Variable             | Description                   | Example                               |
-| -------------------- | ----------------------------- | ------------------------------------- |
-| `DATABASE_URL`       | PostgreSQL connection string  | `postgresql://user:pass@host:5432/db` |
-| `BETTER_AUTH_SECRET` | Secret for session encryption | Random 32+ character string           |
-| `BETTER_AUTH_URL`    | Your backend URL              | `https://api.yourapp.com`             |
+## Steps
 
-## Authentication
+1. Create `apps/api/.env`
+2. Add required base vars (`DATABASE_URL`, `BETTER_AUTH_SECRET`)
+3. Add provider vars only for enabled features
+4. Restart the API server to load changes
+
+## Required Variables (Base API)
+
+| Variable             | Description                                   | Example                               |
+| -------------------- | --------------------------------------------- | ------------------------------------- |
+| `DATABASE_URL`       | PostgreSQL connection string                  | `postgresql://user:pass@host:5432/db` |
+| `BETTER_AUTH_SECRET` | Secret for session encryption (32+ chars)     | `long-random-string`                  |
+| `BETTER_AUTH_URL`    | API base URL for OAuth callbacks (recommended) | `http://localhost:3001`               |
+
+## Server & Logging
+
+| Variable       | Description                      | Default        |
+| -------------- | -------------------------------- | -------------- |
+| `PORT`         | API server port                  | `3001`         |
+| `HOST`         | API server host                  | `localhost`    |
+| `NODE_ENV`     | Environment (`development`/`production`) | `development` |
+| `LOG_LEVEL`    | Logging level (`debug`/`info`/`warn`/`error`) | `info` |
+| `TRUSTED_ORIGINS` | Extra CORS origins (comma-separated) | (empty) |
+
+## Authentication Providers
 
 ### Apple Sign In
 
-| Variable              | Description          |
-| --------------------- | -------------------- |
-| `APPLE_CLIENT_ID`     | Apple Services ID    |
-| `APPLE_CLIENT_SECRET` | Generated JWT secret |
-| `APPLE_TEAM_ID`       | Your Apple Team ID   |
-| `APPLE_KEY_ID`        | Key ID from Apple    |
+| Variable                     | Description                                 |
+| ---------------------------- | ------------------------------------------- |
+| `APPLE_CLIENT_ID`            | Apple Services ID (matches iOS bundle ID)   |
+| `APPLE_TEAM_ID`              | Apple Developer Team ID                     |
+| `APPLE_KEY_ID`               | Apple Key ID                                |
+| `APPLE_PRIVATE_KEY`          | Private key contents (PEM)                  |
+| `APPLE_PRIVATE_KEY_BASE64`   | Base64-encoded private key (alternative)    |
+
+> Use **either** `APPLE_PRIVATE_KEY` or `APPLE_PRIVATE_KEY_BASE64`.
 
 ### Google Sign In
 
@@ -34,18 +54,82 @@ description: "Configure your backend environment"
 | `GOOGLE_WEB_CLIENT_ID` | OAuth web client ID |
 | `GOOGLE_CLIENT_SECRET` | OAuth client secret |
 
-## Payments
+## Email & SMS
 
-### Stripe
+| Variable               | Description                       |
+| ---------------------- | --------------------------------- |
+| `RESEND_API_KEY`       | Resend API key (email OTP)        |
+| `TWILIO_ACCOUNT_SID`   | Twilio account SID (SMS OTP)      |
+| `TWILIO_AUTH_TOKEN`    | Twilio auth token                 |
+| `TWILIO_SERVICE_SID`   | Twilio Verify service SID         |
+| `SKIP_TWILIO_OTP_VERIFICATION` | Skip SMS verification in dev (`true`/`false`, ignored in production) |
 
-| Variable                | Description            |
-| ----------------------- | ---------------------- |
-| `STRIPE_SECRET_KEY`     | Stripe API secret key  |
-| `STRIPE_WEBHOOK_SECRET` | Webhook signing secret |
+## Payments (Stripe)
 
-## Coming Soon
+| Variable                   | Description                    |
+| -------------------------- | ------------------------------ |
+| `STRIPE_SECRET_KEY`        | Stripe API secret key          |
+| `STRIPE_PUBLISHABLE_KEY`   | Stripe publishable key         |
+| `STRIPE_WEBHOOK_SECRET`    | Stripe webhook signing secret  |
 
-- Detailed setup instructions for each provider
-- Local development configuration
-- Production security best practices
+## AI Providers
+
+| Variable            | Description                 |
+| ------------------- | --------------------------- |
+| `OPENAI_API_KEY`    | OpenAI API key              |
+| `OPENAI_ORGANIZATION` | OpenAI organization ID (optional) |
+| `ANTHROPIC_API_KEY` | Anthropic API key (optional) |
+
+## File Uploads (S3)
+
+| Variable                | Description                 | Default   |
+| ----------------------- | --------------------------- | --------- |
+| `S3_BUCKET`             | S3 bucket name              | (none)    |
+| `S3_REGION`             | AWS region                  | `us-east-1` |
+| `S3_ACCESS_KEY_ID`      | AWS access key ID           | (none)    |
+| `S3_SECRET_ACCESS_KEY`  | AWS secret access key       | (none)    |
+
+## Push Notifications
+
+### APNS (iOS)
+
+| Variable            | Description                          |
+| ------------------- | ------------------------------------ |
+| `APNS_TEAM_ID`      | Apple Team ID                        |
+| `APNS_KEY_ID`       | APNS key ID                          |
+| `APNS_BUNDLE_ID`    | iOS bundle identifier                |
+| `APNS_PRODUCTION`   | `true` for production APNS           |
+| `APNS_KEY`          | APNS private key contents (PEM)      |
+| `APNS_KEY_BASE64`   | Base64-encoded APNS key (alternative) |
+
+### FCM (Android)
+
+| Variable                    | Description                                  |
+| --------------------------- | -------------------------------------------- |
+| `FCM_PROJECT_ID`            | Firebase project ID                          |
+| `FCM_SERVICE_ACCOUNT_BASE64` | Base64-encoded service account JSON          |
+
+### Push Campaign API
+
+| Variable                   | Description                      |
+| -------------------------- | -------------------------------- |
+| `PUSH_TOKEN_ADMIN_SECRET`  | Bearer token for push campaigns  |
+
+## Notes
+
+- The API reads env vars directly at startup. Missing required values will
+  cause runtime errors, so prefer setting envs before boot.
+- If you don’t need a feature, you can leave its env vars unset and disable the
+  corresponding mobile feature flag.
+
+## Troubleshooting
+
+- **Server fails on boot**: confirm required vars exist
+- **OAuth callbacks fail**: verify `BETTER_AUTH_URL`
+- **File uploads fail**: check S3 vars and bucket permissions
+
+## Next Steps
+
+- [Backend Overview](/backend/index)
+- [Authentication Setup](/authentication/backend-setup)
 

@@ -89,11 +89,36 @@ This is the Android version of “offerings empty.” Check these in order:
     Install a signed build (EAS or Play testing). Play Store products won’t
     load in a debug build.
   </Step>
-  <Step title="App is in testing track">
-    Upload a build to an internal/closed testing track and add your tester
-    account. Play Billing products usually require a Play-hosted build.
+  <Step title="App is in closed testing track">
+    Upload a build to a **closed testing** track and add your tester account.
+    Play Billing products usually require a Play-hosted build.
   </Step>
 </Steps>
+
+### "Invalid credentials" or Play Console auth errors (Android)
+
+RevenueCat needs a Google Play **service account** with the correct
+permissions, and your app must be in a **closed testing** track.
+
+<Steps>
+  <Step title="Create a service account">
+    In Play Console → **Setup** → **API access**, create a service account and
+    link it to your project. Download the JSON key for RevenueCat.
+  </Step>
+  <Step title="Assign permissions">
+    Grant the service account access to subscriptions and financial data
+    (RevenueCat's docs list the exact roles needed).
+  </Step>
+  <Step title="Use a closed testing track">
+    Upload a build to **closed testing** and add your tester account. Google
+    Play Billing won't validate products for non‑hosted builds.
+  </Step>
+</Steps>
+
+<Tip>
+  RevenueCat documents the exact Play Console roles and setup flow for Android.
+  Use their guide if you need step‑by‑step permissions details.
+</Tip>
 
 ---
 

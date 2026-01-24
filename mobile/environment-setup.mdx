@@ -12,14 +12,16 @@ Before getting started, ensure you have the following installed:
 - **Expo CLI** (`npm install -g @expo/cli`)
 - **iOS Simulator** (macOS only) or **Android Studio**
 
+## Steps
+
 ## Initial Setup
 
 ### 1. Fork and Install
 
 ```bash
 # Fork the repository on GitHub, then clone your fork
-git clone https://github.com/<your-username>/launch.git
-cd Launch
+git clone https://github.com/launchtodayhq/launch.git
+cd launch
 
 # Install dependencies
 pnpm install
@@ -30,16 +32,17 @@ cd apps/mobile
 
 ### 2. Environment Variables
 
-Create environment files in the API backend (`apps/api/`):
+Create an environment file in the API backend (`apps/api/.env`):
 
 ```bash
-# Copy example environment file
-cp env.example .env
+cd apps/api
+touch .env
 ```
 
 #### Required Environment Variables
 
-**API Backend** (`apps/api/.env`):
+**API Backend** (`apps/api/.env`) — see the full list in
+[Backend Environment Variables](/backend/environment-variables):
 
 ```bash
 # Database
@@ -254,6 +257,12 @@ TRUSTED_ORIGINS="https://your-web-app.com,launch://,your-expo-scheme://"
 - [ ] Authentication flow tested
 - [ ] Push notification certificates (if applicable)
 - [ ] App Store/Play Store metadata
+
+## Troubleshooting
+
+- **Auth failures**: verify `BETTER_AUTH_URL` and provider env vars
+- **Expo build errors**: re-run with `pnpm start --clear`
+- **Device can’t reach API**: use your LAN IP in `EXPO_PUBLIC_API_URL`
 
 ## Next Steps
 

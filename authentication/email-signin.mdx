@@ -8,6 +8,17 @@ description: "Set up passwordless email authentication using one-time passwords 
 Email sign-in is fully wired with Better Auth + Resend. Users enter their email,
 receive a 6-digit code, and verify it in-app to create a session.
 
+## Prerequisites
+
+- Resend account + API key
+- Backend running with email OTP enabled
+
+## Steps
+
+1. Configure Resend API key
+2. Verify domain (production)
+3. Test OTP flow in the app
+
 ## Features (UI)
 
 - Email capture screen with validation
@@ -71,7 +82,7 @@ Users enter their email address on the signup screen:
 
 - **Validation**: Basic email format validation
 - **Loading State**: Shows "Sending..." with disabled button
-- **Error Handling**: Console logging (TODO: User-facing errors)
+- **Error Handling**: User-facing alerts via `useErrorHandler`
 
 ### 2. OTP Verification
 
@@ -187,6 +198,16 @@ await resend.emails.send({
   `,
 });
 ```
+
+## Troubleshooting
+
+- **No email received**: check Resend API key and domain verification
+- **OTP invalid**: verify server time and resend rate limits
+
+## Next Steps
+
+- [Auth Troubleshooting](/authentication/troubleshooting)
+- [Mobile Authentication](/mobile/authentication)
 
 ### Styling
 

@@ -7,6 +7,17 @@ description: "Complete guide to authentication implementation in the mobile app"
 
 The Launch mobile app uses [Better Auth](https://better-auth.com) with Expo integration for a secure, seamless authentication experience. This guide explains how authentication works throughout the app.
 
+## Prerequisites
+
+- Backend running with auth routes enabled
+- `EXPO_PUBLIC_API_URL` set in `apps/mobile/.env`
+
+## Steps
+
+1. Configure auth providers in the API
+2. Verify mobile auth screens in `apps/mobile/app/auth`
+3. Test sign‑in on device or simulator
+
 ## Architecture
 
 ### Authentication Flow
@@ -318,6 +329,11 @@ APPLE_PRIVATE_KEY_BASE64=base64_encoded_private_key
 # Database
 DATABASE_URL=postgresql://user:password@localhost:5432/launch
 ```
+
+## Next Steps
+
+- [Apple Sign-In](/authentication/apple-signin)
+- [Google Sign-In](/authentication/google-signin)
 
 See the [Environment Setup Guide](/mobile/environment-setup) for complete configuration details.
 

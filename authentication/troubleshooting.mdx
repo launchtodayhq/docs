@@ -1,0 +1,27 @@
+---
+title: "Auth Troubleshooting"
+description: "Common OAuth and session issues with fixes"
+---
+
+## Prerequisites
+
+- API running locally or deployed
+- `BETTER_AUTH_URL` and `EXPO_PUBLIC_API_URL` aligned
+
+## Steps
+
+1. Identify the failing provider (Apple/Google/Email)
+2. Check API logs for the request
+3. Verify env vars and callback URLs
+
+## Troubleshooting
+
+- **OAuth state mismatch**: ensure API + mobile use the same base URL
+- **Invalid client**: confirm `GOOGLE_WEB_CLIENT_ID` / `APPLE_CLIENT_ID`
+- **Callback 404**: check `/api/auth/callback/*` routes are reachable
+- **Session not persisting**: verify SecureStore and device permissions
+
+## Next Steps
+
+- [Google Sign-In](/authentication/google-signin)
+- [Apple Sign-In](/authentication/apple-signin)

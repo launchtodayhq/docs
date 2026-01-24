@@ -1,77 +1,72 @@
 ---
 title: "Launch"
-description: "Ship production-ready mobile apps in days, not months"
+description: "A production-ready React Native + Expo starter"
 ---
 
-{/* TODO: Add hero video - 30 second overview of Launch */}
+## Build and Ship Faster
 
-<Frame>
-  <div
-    style={{
-      background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)",
-      padding: "80px 40px",
-      textAlign: "center",
-      borderRadius: "12px",
-    }}
-  >
-    <p style={{ color: "#888", margin: 0, fontSize: "18px" }}>
-      🎬 Video: Launch in 60 Seconds (Coming Soon)
-    </p>
-  </div>
-</Frame>
+Launch is a production-ready starter kit for React Native and Expo. It gives you a real app baseline with the systems you typically need before launch.
 
-## Build Apps That People Love
-
-Launch is a production-ready starter kit for React Native and Expo. It's everything you need to build a real mobile app—not a tutorial project, but something you can actually ship to the App Store and Google Play.
-
-One codebase. **iPhone**, **Android**, **iPad**, and **Android tablets**—all from the same code. Whether you're building a **fitness app**, a **marketplace**, a **social platform**, or a **SaaS mobile companion**—Launch gives you the foundation so you can focus on what makes your app unique.
+One codebase covers **iOS**, **Android**, **iPad**, and **Android tablets**. Use it for a consumer app, SaaS companion, or internal tool—then customize the product layer.
 
 <Tip>
-  **Ready to dive in?** The [Quickstart](/quickstart) gets you from clone to
-  running app in under 10 minutes.
+  **Start here:** The [Quickstart](/quickstart) gets you from clone to a running
+  app quickly.
 </Tip>
 
 ---
 
 ## What You Can Build
 
-Launch isn't opinionated about what you build—it just makes building faster. Here's what's ready out of the box:
+Launch isn't opinionated about the product. It provides the foundations so you can move faster:
 
-### Authentication That Just Works
+### Authentication
 
-No more wrestling with OAuth flows. **Better Auth** powers the backend with Apple Sign-In, Google Sign-In, and email authentication fully configured. Sessions persist securely using Expo SecureStore, protected routes guard your screens, and users stay logged in across app restarts.
+**Better Auth** powers the backend with Apple Sign-In, Google Sign-In, and email OTP. Sessions persist securely via Expo SecureStore, and protected routes keep auth‑gated screens consistent.
 
-→ [Set up authentication](/authentication/backend-setup)
+→ [Set up authentication](/authentication/backend-setup) · [Better Auth](https://www.better-auth.com/)
 
-### Payments & Subscriptions
+### Payments and Subscriptions
 
-Monetize from day one. Integrate **Stripe** for one-time payments, **RevenueCat** for cross-platform subscriptions, or **Superwall** for dynamic paywalls. The backend handles webhooks, receipt validation, and subscription status—you just build the UI.
+Integrate **Stripe** for one‑time payments, **RevenueCat** for subscriptions, or **Superwall** for paywalls. The backend handles webhooks, receipt validation, and subscription status.
 
-→ [Explore payment options](/payments)
+→ [Explore payment options](/payments) · [Stripe](https://stripe.com/gb) · [RevenueCat](https://www.revenuecat.com/) · [Superwall](https://superwall.com/)
 
-### File Uploads That Scale
+### File Uploads
 
-Upload profile photos, documents, or 4K videos—all securely stored in **AWS S3** with presigned URLs. Small files upload directly. Large files use S3 multipart uploads with resume support. Really large files? Native background uploads using iOS URLSession and Android coroutines that continue even when the app is backgrounded.
+Upload photos, documents, or large media with **AWS S3** presigned URLs. Smaller files upload directly, larger files use multipart uploads, and native background uploads handle long‑running transfers.
 
-→ [Learn about file uploads](/file-uploads)
+→ [Learn about file uploads](/file-uploads) · [AWS S3](https://aws.amazon.com/s3/)
 
-### AI-Powered Features
+### AI Features
 
-Add AI chat to your app with streaming responses. Connect to OpenAI, Anthropic, or other providers. Conversations persist, system prompts customize behavior, and the UI handles streaming gracefully.
+Add AI chat with streaming responses. Connect to OpenAI or Anthropic, persist conversations, and customize prompts.
 
 → [Add AI features](/ai-features/overview)
+
+### Push Notifications
+
+Register devices, manage tokens, and send notifications across iOS and Android with FCM/APNS wiring already in place.
+
+→ [Set up push notifications](/push-notifications) · [Firebase](https://firebase.google.com/) · [Apple APNs](https://developer.apple.com/documentation/usernotifications/sending-notification-requests-to-apns)
+
+### Onboarding and Theming
+
+Ship a guided onboarding flow with phone OTP, and a light/dark theme system wired across the app.
+
+→ [See onboarding flow](/mobile/onboarding)
 
 ---
 
 ## The Stack
 
-Launch uses modern, battle-tested technologies that scale:
+Launch uses a modern, well‑maintained stack:
 
 | Layer          | Technology          | Why                                          |
 | -------------- | ------------------- | -------------------------------------------- |
 | **Mobile**     | React Native + Expo | iOS, Android, iPad, and Android tablets      |
 | **Navigation** | Expo Router         | File-based routing, deep linking built-in    |
-| **UI**         | HeroUI + NativeWind | Beautiful components, Tailwind-style styling |
+| **UI**         | HeroUI + NativeWind | Component library with Tailwind-style styling ([HeroUI Native](https://v3.heroui.com/docs/native/getting-started)) |
 | **API**        | tRPC                | End-to-end type safety, no code generation   |
 | **Database**   | Prisma + PostgreSQL | Type-safe queries, easy migrations           |
 | **Auth**       | Better Auth         | Modern auth with social providers            |
@@ -83,13 +78,15 @@ Everything is TypeScript. Types flow from your database schema to your mobile UI
 
 Launch comes pre-configured with production-ready integrations:
 
-- **AWS S3** — Secure file storage with presigned URLs
-- **Better Auth** — Modern authentication with social providers
-- **Stripe** — Payments and subscriptions
-- **RevenueCat** — Cross-platform in-app purchases
-- **Superwall** — Dynamic paywalls and A/B testing
-- **OpenAI / Anthropic** — AI chat with streaming
-- **Expo EAS** — Cloud builds and OTA updates
+- **AWS S3** — Secure file storage with presigned URLs → [File uploads](/file-uploads)
+- **Better Auth** — Modern authentication with social providers → [Auth setup](/authentication/backend-setup)
+- **Stripe** — Payments and subscriptions → [Stripe setup](/payments/stripe-setup)
+- **RevenueCat** — Cross-platform in-app purchases → [RevenueCat setup](/payments/revenuecat-setup)
+- **Superwall** — Dynamic paywalls and A/B testing → [Superwall setup](/payments/superwall-setup)
+- **OpenAI / Anthropic** — AI chat with streaming → [AI features](/ai-features/overview)
+- **Expo EAS** — Cloud builds and OTA updates → [EAS deployment](/deployment/mobile-eas)
+- **Firebase (FCM)** — Push delivery for Android → [Push notifications](/push-notifications)
+- **APNs** — Push delivery for iOS → [Push notifications](/push-notifications)
 
 ### Feature Registry (Start Here)
 
@@ -102,7 +99,7 @@ setup.
 
 ---
 
-## From Zero to App Store
+## From Clone to Launch
 
 <Steps>
   <Step title="Clone & Install">
@@ -114,12 +111,10 @@ setup.
     ready.
   </Step>
   <Step title="Build Your Features">
-    Authentication, payments, and uploads are ready. Focus on what makes your
-    app special.
+    Authentication, payments, and uploads are ready. Focus on your product.
   </Step>
   <Step title="Deploy & Ship">
-    Push your backend to Railway, build with EAS, and submit to the stores. Real
-    apps, real users.
+    Deploy the API, build with EAS, and submit to the stores.
   </Step>
 </Steps>
 
@@ -140,11 +135,11 @@ setup.
 
 ## Why Launch?
 
-**Skip the boilerplate.** Authentication, payments, file uploads, API setup—these take weeks to build properly. Launch has them done.
+**Save weeks of setup.** Auth, payments, uploads, API scaffolding, and routing are already wired.
 
-**Production patterns.** This isn't demo code. It's the same architecture used in apps with real users. Security, error handling, and edge cases are handled.
+**Production defaults.** Security, error handling, and observability are built in.
 
-**Stay in control.** No vendor lock-in, no magic. You own the code. Eject, modify, or extend anything.
+**Stay in control.** No lock‑in. You own the code and can extend or remove anything.
 
 ---
 

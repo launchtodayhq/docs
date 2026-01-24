@@ -7,6 +7,13 @@ description: "Secure storage, data protection, and mobile security best practice
 
 Launch is configured with security best practices out of the box. Here's what's protected and how.
 
+## Prerequisites
+
+- Expo SecureStore installed
+- Auth client configured
+
+## Steps
+
 ### Authentication & Token Storage
 
 <Check>**Auth tokens are stored securely** using `expo-secure-store`</Check>
@@ -115,6 +122,15 @@ Ask yourself: **"If someone read this data, could they harm the user?"**
   or financial data - Personal identification (SSN, passport, driver's license)
   - Health or medical information
 </Warning>
+
+## Troubleshooting
+
+- **Tokens not stored**: check SecureStore permissions
+- **Unexpected logout**: verify session persistence and SecureStore availability
+
+## Next Steps
+
+- [Security Checklist](/security/checklist)
 
 ---
 

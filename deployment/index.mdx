@@ -3,23 +3,6 @@ title: "Deployment"
 description: "Deploy your app to production - backend, mobile, and beyond"
 ---
 
-{/* TODO: Add deployment overview video */}
-
-<Frame>
-  <div
-    style={{
-      background: "#1a1a2e",
-      padding: "60px",
-      textAlign: "center",
-      borderRadius: "8px",
-    }}
-  >
-    <p style={{ color: "#888", margin: 0 }}>
-      🎬 Video: Deployment Overview (Coming Soon)
-    </p>
-  </div>
-</Frame>
-
 ## Overview
 
 Launch is designed for easy deployment to production. This section covers
@@ -42,8 +25,22 @@ deployment can be completed in a single afternoon once your backend is live.
 </CardGroup>
 
 <Note>
-  Environment management and Docker deployment guides are coming soon.
+  If you need Docker or advanced env management, use the official Railway docs
+  or your platform’s deployment guides.
 </Note>
+
+## Prerequisites
+
+- A production database
+- A hosting provider for the API
+- Apple/Google developer accounts (if submitting to stores)
+
+## Steps
+
+1. Deploy the API (Railway or your provider)
+2. Set production env vars (API + mobile)
+3. Build mobile binaries with EAS
+4. Submit to the stores
 
 ## Deployment Checklist
 
@@ -75,6 +72,16 @@ Before deploying to production, ensure you've completed:
   [Backend to Railway](/backend/railway-deployment) - it's the fastest way to
   get your API live.
 </Note>
+
+## Troubleshooting
+
+- **Env missing at runtime**: verify variables in your host (Railway/EAS)
+- **Mobile can’t reach API**: confirm `EXPO_PUBLIC_API_URL`
+
+## Next Steps
+
+- [Mobile Deployment with EAS](/deployment/mobile-eas)
+- [Security Checklist](/security/checklist)
 
 
 

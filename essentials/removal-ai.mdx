@@ -1,0 +1,51 @@
+---
+title: "Remove AI Chat"
+description: "Disable or delete AI chat safely"
+---
+
+## Prerequisites
+
+- AI feature flagged
+- Access to mobile + API code
+
+## Steps
+
+## Disable (quick)
+
+1. Toggle in `apps/mobile/features/feature-registry.tsx`:
+   - `ai: false`
+2. Remove or gate entry points to `/ai-chat`.
+
+## Delete (production)
+
+### Mobile
+
+- Remove chat screen:
+  - `apps/mobile/app/ai-chat.tsx`
+- Remove chat feature package:
+  - `apps/mobile/features/chat/*`
+  - `apps/mobile/lib/ai/*`
+- Remove any AI UI components if unused.
+
+### API
+
+- Remove AI routes and routers:
+  - `apps/api/src/routes/ai-stream.ts`
+  - `apps/api/src/routers/ai.ts`
+  - `apps/api/src/routers/chat.ts`
+- Remove AI env vars:
+  - `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`
+
+## Verify
+
+- No AI routes are reachable
+- No AI env vars are required at boot
+
+## Troubleshooting
+
+- **AI screen still reachable**: remove entry points and routes
+- **API still serving AI**: remove routers and restart
+
+## Next Steps
+
+- [Removing Features](/essentials/removing-features)

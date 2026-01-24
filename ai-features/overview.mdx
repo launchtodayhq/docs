@@ -9,7 +9,14 @@ description: "Build intelligent conversational experiences with multi-provider A
 
 ## Overview
 
-Launch includes a production-ready AI chat feature that supports multiple AI providers out of the box. The implementation follows a modular architecture that makes it easy to extend with new providers, customize system prompts, and build sophisticated AI-powered features.
+Launch includes a production-ready AI chat feature with streaming responses and
+chat history persistence. The architecture is modular, making it easy to extend
+with additional providers and custom system prompts.
+
+## Prerequisites
+
+- Backend running with AI env vars set
+- `EXPO_PUBLIC_API_URL` set in `apps/mobile/.env`
 
 <Tip>
   This feature is gated by the mobile feature registry flag: `ai`. See
@@ -19,9 +26,9 @@ Launch includes a production-ready AI chat feature that supports multiple AI pro
 ## Key Features
 
 <Columns cols={2}>
-  <Card title="Multi-Provider Support" icon="brain">
-    Switch between OpenAI, Anthropic, and other providers with a unified
-    interface.
+  <Card title="Provider Abstraction" icon="brain">
+    OpenAI is enabled by default. Anthropic support is wired in the backend and
+    can be enabled in the mobile model list with a single config change.
   </Card>
   <Card title="Streaming Responses" icon="bolt">
     Real-time streaming for a responsive chat experience with stop generation
@@ -31,7 +38,7 @@ Launch includes a production-ready AI chat feature that supports multiple AI pro
     Predefined personas and custom system prompts to shape AI behavior.
   </Card>
   <Card title="Chat Persistence" icon="database">
-    Full conversation history stored in your database with seamless sync.
+    Conversation history stored in PostgreSQL via tRPC procedures.
   </Card>
 </Columns>
 
@@ -57,8 +64,8 @@ graph TB
 
 <Card title="AI Provider Abstraction" icon="layer-group">
   **Location**: `lib/ai/providers/` A unified interface for working with
-  different AI providers. Each provider implements the same interface, making it
-  easy to add new ones.
+  different AI providers. OpenAI is enabled by default; add Anthropic to the
+  providers list to expose Claude models in the UI.
 </Card>
 
 <Card title="Custom Hooks" icon="code">
@@ -72,15 +79,15 @@ graph TB
   functionality, reducing prop drilling and simplifying component interactions.
 </Card>
 
-## Setup
+## Steps
 
 1. Add API keys to your backend `.env`:
 
 ```bash
-# OpenAI
+# OpenAI (required for AI chat)
 OPENAI_API_KEY=sk-...
 
-# Anthropic (optional)
+# Anthropic (optional - enable in mobile model list)
 ANTHROPIC_API_KEY=sk-ant-...
 ```
 
@@ -88,7 +95,12 @@ ANTHROPIC_API_KEY=sk-ant-...
 
 `apps/mobile/features/feature-registry.tsx` → `featureFlags.ai = true`
 
-3. Open the chat screen at `/ai-chat`.
+3. (Optional) Enable Anthropic models in the mobile picker:
+
+`apps/mobile/lib/ai/providers/index.ts` → add `anthropicProvider` to the
+`providers` array.
+
+4. Open the chat screen at `/ai-chat`.
 
 ## How It Works
 
@@ -263,6 +275,16 @@ To disable AI while you configure providers, set:
 `apps/mobile/features/feature-registry.tsx` → `featureFlags.ai = false`
 
 For production removal guidance, see [Removing Features](/essentials/removing-features).
+
+## Troubleshooting
+
+- **Streaming fails**: check `OPENAI_API_KEY` and API logs
+- **No models shown**: confirm provider list in `lib/ai/providers/index.ts`
+
+## Next Steps
+
+- [Feature Registry](/mobile/feature-registry)
+- [Incident Debugging](/essentials/incident-debugging)
 
 
 

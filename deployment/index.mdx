@@ -47,6 +47,11 @@ deployment can be completed in a single afternoon once your backend is live.
 Before deploying to production, ensure you've completed:
 
 <Steps>
+  <Step title="Require the integrations you use">
+    In `apps/api/src/config/env.ts`, update any integration env vars you rely on
+    (Stripe, Apple, Google, Twilio, push, AWS, etc.) from optional to required
+    so the API fails fast if a value is missing.
+  </Step>
   <Step title="Environment Variables">
     All production environment variables configured
   </Step>

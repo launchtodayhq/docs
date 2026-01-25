@@ -124,7 +124,7 @@ model Account {
   refreshToken String?   @db.Text
   idToken      String?   @db.Text
   expiresAt    DateTime?
-  
+
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("accounts")
@@ -140,7 +140,7 @@ model Session {
   ipAddress String?
   userAgent String?
   userId    String
-  
+
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("sessions")
@@ -213,7 +213,7 @@ interface Context {
 }
 
 export async function createContext(
-  opts: FetchCreateContextFnOptions
+  opts: FetchCreateContextFnOptions,
 ): Promise<Context> {
   const session = await auth.api.getSession({
     headers: opts.req.headers,
@@ -246,7 +246,10 @@ The backend captures device information for security and analytics:
 
 ```typescript
 // apps/api/src/device-middleware.ts
-export const captureDeviceInfo = async (request: Request, sessionToken: string) => {
+export const captureDeviceInfo = async (
+  request: Request,
+  sessionToken: string,
+) => {
   const deviceInfo = {
     deviceName: request.headers.get("X-Device-Name"),
     deviceModel: request.headers.get("X-Device-Model"),

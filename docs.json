@@ -32,9 +32,10 @@
             "group": "Getting Started",
             "pages": [
               "getting-started/prerequisites",
+              "project-structure",
+              "getting-started/setup",
               "quickstart",
-              "getting-started/run-mobile",
-              "project-structure"
+              "getting-started/run-mobile"
             ]
           },
           {

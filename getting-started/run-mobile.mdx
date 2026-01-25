@@ -31,15 +31,36 @@ cd apps/mobile
 
 If you already ran `pnpm install` during backend setup, you can skip this step.
 
-## 3. Prebuild
+## 3. Set App Identity
+
+Before you prebuild, update the app identity in `apps/mobile/app.config.ts`:
+
+- `name` (this is the display name users see after install)
+- `slug` (the internal Expo identifier, usually kebab-case)
+- `ios.bundleIdentifier` and `android.package` (your app IDs)
+
+Example:
+
+- `name`: `Finance App`
+- `slug`: `finance-app`
+- `ios.bundleIdentifier`: `com.company.financeapp`
+- `android.package`: `com.company.financeapp`
+
+## 4. Prebuild
+
+Before prebuild, set your bundle ID in `apps/mobile/app.config.ts` (the file
+ships with a placeholder). This should match your Apple/Google identifiers
+before you generate native projects.
 
 ```bash
 pnpm prebuild
 ```
 
 You will be prompted to set your bundle ID during prebuild.
+If you see a warning about uncommitted changes, it is safe to continue for this
+step.
 
-## 4. Run the App
+## 5. Run the App
 
 ```bash
 pnpm ios
@@ -48,6 +69,13 @@ pnpm android
 
 Choose either iOS or Android. You can run on a simulator or a physical device.
 For iOS, a physical device on the same Wi‑Fi network is supported.
+When you run these commands, you'll be prompted to pick a simulator or device.
+If your device is on the same Wi‑Fi, you should see it in the list; otherwise
+you'll see available simulators/emulators. If no simulators appear, set up your
+platform tools first:
+
+- iOS: install Xcode and the iOS Simulator
+- Android: install Android Studio and create an emulator
 
 <Note>
   Some integrations (like RevenueCat and push notifications) require a physical
@@ -57,6 +85,32 @@ For iOS, a physical device on the same Wi‑Fi network is supported.
 ## Success Check
 
 You should see the Launch onboarding flow on first run.
+During build, a good sign is seeing logs like:
+
+```
+› Using --device <your-device-id>
+› Signing and building iOS app with: Apple Development: <Your Name> (<TEAM_ID>)
+› Planning build
+```
+
+If you're on iOS, you should see:
+
+![App setup complete (iOS)](/images/app-setup-complete-ios.png)
+
+If you're on Android, you should see:
+
+![App setup complete (Android)](/images/app-setup-complete-android.png)
+
+## Troubleshooting
+
+- **Auth or notifications warnings**: safe to ignore during initial setup if
+  those plugins are commented out in `apps/mobile/app.config.ts`. Enable them
+  later when you reach the auth or push guides.
+- **Bundle ID not available**: pick a unique `ios.bundleIdentifier` and
+  `android.package` (e.g. `com.yourcompany.myapp`) and rerun prebuild.
+- **Android package name invalid**: use only letters/numbers with dots
+  separating segments, and make sure each segment starts with a letter (e.g.
+  `com.company.financeapp`).
 
 ## Next Steps
 

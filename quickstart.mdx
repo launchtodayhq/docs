@@ -9,28 +9,28 @@ need to configure integrations to boot the backend.
 ## Prerequisites
 
 If you are new to the codebase, complete the
-[Prerequisites](/getting-started/prerequisites) first.
+[Prerequisites](/getting-started/prerequisites) first, then follow
+[Project Setup](/getting-started/setup).
 
 ## Steps
 
-## 1. Fork & Install
-
-```bash
-# Fork the repository on GitHub, then clone your fork
-git clone https://github.com/launchtodayhq/launch.git
-cd launch
-
-# Install all dependencies
-pnpm install
-```
-
-## 2. Set Up Database
+## 1. Set Up Database
 
 <Tabs>
   <Tab title="Docker (Recommended)">
+    First, replace `YOUR_DB_NAME` (the value of `POSTGRES_DB`) in
+    `apps/api/docker-compose.yml` with a real database name (required). You can
+    optionally change the default user or password. Make sure the name matches
+    the `DATABASE_URL` you set in `.env`.
     ```bash
     cd apps/api
-    docker-compose up -d
+    pnpm docker:up
+    ```
+    Use the API shortcuts if you need them:
+    ```bash
+    pnpm docker:down
+    pnpm docker:restart
+    pnpm docker:logs
     ```
   </Tab>
   <Tab title="Local PostgreSQL">
@@ -45,25 +45,37 @@ pnpm install
   </Tab>
 </Tabs>
 
-## 3. Configure Environment
+## 2. Configure Environment
 
 ```bash
 cd apps/api
 cp example.env .env
 ```
 
-For quickstart, the example values are enough to boot the API. You can customize
-them later if needed.
+For quickstart, only `DATABASE_URL` is required to boot the API. Most
+integrations (auth, payments, SMS, AI, uploads) can stay unset until you enable
+them in their respective guides.
 
-## 4. Run Migrations
+When you do enable auth, set `BETTER_AUTH_SECRET` to a secure value (32+ chars).
+You can generate one with:
+```bash
+openssl rand -base64 32
+```
+If you changed the database name in Docker, update `DATABASE_URL` in `.env` to
+match.
+
+## 3. Run Migrations
 
 ```bash
 cd apps/api
-pnpm prisma generate
-pnpm prisma migrate dev
+pnpm db:migrate
+pnpm db:generate
 ```
 
-## 5. Start the Backend
+If you see a "Cannot find module '../generated/client'" error, run
+`pnpm db:generate` to create the Prisma client.
+
+## 4. Start the Backend
 
 ```bash
 cd apps/api
@@ -73,7 +85,14 @@ pnpm dev
 You should see:
 
 ```
-🚀 Server running on http://localhost:3001
+[INFO] Database connected successfully
+[INFO] Database connection info
+[INFO] API Server started on http://localhost:3001
+[INFO] tRPC endpoint: http://localhost:3001/trpc
+[INFO] Health check: http://localhost:3001/health
+[INFO] Server Environment
+  Env: development
+  Host: localhost
 ```
 
 <Note>

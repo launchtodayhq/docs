@@ -6,11 +6,18 @@ description: "Install the tools required to run Launch"
 This guide covers the minimum tooling needed to run `apps/mobile` and
 `apps/api` locally.
 
+This repo uses `pnpm`, but you can use `pnpm`, `npm`, or `bun` if you prefer.
+
 ## Required Tools
 
 <Steps>
   <Step title="Node.js 24+">
-    Install with nvm (recommended):
+    Use the repo's `.nvmrc` via nvm:
+    ```bash
+    nvm use
+    node --version
+    ```
+    If nvm prompts you to install the version, run:
     ```bash
     nvm install 24
     nvm use 24
@@ -41,18 +48,22 @@ This guide covers the minimum tooling needed to run `apps/mobile` and
 
 ## Mobile Runtime Options
 
-- **Development build (recommended)**: run via `pnpm ios` / `pnpm android`
-- **iOS Simulator**: requires Xcode
-- **Android Emulator**: requires Android Studio
-- **Expo Go (limited)**: useful for quick UI checks only
+For day-to-day development, a local development build is the most reliable
+option and matches production behavior. You can run iOS and Android from the
+workspace using `pnpm ios` or `pnpm android`.
+
+If you prefer emulators, iOS requires Xcode and Android requires Android
+Studio. Expo Go is available for quick UI checks, but it does not support
+native modules that require custom config.
 
 If you are using a physical device, make sure it is on the same Wi‑Fi
 network as your computer.
 
 ## Expo Go Limitations
 
-Some native SDKs do not work in Expo Go. You will need a physical device and a
-development build for:
+Expo Go runs a generic client and cannot load native code added by this repo.
+Use a development build (and often a physical device) when you need native
+SDKs like:
 
 - RevenueCat
 - Push notifications
@@ -60,14 +71,11 @@ development build for:
 
 ## Store Accounts (for release)
 
-- **Apple App Store Connect** requires a paid Apple Developer account.
-- **Google Play Console** requires a paid developer account.
-
-## Troubleshooting
-
-- **Node version mismatch**: run `nvm use`
-- **pnpm not found**: reinstall with `npm install -g pnpm`
+Releasing to the app stores requires paid developer accounts. Apple releases
+use App Store Connect with an Apple Developer account, and Android releases
+use Google Play Console with a Google Play developer account.
 
 ## Next Steps
 
-Continue to [Start the Backend](/quickstart) to boot the API and database.
+Continue to [Project Setup](/getting-started/setup) to fork, clone, and install
+dependencies.

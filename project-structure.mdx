@@ -5,19 +5,17 @@ description: "How the Launch monorepo is organized"
 
 ## Overview
 
-Launch is a Turborepo monorepo with three applications that share type definitions and work together seamlessly.
+Launch is a Turborepo monorepo that uses a single `pnpm` workspace to manage
+dependencies across apps. A monorepo keeps related code in one place so you can
+share types, reuse utilities, and ship features across the API and mobile app
+without cross-repo overhead.
 
-```
-Launch/
-├── apps/
-│   ├── mobile/          # React Native + Expo
-│   ├── api/             # Koa.js + tRPC
-│   └── web/             # Next.js
-├── docs/                # Documentation (Mintlify)
-├── package.json
-├── pnpm-workspace.yaml
-└── turbo.json
-```
+At the top level, `apps/` holds the product apps, `docs/` contains the documentation,
+and the root config files (`package.json`, `pnpm-workspace.yaml`, `turbo.json`) manage
+dependencies and task orchestration across the workspace.
+
+`pnpm-workspace.yaml` defines the workspace packages and `turbo.json` runs tasks
+across them efficiently.
 
 ## Apps
 
@@ -28,8 +26,8 @@ Launch/
   <Card title="API" icon="server">
     Backend server with tRPC, Better Auth, and Prisma.
   </Card>
-  <Card title="Web" icon="globe">
-    Web application built with Next.js 15 and HeroUI.
+  <Card title="Web (Coming Soon)" icon="globe">
+    Web app is planned, but not shipped yet.
   </Card>
 </Columns>
 
@@ -70,22 +68,9 @@ apps/mobile/
 
 The API uses Koa.js as the server framework with tRPC for type-safe endpoints and Prisma for database access.
 
-```
-apps/api/
-├── src/
-│   ├── routers/         # tRPC routers (user, chat, stripe)
-│   ├── routes/          # REST endpoints (auth, webhooks)
-│   ├── services/        # Business logic (auth, AI, payments)
-│   ├── middleware/      # CORS, logging
-│   ├── lib/             # Database, Stripe, Twilio clients
-│   ├── config/          # Environment configuration
-│   ├── app.ts
-│   └── router.ts
-├── prisma/
-│   ├── schema.prisma
-│   └── migrations/
-└── package.json
-```
+The API source lives under `apps/api/src/` (routes, routers, services, middleware,
+and shared clients), while `apps/api/prisma/` contains the database schema and
+migrations.
 
 | Folder      | What goes here                                               |
 | ----------- | ------------------------------------------------------------ |
@@ -94,21 +79,6 @@ apps/api/
 | `services/` | Business logic. Keep routers thin, put logic here.           |
 | `lib/`      | Database client, external service clients (Stripe, Twilio).  |
 | `prisma/`   | Database schema and migrations.                              |
-
----
-
-## Web
-
-The web app uses Next.js 15 with App Router.
-
-```
-apps/web/
-├── app/                 # Pages (App Router)
-├── components/          # React components
-├── lib/                 # Utilities
-├── public/              # Static assets
-└── package.json
-```
 
 ---
 

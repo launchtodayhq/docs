@@ -5,7 +5,13 @@ description: "Accept payments, manage subscriptions, and handle billing with Str
 
 # Stripe Integration
 
-Launch includes a production-ready Stripe integration with a beautiful paywall screen, webhook handling, and subscription management.
+Stripe is the payment provider used for direct billing in Launch. It handles
+one-time purchases, subscriptions, and customer management, while the app and
+API coordinate paywalls, checkout, and entitlement updates.
+
+Launch includes a production-ready Stripe integration with a paywall screen,
+webhook handling, and subscription management. This gives you a full billing
+flow without wiring everything from scratch.
 
 <Frame>
   <img src="/images/798shots_so.png" alt="Stripe Paywall Screen" />
@@ -39,7 +45,8 @@ Launch includes a production-ready Stripe integration with a beautiful paywall s
 
 ## Paywall Features
 
-The included paywall screen (`app/payments/stripe.tsx`) supports:
+The included paywall screen lives in `apps/mobile/app/payments/stripe.tsx` and
+supports:
 
 - **Multiple pricing tiers** - Yearly, monthly, and lifetime options
 - **Dynamic pricing** - Pulls products directly from your Stripe dashboard
@@ -62,69 +69,37 @@ The included paywall screen (`app/payments/stripe.tsx`) supports:
     →](/payments/stripe-webhooks)
   </Step>
   <Step title="Customize the paywall">
-    Edit `PAYWALL_CONTENT` in `app/payments/stripe.tsx` to match your branding.
+    Update the paywall copy and pricing labels in
+    `apps/mobile/app/payments/stripe.tsx` to match your branding.
   </Step>
 </Steps>
 
-## Test Checklist
-
-- Products load in the paywall
-- Test purchase succeeds (Stripe test card)
-- Webhooks hit `/webhooks/stripe` and update DB
-
-## Troubleshooting
-
-Start with [Stripe Setup](/payments/stripe-setup) and
-[Stripe Webhooks](/payments/stripe-webhooks).
-
-## Remove / Disable
-
-To disable Stripe while you configure providers, set:
-
-`apps/mobile/features/feature-registry.tsx` → `featureFlags.payments = false`
-
-For production removal guidance, see [Removing Features](/essentials/removing-features).
-
 ## File Structure
 
-```
-apps/api/
-├── src/routers/stripe.ts          # tRPC endpoints
-├── src/routes/stripe-webhooks.ts  # Webhook handling
-└── src/lib/stripe.ts              # Stripe client
+Key integration points:
 
-apps/mobile/
-└── app/payments/stripe.tsx        # Paywall screen
-```
+- API endpoints: `apps/api/src/routers/stripe.ts`
+- Webhook handler: `apps/api/src/routes/stripe-webhooks.ts`
+- Stripe client: `apps/api/src/lib/stripe.ts`
+- Paywall UI: `apps/mobile/app/payments/stripe.tsx`
 
-## Customizing the Paywall
+## Webhooks
 
-The paywall is fully customizable via the `PAYWALL_CONTENT` object:
+The API includes webhook handling for Stripe events like subscription updates,
+payment success/failure, and customer lifecycle changes. See
+`apps/api/src/routes/stripe-webhooks.ts` for the event coverage.
 
-```typescript
-const PAYWALL_CONTENT = {
-  titleStart: "Unlock ",
-  titleHighlight: "Premium",
-  titleEnd: " and get full access",
+## Database schema
 
-  planLabels: {
-    yearly: { name: "Pro Yearly", badge: "Best value" },
-    monthly: { name: "Pro Monthly", badge: null },
-    lifetime: { name: "Pro Lifetime", badge: null },
-  },
+Stripe data is stored in Prisma models dedicated to customers, subscriptions,
+and payment history. Review the models in
+`apps/api/prisma/schema.prisma` and the reference guide at
+`/payments/database-schema`.
 
-  benefits: [
-    "Unlimited access to all features",
-    "Cloud sync across all your devices",
-    "Priority support when you need help",
-  ],
+## Customizing the paywall
 
-  links: {
-    terms: "https://yourapp.com/terms",
-    privacy: "https://yourapp.com/privacy",
-  },
-};
-```
+The paywall content and layout live in `apps/mobile/app/payments/stripe.tsx`.
+Update the copy, pricing labels, and terms/privacy links to match your brand.
 
 ## Next Steps
 

@@ -1,11 +1,17 @@
 ---
 title: "Payments"
-description: "Choose the right payment integration for your mobile app"
+description: "Understand the payment options and where they connect"
 ---
 
 # Payment Integrations
 
-Launch includes multiple payment integration options to help you monetize your app. Choose the one that best fits your needs.
+Payments turn onboarding and engagement into revenue. Launch ships with
+integrations that cover direct billing, subscriptions, and paywall management
+so you can pick the model that fits your product.
+
+The payment layer is already wired into the app, but it is disabled by default.
+Your first step is to enable the payments feature flag, then follow the setup
+guide for the provider you choose.
 
 ## Prerequisites
 
@@ -26,9 +32,6 @@ Launch includes multiple payment integration options to help you monetize your a
     Paywall A/B testing and optimization. Best for maximizing subscription
     revenue.
   </Card>
-  <Card title="Paddle" icon="money-bill" href="/payments/paddle">
-    Merchant of record with global tax handling. Best for international sales.
-  </Card>
 </CardGroup>
 
 ## Which should I use?
@@ -38,7 +41,6 @@ Launch includes multiple payment integration options to help you monetize your a
 | **Stripe**     | Web + Mobile, Custom flows | Medium     | You handle     |
 | **RevenueCat** | Subscription apps          | Low        | Handled        |
 | **Superwall**  | Optimizing conversions     | Low        | Handled        |
-| **Paddle**     | Global sales, B2B          | Medium     | Handled        |
 
 <Note>
   For most mobile apps, we recommend starting with **Stripe** for maximum
@@ -48,13 +50,13 @@ Launch includes multiple payment integration options to help you monetize your a
 
 ## Steps
 
-1. Choose a provider:
+1. Enable the payments feature flag in
+   `apps/mobile/features/feature-registry.tsx`.
+2. Choose a provider:
    - [Stripe](/payments/stripe)
    - [RevenueCat](/payments/revenuecat)
    - [Superwall](/payments/superwall)
-2. Follow the setup guide for your provider.
-3. Ensure `featureFlags.payments = true` in
-   `apps/mobile/features/feature-registry.tsx`.
+3. Follow the setup guide for your provider.
 
 ## How It Works
 
@@ -62,30 +64,8 @@ Launch wraps payment providers behind a unified interface. The provider is
 selected in `apps/mobile/lib/payments/config.ts`, and the UI reads from the
 provider layer.
 
-## Test Checklist
+Key references:
 
-- Paywall screen renders
-- Products/prices load from the provider
-- Test purchase completes and updates entitlement state
-
-## Troubleshooting
-
-Use provider-specific troubleshooting:
-
-- [RevenueCat Troubleshooting](/payments/revenuecat-troubleshooting)
-- [Superwall Troubleshooting](/payments/superwall-troubleshooting)
-
-For general issues, see [Troubleshooting](/troubleshooting).
-
-## Remove / Disable
-
-To disable payments while you configure providers, set:
-
-`apps/mobile/features/feature-registry.tsx` → `featureFlags.payments = false`
-
-For production removal guidance, see [Removing Features](/essentials/removing-features).
-
-## Next Steps
-
-- [Stripe Setup](/payments/stripe-setup)
-- [RevenueCat Setup](/payments/revenuecat-setup)
+- Feature flag: `apps/mobile/features/feature-registry.tsx`
+- Provider selection: `apps/mobile/lib/payments/config.ts`
+- Payments UI: `apps/mobile/app/(tabs)/features/index.tsx`

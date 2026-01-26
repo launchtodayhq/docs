@@ -5,51 +5,113 @@ description: "Overview of the current onboarding flow and where to extend it"
 
 ## Overview
 
-Launch ships with a lightweight onboarding flow focused on phone-based sign-in
-and optional notification permissions.
+Launch ships with a lightweight onboarding flow that helps you capture the
+minimum profile data needed to personalize the app, then request permissions
+only when they are relevant. The default flow collects a name, optionally
+verifies a phone number via SMS OTP, and asks for push notification
+permissions.
+
+Onboarding is the moment to build trust, set expectations, and gather the data
+that improves first-run UX. The current flow is intentionally short so you can
+expand it based on your product needs.
 
 ## Prerequisites
 
 - Auth flow enabled
 - Onboarding routes available in `apps/mobile/app/onboarding`
 
-## Steps
+## Current flow
 
-## Current Flow
+The onboarding screens live in `apps/mobile/app/onboarding/`:
 
-The onboarding routes live in `apps/mobile/app/onboarding/`:
+- `welcome.tsx` collects the user’s name
+- `phone.tsx` collects a phone number for SMS OTP
+- `verify-otp.tsx` verifies the OTP
+- `push-notifications.tsx` requests push permissions
 
-- `welcome.tsx` - Entry screen and next-step routing
-- `phone.tsx` - Collects phone number for OTP
-- `verify-otp.tsx` - OTP verification screen
-- `push-notifications.tsx` - Optional push permission step
+The flow is controlled by the feature registry and can skip SMS entirely if you
+do not want to set up Twilio yet.
 
-## Flow Control
+Push notifications in onboarding currently store the user’s preference, but do
+not enable real notifications until you complete the push notification setup
+later in the docs.
 
-Onboarding routing is handled in:
+## Flow control
+
+Routing and step selection are handled in:
 
 - `apps/mobile/app/_layout.tsx`
 - `apps/mobile/lib/hooks/useAppNavigation.ts`
 
-## Extending Onboarding
+## Feature registry (SMS / OTP)
+
+The SMS OTP step is gated by the `oneSignal` feature flag in
+`apps/mobile/features/feature-registry.tsx`. When the flag is disabled, the
+flow skips `phone.tsx` and `verify-otp.tsx` so onboarding becomes:
+
+1. Name
+2. Push notifications
+
+This lets you ship without SMS while keeping the flow intact.
+
+## OneSignal and SMS OTP
+
+OneSignal and SMS OTP configuration are covered in
+[OneSignal and SMS OTP](/mobile/one-signal). If you are not using SMS in your
+onboarding flow, disable the feature registry flag and skip the phone and OTP
+steps.
+
+## How the backend supports onboarding
+
+The API exposes user endpoints that save onboarding data and track completion.
+They live in `apps/api/src/routers/user.ts` and include:
+
+- `user.saveName`
+- `user.savePhoneNumber`
+- `user.sendPhoneOtp`
+- `user.verifyPhoneOtp`
+- `user.registerDeviceToken`
+- `user.markOnboardingComplete`
+- `user.onboardingStatus`
+
+These endpoints update the user profile and onboarding flags in the database.
+
+## Data model references
+
+Onboarding fields are stored on the `User` model in
+`apps/api/prisma/schema.prisma`, including name, phone number, and onboarding
+completion flags. Push notification device tokens are stored in the
+`DeviceToken` model.
+
+## Extending onboarding
 
 To add steps:
 
 1. Create a new file in `apps/mobile/app/onboarding/`.
 2. Add routing logic in `useAppNavigation.ts` if the step should be required.
-3. Link from the prior step using `router.push(...)`.
+3. Link from the prior step using the router.
 
-## Code References
+Common additions include:
+
+- A short goal or preferences questionnaire
+- A paywall before the main app (if your product is subscription-first)
+- An account personalization step (avatar, username, interests)
+
+If you add new onboarding data, create a matching endpoint in
+`apps/api/src/routers/user.ts` and persist it on the `User` model in
+`apps/api/prisma/schema.prisma`.
+
+## Code references
 
 - **Root Layout**: `apps/mobile/app/_layout.tsx`
 - **Onboarding Screens**: `apps/mobile/app/onboarding/*.tsx`
 - **Navigation Logic**: `apps/mobile/lib/hooks/useAppNavigation.ts`
+- **User Endpoints**: `apps/api/src/routers/user.ts`
+- **Database Schema**: `apps/api/prisma/schema.prisma`
 
-## Troubleshooting
+## Best practices
 
-- **Onboarding loops**: verify `useAppNavigation.ts` state checks
-- **Route not found**: confirm file exists under `app/onboarding`
-
-## Next Steps
-
-- [Mobile Authentication](/mobile/authentication)
+- Keep early steps short and low-friction.
+- Ask for permissions only after explaining the benefit.
+- Add a paywall only if it matches your product’s activation strategy.
+- Track each step so you can measure drop-off and improve completion.

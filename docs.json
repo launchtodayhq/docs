@@ -49,6 +49,13 @@
             ]
           },
           {
+            "group": "Onboarding",
+            "pages": [
+              "mobile/onboarding",
+              "mobile/one-signal"
+            ]
+          },
+          {
             "group": "Payments",
             "pages": [
               "payments/index",
@@ -111,8 +118,7 @@
               "mobile/file-structure",
               "mobile/authentication",
               "mobile/components",
-              "mobile/adding-screens",
-              "mobile/onboarding"
+              "mobile/adding-screens"
             ]
           },
           {

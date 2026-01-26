@@ -1,17 +1,19 @@
 ---
-title: "Google Sign-In Setup"
-description: "Step-by-step guide to configuring Google Cloud Console for OAuth and understanding the mobile authentication flow"
+title: "Google Sign-In"
+description: "Configure Google Sign-In for the Launch mobile app"
 ---
 
-# Google Sign-In Setup
+## Overview
 
-This guide covers the configuration required to set up Google Sign-In with **Better Auth**.
+This guide walks you through creating Google OAuth credentials and connecting
+them to the Launch mobile app. The boilerplate uses Expo AuthSession in
+`apps/mobile/lib/auth/google.ts` and sends the Google token to the API for
+verification. These steps work for both iOS and Android in the Launch template.
 
 ## Prerequisites
 
-- Google Cloud project
-- Backend env vars available
-- Development build (not Expo Go)
+- Access to Google Cloud Console
+- A Google Cloud project created for your app
 
 <Tip>
   Start with [Backend Authentication Setup](/authentication/backend-setup) so
@@ -20,280 +22,69 @@ This guide covers the configuration required to set up Google Sign-In with **Bet
 
 ## Steps
 
-<Warning>
-  **Local mobile testing (Android)**: if your API is using an ngrok HTTPS URL,
-  you must ensure the OAuth flow starts and ends on the **same origin**. Use the
-  same base URL everywhere: - API: `BETTER_AUTH_URL=https://xxxx.ngrok-free.app`
-  - Mobile: `EXPO_PUBLIC_API_URL=https://xxxx.ngrok-free.app` A mismatch
-  (starting on `http://192.168.x.x:3001` but callback hitting ngrok) causes
-  **state mismatch**.
-</Warning>
+## Step 1: Create your OAuth client ID (iOS)
 
-## Why This OAuth Flow?
+Open [Google Cloud Console](https://console.cloud.google.com/), then go to
+**APIs & Services** → **Credentials** and click **Create credentials** →
+**OAuth client ID**.
 
-Launch uses Better Auth's **server-side OAuth redirect flow** because:
+If Google prompts you to configure the **OAuth consent screen** first, complete
+that setup before continuing. Choose **External**, enter your app name, support
+email, and developer contact email, then add yourself as a test user. Save the
+changes and return to the **Credentials** page.
 
-- ✅ **OAuth 2.0 compliant** and supported by Better Auth
-- ✅ **No client secrets on device** (secrets stay on the API)
-- ✅ **Works on both iOS and Android** with a shared flow
-- ✅ **Deep links back into the app** via `launch://`
+Now create an **iOS** OAuth client. Give it a name, then enter the iOS bundle
+identifier from `apps/mobile/app.config.ts`. After you create the client, copy
+the iOS client ID—you will use it in your mobile environment file.
 
-<Warning>
-  You must use a **development build** (not Expo Go) because custom URL schemes
-  are required for OAuth redirects.
-</Warning>
+## Step 2: Create a Web client ID (required)
 
-## Step 1: Google Cloud Console Setup
+The shared Google Auth module validates both an iOS client ID and a Web client
+ID, even when you are testing mobile locally. Create a **Web application**
+OAuth client and use your ngrok HTTPS URL for both the origin and redirect.
 
-### Create a New Project (if needed)
+Set these values in the Web client configuration (replace with your ngrok
+forwarding URL):
 
-1. Go to [Google Cloud Console](https://console.cloud.google.com/)
-2. Click **Select a project** → **New Project**
-3. Enter your project name (e.g., "Launch Mobile App")
-4. Click **Create**
+- **Authorized JavaScript origins**: `https://YOUR_NGROK_ID.ngrok-free.app`
+- **Authorized redirect URIs**: `https://YOUR_NGROK_ID.ngrok-free.app/api/auth/callback/google`
 
-### Enable Google+ API
+These should match the ngrok URL you set in your backend and mobile env files
+so the OAuth flow stays on a single origin.
 
-1. In your project, go to **APIs & Services** → **Library**
-2. Search for "Google+ API"
-3. Click **Enable**
+## Step 3: Update environment files
 
-<Tip>
-  Even though Google+ is deprecated, the API is still required for OAuth sign-in
-  to work properly.
-</Tip>
+Update `apps/mobile/.env` with:
 
-### Configure OAuth Consent Screen
+- `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID`
+- `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID`
 
-1. Go to **APIs & Services** → **OAuth consent screen**
-2. Choose **External** (unless you have a Google Workspace)
-3. Fill in required fields:
-   - **App name**: Your app name (e.g., "Launch")
-   - **User support email**: Your email
-   - **Developer contact email**: Your email
-4. Click **Save and Continue**
-5. **Scopes**: Skip this step (click **Save and Continue**)
-6. **Test users**: Add your email for testing
-7. Click **Save and Continue**
+Update `apps/api/.env` with:
 
-## Step 2: Create OAuth Client ID
+- `GOOGLE_WEB_CLIENT_ID`
+- `GOOGLE_CLIENT_SECRET`
 
-For the default Better Auth flow you only need a **Web application** client:
+Restart the API after changing backend values. For the mobile app, stop your dev
+server and run `pnpm ios` or `pnpm android` again so the updated env values are
+bundled into the development build. You only need to run `pnpm prebuild` again
+if you changed native config in `apps/mobile/app.config.ts` (for example, URL
+schemes).
 
-1. Click **Create Credentials** → **OAuth client ID** again
-2. Select **Web application** as application type
-3. **Name**: "Launch Server" (or similar)
-4. **Authorized JavaScript origins**: Add your backend origin (e.g. `https://xxxx.ngrok-free.app`)
-5. **Authorized redirect URIs**: Add your Better Auth callback URL:
+## Step 4: Enable iOS deep links
 
-`https://xxxx.ngrok-free.app/api/auth/callback/google`
+Update `apps/mobile/app.config.ts` to enable the iOS URL scheme used by Google
+Sign-In. Set the `CFBundleURLName` to a readable app name, and set the
+`CFBundleURLSchemes` value to the **iOS URL scheme** shown in Google Cloud
+Console for the iOS client you created in Step 1.
 
-These must match exactly (scheme/host/path). 6. Click **Create**
+If these values are currently commented out, uncomment them and replace the
+placeholders.
 
-## Step 3: Download Configuration File
+When you set `CFBundleURLName`, it is safest to use the same value as your
+bundle identifier (for example, `com.company.launchstarter`) so it stays
+consistent with the rest of your iOS configuration.
 
-1. Find your Web client in the credentials list
-2. Click the **Download** button (⬇️)
-3. Save the `.json` file
+## Step 5: Test the sign-in flow
 
-<Tip>
-  Keep these files secure - they contain your OAuth credentials. The template
-  code references these values via environment variables.
-</Tip>
-
-## Step 4: Environment Configuration
-
-### Extract Your Client IDs
-
-From your downloaded files, you need these values:
-
-**Web Client ID and Secret** (from `.json` file):
-
-```json
-{
-  "client_id": "343340270525-xxxxxxx.apps.googleusercontent.com",
-  "client_secret": "GOCSPX-xxxxxxxxxxxxxxx"
-}
-```
-
-### Update Environment Variables
-
-Add these to your `/apps/api/.env` file (copy from `apps/api/example.env` first):
-
-```bash
-# Google OAuth Configuration (Backend)
-GOOGLE_WEB_CLIENT_ID=your-web-client-id.apps.googleusercontent.com
-GOOGLE_CLIENT_SECRET=GOCSPX-your-web-client-secret
-```
-
-The mobile app does not require Google OAuth env vars for the default Better
-Auth flow, since OAuth happens via the backend. If you choose to use the
-optional native AuthSession flow in `apps/mobile/lib/auth/google.ts`, you'll
-need to add the iOS and web client IDs there.
-
-### Optional: Expo AuthSession (Android)
-
-When using the native AuthSession flow on Android, the redirect must be HTTPS.
-Launch uses the Expo auth proxy URL:
-
-`https://auth.expo.io/@<owner>/<slug>`
-
-Make sure the `owner` and `slug` match your Expo account and
-`apps/mobile/app.config.ts`.
-
-## Troubleshooting
-
-- **State mismatch**: ensure API and mobile use the same base URL
-- **Invalid client**: check Google client ID/secret
-
-## Next Steps
-
-- [Auth Troubleshooting](/authentication/troubleshooting)
-- [Email Sign-In](/authentication/email-signin)
-
-## How the OAuth Flow Works
-
-Understanding the flow helps with troubleshooting:
-
-### 1. User Taps Google Sign-In Button
-
-- App calls `authClient.signIn.social({ provider: "google" })`
-- Better Auth (via the Expo client) opens the OAuth URL in a browser
-
-### 2. Browser Opens for Authentication
-
-- User sees Google's consent screen
-- Authenticates with their Google account
-- Google redirects back to app via **custom URL scheme**
-
-### 3. Better Auth Handles Callback
-
-- Google redirects to `/api/auth/callback/google` on your API
-- Better Auth validates the OAuth response and creates a session
-- The user is redirected back to the app via `launch://`
-
-### 4. App Stores Session
-
-- Expo client writes session cookies/tokens to SecureStore
-- `SessionProvider` refetches the session and updates UI navigation
-
-## Always Show Account Picker (Android)
-
-Android can auto-select the last used Google account if the OAuth provider is
-configured with the default prompt settings. To always show the account picker,
-set the Google provider `prompt` to `select_account` in your Better Auth config:
-
-```typescript
-// apps/api/src/services/auth.ts
-socialProviders: {
-  google: {
-    clientId: config.google.clientId,
-    clientSecret: config.google.clientSecret,
-    prompt: "select_account",
-  },
-},
-```
-
-## Code References
-
-The template includes these pre-configured files:
-
-**Mobile App**:
-
-- `apps/mobile/lib/auth/client.ts` - Better Auth Expo client
-- `apps/mobile/app/auth/login.tsx` - Sign-in button handler
-- `apps/mobile/app.config.ts` - URL scheme configuration
-
-**API Server**:
-
-- `apps/api/src/config/app.ts` - Environment variable loading
-- `apps/api/src/services/auth.ts` - Better Auth configuration
-- `apps/api/src/routes/auth/auth.ts` - Auth handler entrypoint
-
-## Troubleshooting Common Issues
-
-### "App doesn't comply with Google's OAuth 2.0 policy"
-
-**Cause**: Usually means wrong client ID type or invalid redirect URI
-**Solution**: Ensure you're using the iOS client ID in the mobile app
-
-### "Invalid token" from Better Auth
-
-**Cause**: Mismatched OAuth client ID/secret or invalid redirect URL
-**Solution**: Verify `GOOGLE_WEB_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, and the
-redirect URI (`/api/auth/callback/google`) match your Google Console settings
-
-### "Something went wrong" during sign-in
-
-**Cause**: Often related to URL scheme configuration or development build issues
-**Solution**: Ensure you're using a development build (not Expo Go) and URL scheme is correctly configured
-
-### "Network request failed" from mobile
-
-**Cause**: The mobile app can't reach your API (`EXPO_PUBLIC_API_URL`), so the
-Better Auth sign-in request never starts.
-
-**Solution**:
-- Confirm `EXPO_PUBLIC_API_URL` is set on the device build
-- Open `${EXPO_PUBLIC_API_URL}/health` in the device browser
-- Ensure `EXPO_PUBLIC_API_URL` and `BETTER_AUTH_URL` share the same origin
-
-### "Redirect URI mismatch"
-
-**Cause**: The redirect URI in Google Cloud does not match your API
-**Solution**: Ensure the exact origin and path match
-`https://your-api.com/api/auth/callback/google`
-
-## Testing Your Setup
-
-### Build Development Version
-
-```bash
-# Install EAS CLI if needed
-npm install -g @expo/eas-cli
-
-# Create development build
-cd apps/mobile
-eas build --platform ios --profile development
-```
-
-### Test Sign-In Flow
-
-1. Install development build on your device
-2. Tap Google Sign-In button
-3. Complete authentication in Safari
-4. Verify app receives redirect and creates session
-
-<Check>
-  **Success**: User should be signed in and see the authenticated app interface
-</Check>
-
-## Security Considerations
-
-<Check>**Server-side validation**: OAuth happens on the API server</Check>
-
-<Check>
-  **No client secrets on mobile**: Secrets stay in the backend only
-</Check>
-
-<Check>
-  **Secure session storage**: Better Auth uses SecureStore for persistence
-</Check>
-
-## Next Steps
-
-Once Google Sign-In is working:
-
-- **Implement error handling**: Show user-friendly error messages
-- **Add analytics**: Track sign-in conversion rates
-- **Test edge cases**: Network failures, cancelled sign-ins, etc.
-
-<Tip>
-  For production deployment, ensure your bundle identifier matches between your
-  app configuration and Google Cloud Console exactly.
-</Tip>
-
-## Remove / Disable
-
-To disable Google Sign-In, remove Google env vars and remove the Google provider
-configuration in `apps/api/src/services/auth.ts`.
+Open the app, tap Google Sign-In, and complete the consent flow. You should be
+redirected back into the app and see an authenticated session.

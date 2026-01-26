@@ -10,18 +10,34 @@ description: "Common OAuth and session issues with fixes"
 
 ## Steps
 
-1. Identify the failing provider (Apple/Google/Email)
-2. Check API logs for the request
-3. Verify env vars and callback URLs
+1. Identify the failing provider (Apple, Google, or Email OTP)
+2. Confirm the API is reachable from the device
+3. Check API logs for the request
+4. Verify env vars and callback URLs
 
 ## Troubleshooting
 
-- **OAuth state mismatch**: ensure API + mobile use the same base URL
-- **Invalid client**: confirm `GOOGLE_WEB_CLIENT_ID` / `APPLE_CLIENT_ID`
-- **Callback 404**: check `/api/auth/callback/*` routes are reachable
-- **Session not persisting**: verify SecureStore and device permissions
+- **OAuth state mismatch**: ensure API and mobile use the same base URL. Mixing
+  `http://192.168.x.x:3001` on mobile with an ngrok URL on the API will fail.
+- **Invalid client**: confirm `GOOGLE_WEB_CLIENT_ID` (backend) and
+  `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID` / `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID`
+  (mobile) match the credentials you created.
+- **Provider not found**: the API only enables Google or Apple if the required
+  env vars are present. Double-check `GOOGLE_WEB_CLIENT_ID`,
+  `GOOGLE_CLIENT_SECRET`, and the Apple env values, then restart the API.
+- **Callback 404**: check `/api/auth/callback/*` routes are reachable and that
+  `BETTER_AUTH_URL` is set to the same origin used by the device.
+- **Session not persisting**: confirm you are using a development build (not
+  Expo Go) and that SecureStore is available on the device.
+- **Email OTP not sending**: verify `RESEND_API_KEY` and that your sender domain
+  is verified in Resend for production.
 
-## Next Steps
+## Need help?
 
-- [Google Sign-In](/authentication/google-signin)
-- [Apple Sign-In](/authentication/apple-signin)
+If you run into any auth issues you cannot resolve, email
+`support@launchtoday.dev` with:
+
+- Which provider failed (Apple, Google, Email OTP)
+- The exact error message or screenshot
+- Whether you are testing locally or on a deployed API
+- The device and platform (iOS simulator, Android device, etc.)

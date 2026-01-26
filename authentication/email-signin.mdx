@@ -5,243 +5,77 @@ description: "Set up passwordless email authentication using one-time passwords 
 
 ## Overview
 
-Email sign-in is fully wired with Better Auth + Resend. Users enter their email,
-receive a 6-digit code, and verify it in-app to create a session.
+Email sign-in is fully wired with Better Auth and Resend. Users enter their
+email, receive a 6-digit one-time password (OTP), and verify it in-app to create
+a session.
+
+Resend is the email delivery service used by the boilerplate to send OTP codes.
+OTP is a short, time-limited code that lets users sign in without a password.
+The API generates the code, sends it via Resend, and verifies it when the user
+enters it on mobile.
 
 ## Prerequisites
 
-- Resend account + API key
-- Backend running with email OTP enabled
+- A Resend account
+- A Resend API key
+- Backend environment configured
 
 <Tip>
   Start with [Backend Authentication Setup](/authentication/backend-setup) so
   your API and env file are in place.
 </Tip>
 
-## Steps
+## How OTP works
 
-1. Configure Resend API key
-2. Verify domain (production)
-3. Test OTP flow in the app
+1. The user enters their email in the app.
+2. The API generates an OTP and sends it via Resend.
+3. The user enters the OTP, and the API verifies it.
+4. Better Auth creates the session and the app becomes authenticated.
 
-## Features (UI)
+## Where it is configured
 
-- Email capture screen with validation
-- Haptic feedback on submit
-- Dark mode support
+The boilerplate already includes the email OTP wiring:
 
-## Backend Setup
+- Backend auth service and Resend send logic:
+  `apps/api/src/services/auth.ts`
+- Better Auth request handling:
+  `apps/api/src/routes/auth/auth.ts`
+- Mobile screens for email input and OTP verification:
+  `apps/mobile/app/auth/email-signin.tsx`,
+  `apps/mobile/app/auth/verify-email-otp.tsx`
+- Session handling on mobile:
+  `apps/mobile/lib/auth/session-context.tsx`
 
-The backend supports email OTP via Resend. You can wire the mobile flow to these
-endpoints once your UI is ready.
+## Setup steps
 
-### 1. Resend Dependency
+### Step 1: Create a Resend API key
 
-The email system uses [Resend](https://resend.com/) and is already included in
-`apps/api/package.json`.
+Sign in to [Resend](https://resend.com/), then create an API key from
+the [API Keys](https://resend.com/api-keys) page.
 
-### 2. Configure Environment Variables
+### Step 2: Add the API key to your backend env
 
-Add your Resend API key to your environment variables (copy from
-`apps/api/example.env` first):
+Copy `apps/api/example.env` to `apps/api/.env` if you have not already, then set
+`RESEND_API_KEY` to your Resend API key.
 
-```env
-# apps/api/.env
-RESEND_API_KEY=your_resend_api_key_here
-```
+Restart the API after updating backend environment values.
 
-<Note>
-  Get your API key from [Resend Dashboard](https://resend.com/api-keys) after
-  creating an account.
-</Note>
+### Step 3: Verify your sending domain (production)
 
-### 3. Verify Domain (Production)
+For production email delivery, verify your domain in
+[Resend Domains](https://resend.com/domains) and follow their DNS instructions.
 
-For production use, verify your sending domain in Resend:
+The sender address is defined in `apps/api/src/services/auth.ts`. Update it to
+use an address on your verified domain.
 
-1. Go to [Resend Domains](https://resend.com/domains)
-2. Add your domain (e.g., `yourdomain.com`)
-3. Configure DNS records as provided
-4. Update the `from` email in `apps/api/src/services/auth.ts`
+### Step 4: Test email sign-in
 
-```typescript
-// apps/api/src/services/auth.ts
-sendVerificationOTP: async ({ email, otp, type }) => {
-  await resend.emails.send({
-    from: "Launch <auth@yourdomain.com>", // Update this
-    to: email,
-    subject: "Your verification code",
-    text: `Your verification code is: ${otp}`,
-  });
-};
-```
+Open the app, enter an email address, and request a code. You should receive an
+OTP email and be able to complete the sign-in flow.
 
-## Authentication Flow
+## Notes
 
-### 1. Email Input
-
-Users enter their email address on the signup screen:
-
-- **Validation**: Basic email format validation
-- **Loading State**: Shows "Sending..." with disabled button
-- **Error Handling**: User-facing alerts via `useErrorHandler`
-
-### 2. OTP Verification
-
-Users receive a 6-digit code via email:
-
-- **Auto-focus**: First input field focuses automatically
-- **Auto-progression**: Moves to next field on digit entry
-- **Auto-verification**: Submits when 6th digit is entered
-- **Error Animation**: Red border shake on incorrect code
-- **Success Feedback**: Haptic vibration and navigation
-
-### 3. Resend Functionality
-
-If code isn't received:
-
-- **30-second Countdown**: Prevents spam with timer
-- **Visual Feedback**: Shows countdown and loading states
-- **Automatic Restart**: Timer restarts after successful resend
-
-## Current Implementation
-
-The email sign-in flow lives at:
-
-- `apps/mobile/app/auth/email-signin.tsx` (send code)
-- `apps/mobile/app/auth/verify-email-otp.tsx` (enter code)
-
-## UI Components
-
-### OTP Input Component
-
-Custom 6-digit input with advanced features:
-
-```typescript
-<OtpInput
-  value={otp}
-  onChangeText={setOtp}
-  isLoading={verifyOtpMutation.isPending}
-  isVerified={isVerified}
-  onComplete={handleVerifyOtp}
-/>
-```
-
-**Features:**
-
-- Individual input fields with proper focus management
-- Loading spinner in last field during verification
-- Error state with red borders and shake animation
-- Disabled state when verified
-- One-step backspace deletion
-- Theme-aware cursor colors
-
-### Countdown Component
-
-Reusable countdown hook for resend functionality:
-
-```typescript
-const countdown = useCountdown({
-  initialSeconds: 30,
-  autoStart: true,
-  onComplete: () => console.log("Can resend now"),
-});
-```
-
-## Navigation Flow (Example)
-
-Route from the email screen to the verification screen, then the auth guard
-redirects to the authenticated app on success.
-
-## Error Handling
-
-### Current Implementation
-
-- Haptic feedback for success and failure
-- Inline OTP error animation on invalid codes
-
-## Testing
-
-### Development Testing
-
-- Uses test domain for immediate sending
-- No domain verification required
-- All email addresses work in development
-
-### Production Considerations
-
-- Verify sending domain
-- Monitor email delivery rates
-- Implement proper error tracking
-- Consider rate limiting
-
-## Security Features
-
-- **OTP Expiration**: Codes expire after set time
-- **Rate Limiting**: Built into Better Auth
-- **Session Management**: Automatic session creation on success
-- **Type Safety**: Full TypeScript integration
-
-## Customization
-
-### Email Templates
-
-Modify the email template in `apps/api/src/services/auth.ts`:
-
-```typescript
-await resend.emails.send({
-  from: "Your App <auth@yourdomain.com>",
-  to: email,
-  subject: "Welcome! Your verification code",
-  html: `
-    <h1>Welcome to Your App!</h1>
-    <p>Your verification code is: <strong>${otp}</strong></p>
-    <p>This code expires in 10 minutes.</p>
-  `,
-});
-```
-
-## Troubleshooting
-
-- **No email received**: check Resend API key and domain verification
-- **OTP invalid**: verify server time and resend rate limits
-
-## Next Steps
-
-- [Auth Troubleshooting](/authentication/troubleshooting)
-- [Mobile Authentication](/mobile/authentication)
-
-### Styling
-
-All components use your app's design system:
-
-- `@/constants/Colors.ts` for color definitions
-- `@/components/app-text.tsx` for themed text
-- Dark mode automatically supported
-
-## Troubleshooting
-
-### Email Not Received
-
-1. Check spam/junk folders
-2. Verify Resend API key is correct
-3. Check domain verification status
-4. Review console logs for errors
-
-### OTP Not Working
-
-1. Check code expiration time
-2. Verify email matches exactly
-3. Check network connectivity
-4. Review backend logs
-
-### Navigation Issues
-
-1. Ensure authentication guard is properly configured
-2. Check session state management
-3. Verify route protection in `_layout.tsx`
-
-## Remove / Disable
-
-If you are not shipping email sign-in, remove the route at
-`apps/mobile/app/auth/email-signin.tsx` and any related API configuration.
+- If you are not receiving emails in development, confirm your Resend API key
+  and check spam folders.
+- If OTP verification fails, confirm the API is running and reachable from the
+  device, and restart it after env changes.

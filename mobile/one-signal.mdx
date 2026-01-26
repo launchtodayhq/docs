@@ -1,0 +1,55 @@
+---
+title: "OneSignal and SMS OTP"
+description: "How OneSignal and SMS OTP are wired into onboarding"
+---
+
+## Overview
+
+Launch uses OneSignal for push notifications and Twilio Verify for SMS OTP.
+During onboarding, SMS OTP is optional and can be disabled via the feature
+registry. When enabled, the app collects a phone number, sends an OTP via the
+API, and verifies it before moving on.
+
+## Feature registry
+
+OneSignal is registered as a feature module in
+`apps/mobile/features/one-signal/feature.ts` and toggled via the `oneSignal`
+flag in `apps/mobile/features/feature-registry.tsx`.
+
+When this feature is disabled, the onboarding flow skips the phone and OTP
+screens and continues directly to the push notification step.
+
+## How SMS OTP works
+
+The onboarding screens call user endpoints on the API:
+
+- `user.savePhoneNumber`
+- `user.sendPhoneOtp`
+- `user.verifyPhoneOtp`
+
+These endpoints live in `apps/api/src/routers/user.ts` and use the Twilio
+client in `apps/api/src/lib/twilio.ts` to send and verify OTPs.
+
+## Required environment variables
+
+Mobile:
+
+- `ONESIGNAL_APP_ID`
+
+API (Twilio Verify):
+
+- `TWILIO_ACCOUNT_SID`
+- `TWILIO_AUTH_TOKEN`
+- `TWILIO_SERVICE_SID`
+
+Optional dev-only flag:
+
+- `SKIP_TWILIO_OTP_VERIFICATION` (useful for local testing when Twilio is not
+  configured)
+
+## Where it is used in the app
+
+- Onboarding screens: `apps/mobile/app/onboarding/phone.tsx`,
+  `apps/mobile/app/onboarding/verify-otp.tsx`
+- Push permissions: `apps/mobile/app/onboarding/push-notifications.tsx`
+- Flow control: `apps/mobile/lib/hooks/useAppNavigation.ts`

@@ -59,7 +59,17 @@ Example:
 
 ```tsx
 export const featureFlags = {
-  payments: false,
+  payments: true,
+  ai: true,
+  fileUploads: true,
+};
+```
+
+If you want to pin payments to a specific provider, use the object form:
+
+```tsx
+export const featureFlags = {
+  payments: { enabled: true, provider: "stripe" },
   ai: true,
   fileUploads: true,
 };

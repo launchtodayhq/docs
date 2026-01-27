@@ -31,12 +31,25 @@ This guide walks through setting up Superwall from scratch.
 
 ## 2. Configure API Keys
 
-Update `lib/payments/config.ts`:
+Update API keys in `lib/payments/config.ts`:
 
 ```typescript
 export const SUPERWALL_CONFIG = {
   iosApiKey: "pk_your_ios_api_key",
   androidApiKey: "pk_your_android_api_key", // optional
+};
+```
+
+---
+
+## 2.1 Set Payment Provider
+
+Update the feature registry:
+
+```typescript
+export const featureFlags = {
+  payments: { enabled: true, provider: "superwall" },
+  // ...
 };
 ```
 

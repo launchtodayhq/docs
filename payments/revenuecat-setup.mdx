@@ -117,7 +117,7 @@ Offerings group products for display in your paywall:
 
 ### 3.1 Add API Keys
 
-Update `lib/payments/config.ts`:
+Update API keys in `lib/payments/config.ts`:
 
 ```typescript
 export const REVENUECAT_CONFIG = {
@@ -128,8 +128,13 @@ export const REVENUECAT_CONFIG = {
 
 ### 3.2 Set Payment Provider
 
+Update the feature registry:
+
 ```typescript
-export const PAYMENT_PROVIDER: PaymentProvider = "revenuecat";
+export const featureFlags = {
+  payments: { enabled: true, provider: "revenuecat" },
+  // ...
+};
 ```
 
 ---

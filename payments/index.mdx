@@ -61,11 +61,11 @@ guide for the provider you choose.
 ## How It Works
 
 Launch wraps payment providers behind a unified interface. The provider is
-selected in `apps/mobile/lib/payments/config.ts`, and the UI reads from the
-provider layer.
+selected in `apps/mobile/features/feature-registry.tsx`, and the UI reads from
+the provider layer.
 
 Key references:
 
 - Feature flag: `apps/mobile/features/feature-registry.tsx`
-- Provider selection: `apps/mobile/lib/payments/config.ts`
+- Provider selection: `apps/mobile/features/feature-registry.tsx`
 - Payments UI: `apps/mobile/app/(tabs)/features/index.tsx`

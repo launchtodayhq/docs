@@ -1,0 +1,81 @@
+---
+title: "Database ORM"
+description: "Switch between Prisma and Drizzle"
+---
+
+Launch ships with a thin ORM adapter layer so you can swap Prisma or Drizzle
+without rewriting app code. You should pick **one** ORM for a project and
+remove the other to keep the dependency tree and docs clean.
+
+## Choose an ORM
+
+Set `DATABASE_ORM` in `apps/api/.env`:
+
+```bash
+DATABASE_ORM=prisma
+```
+
+```bash
+DATABASE_ORM=drizzle
+```
+
+## Prisma (default)
+
+- Uses `prisma/schema.prisma` and Prisma migrations.
+- `db:generate`, `db:migrate`, and `db:push` run Prisma commands when
+  `DATABASE_ORM=prisma`.
+
+## Drizzle + Neon
+
+- Uses Drizzle ORM with the Neon serverless driver (and `pg` for local Postgres).
+- You can reuse the same Postgres schema; the adapter targets the same tables.
+- Drizzle is **code-first**: the `schema.ts` file defines tables, and Drizzle Kit
+  generates SQL migrations from it.
+
+### Drizzle workflow
+
+1. Edit `apps/api/src/lib/db/schema.ts`
+2. Generate SQL migrations: `pnpm --filter api db:generate`
+3. Apply to the database: `pnpm --filter api db:push`
+
+## Remove the ORM you don’t use
+
+After you pick one ORM, delete the other to avoid confusion and remove the
+unused dependencies from `apps/api/package.json`.
+
+### If you choose Prisma, remove Drizzle
+
+1. Delete Drizzle files:
+   - `apps/api/src/lib/db/drizzle-adapter.ts`
+   - `apps/api/src/lib/db/schema.ts`
+   - `apps/api/drizzle.config.ts`
+   - `apps/api/drizzle/`
+2. Remove Drizzle dependencies from `apps/api/package.json`:
+   - `drizzle-orm`
+   - `drizzle-kit`
+   - `@neondatabase/serverless`
+   - `ws` + `@types/ws`
+3. Update `apps/api/src/lib/db/index.ts` to only load Prisma.
+
+### If you choose Drizzle, remove Prisma
+
+1. Delete Prisma files:
+   - `apps/api/prisma/`
+   - `apps/api/src/lib/db/prisma-adapter.ts`
+   - `apps/api/src/generated/`
+2. Remove Prisma dependencies from `apps/api/package.json`:
+   - `prisma`
+   - `@prisma/client`
+   - `@prisma/adapter-pg`
+3. Update `apps/api/src/lib/db/index.ts` to only load Drizzle.
+4. Update the build script to remove `prisma generate`.
+
+## Notes
+
+- `db:generate`, `db:migrate`, and `db:push` auto-select Prisma or Drizzle based
+  on `DATABASE_ORM` in `apps/api/.env`.
+- `db:reset` runs Prisma reset. For Drizzle, use manual SQL or a dedicated reset
+  workflow.
+- Prisma and Drizzle migrations are separate workflows. Pick one toolchain per
+  project and keep it consistent.
+- Switching the ORM does not change your database; it only changes the client.

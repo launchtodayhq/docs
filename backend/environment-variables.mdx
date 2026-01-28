@@ -17,32 +17,34 @@ description: "Configure your backend environment"
 
 ## Required Variables (Base API)
 
-| Variable             | Description                                   | Example                               |
-| -------------------- | --------------------------------------------- | ------------------------------------- |
-| `DATABASE_URL`       | PostgreSQL connection string                  | `postgresql://user:pass@host:5432/db` |
-| `BETTER_AUTH_SECRET` | Secret for session encryption (32+ chars)     | `long-random-string`                  |
+| Variable             | Description                                    | Example                               |
+| -------------------- | ---------------------------------------------- | ------------------------------------- |
+| `DATABASE_URL`       | PostgreSQL connection string                   | `postgresql://user:pass@host:5432/db` |
+| `DATABASE_ORM`       | ORM adapter (`prisma` or `drizzle`)            | `prisma`                              |
+| `BETTER_AUTH_SECRET` | Secret for session encryption (32+ chars)      | `long-random-string`                  |
 | `BETTER_AUTH_URL`    | API base URL for OAuth callbacks (recommended) | `http://localhost:3001`               |
+| `MOBILE_APP_URL`     | App URL scheme for mobile auth origins         | `launch://`                           |
 
 ## Server & Logging
 
-| Variable       | Description                      | Default        |
-| -------------- | -------------------------------- | -------------- |
-| `PORT`         | API server port                  | `3001`         |
-| `HOST`         | API server host                  | `localhost`    |
-| `NODE_ENV`     | Environment (`development`/`production`) | `development` |
-| `LOG_LEVEL`    | Logging level (`debug`/`info`/`warn`/`error`) | `info` |
+| Variable    | Description                                   | Default       |
+| ----------- | --------------------------------------------- | ------------- |
+| `PORT`      | API server port                               | `3001`        |
+| `HOST`      | API server host                               | `localhost`   |
+| `NODE_ENV`  | Environment (`development`/`production`)      | `development` |
+| `LOG_LEVEL` | Logging level (`debug`/`info`/`warn`/`error`) | `info`        |
 
 ## Authentication Providers
 
 ### Apple Sign In
 
-| Variable                     | Description                                 |
-| ---------------------------- | ------------------------------------------- |
-| `APPLE_CLIENT_ID`            | Apple Services ID (matches iOS bundle ID)   |
-| `APPLE_TEAM_ID`              | Apple Developer Team ID                     |
-| `APPLE_KEY_ID`               | Apple Key ID                                |
-| `APPLE_PRIVATE_KEY`          | Private key contents (PEM)                  |
-| `APPLE_PRIVATE_KEY_BASE64`   | Base64-encoded private key (alternative)    |
+| Variable                   | Description                               |
+| -------------------------- | ----------------------------------------- |
+| `APPLE_CLIENT_ID`          | Apple Services ID (matches iOS bundle ID) |
+| `APPLE_TEAM_ID`            | Apple Developer Team ID                   |
+| `APPLE_KEY_ID`             | Apple Key ID                              |
+| `APPLE_PRIVATE_KEY`        | Private key contents (PEM)                |
+| `APPLE_PRIVATE_KEY_BASE64` | Base64-encoded private key (alternative)  |
 
 > Use **either** `APPLE_PRIVATE_KEY` or `APPLE_PRIVATE_KEY_BASE64`.
 
@@ -55,64 +57,64 @@ description: "Configure your backend environment"
 
 ## Email & SMS
 
-| Variable               | Description                       |
-| ---------------------- | --------------------------------- |
-| `RESEND_API_KEY`       | Resend API key (email OTP)        |
-| `TWILIO_ACCOUNT_SID`   | Twilio account SID (SMS OTP)      |
-| `TWILIO_AUTH_TOKEN`    | Twilio auth token                 |
-| `TWILIO_SERVICE_SID`   | Twilio Verify service SID         |
+| Variable                       | Description                                                          |
+| ------------------------------ | -------------------------------------------------------------------- |
+| `RESEND_API_KEY`               | Resend API key (email OTP)                                           |
+| `TWILIO_ACCOUNT_SID`           | Twilio account SID (SMS OTP)                                         |
+| `TWILIO_AUTH_TOKEN`            | Twilio auth token                                                    |
+| `TWILIO_SERVICE_SID`           | Twilio Verify service SID                                            |
 | `SKIP_TWILIO_OTP_VERIFICATION` | Skip SMS verification in dev (`true`/`false`, ignored in production) |
 
 ## Payments (Stripe)
 
-| Variable                   | Description                    |
-| -------------------------- | ------------------------------ |
-| `STRIPE_SECRET_KEY`        | Stripe API secret key          |
-| `STRIPE_PUBLISHABLE_KEY`   | Stripe publishable key         |
-| `STRIPE_WEBHOOK_SECRET`    | Stripe webhook signing secret  |
+| Variable                 | Description                   |
+| ------------------------ | ----------------------------- |
+| `STRIPE_SECRET_KEY`      | Stripe API secret key         |
+| `STRIPE_PUBLISHABLE_KEY` | Stripe publishable key        |
+| `STRIPE_WEBHOOK_SECRET`  | Stripe webhook signing secret |
 
 ## AI Providers
 
-| Variable            | Description                 |
-| ------------------- | --------------------------- |
-| `OPENAI_API_KEY`    | OpenAI API key              |
+| Variable              | Description                       |
+| --------------------- | --------------------------------- |
+| `OPENAI_API_KEY`      | OpenAI API key                    |
 | `OPENAI_ORGANIZATION` | OpenAI organization ID (optional) |
-| `ANTHROPIC_API_KEY` | Anthropic API key (optional) |
+| `ANTHROPIC_API_KEY`   | Anthropic API key (optional)      |
 
 ## File Uploads (S3)
 
-| Variable                | Description                 | Default   |
-| ----------------------- | --------------------------- | --------- |
-| `S3_BUCKET`             | S3 bucket name              | (none)    |
-| `S3_REGION`             | AWS region                  | `us-east-1` |
-| `S3_ACCESS_KEY_ID`      | AWS access key ID           | (none)    |
-| `S3_SECRET_ACCESS_KEY`  | AWS secret access key       | (none)    |
+| Variable               | Description           | Default     |
+| ---------------------- | --------------------- | ----------- |
+| `S3_BUCKET`            | S3 bucket name        | (none)      |
+| `S3_REGION`            | AWS region            | `us-east-1` |
+| `S3_ACCESS_KEY_ID`     | AWS access key ID     | (none)      |
+| `S3_SECRET_ACCESS_KEY` | AWS secret access key | (none)      |
 
 ## Push Notifications
 
 ### APNS (iOS)
 
-| Variable            | Description                          |
-| ------------------- | ------------------------------------ |
-| `APNS_TEAM_ID`      | Apple Team ID                        |
-| `APNS_KEY_ID`       | APNS key ID                          |
-| `APNS_BUNDLE_ID`    | iOS bundle identifier                |
-| `APNS_PRODUCTION`   | `true` for production APNS           |
-| `APNS_KEY`          | APNS private key contents (PEM)      |
-| `APNS_KEY_BASE64`   | Base64-encoded APNS key (alternative) |
+| Variable          | Description                           |
+| ----------------- | ------------------------------------- |
+| `APNS_TEAM_ID`    | Apple Team ID                         |
+| `APNS_KEY_ID`     | APNS key ID                           |
+| `APNS_BUNDLE_ID`  | iOS bundle identifier                 |
+| `APNS_PRODUCTION` | `true` for production APNS            |
+| `APNS_KEY`        | APNS private key contents (PEM)       |
+| `APNS_KEY_BASE64` | Base64-encoded APNS key (alternative) |
 
 ### FCM (Android)
 
-| Variable                    | Description                                  |
-| --------------------------- | -------------------------------------------- |
-| `FCM_PROJECT_ID`            | Firebase project ID                          |
-| `FCM_SERVICE_ACCOUNT_BASE64` | Base64-encoded service account JSON          |
+| Variable                     | Description                         |
+| ---------------------------- | ----------------------------------- |
+| `FCM_PROJECT_ID`             | Firebase project ID                 |
+| `FCM_SERVICE_ACCOUNT_BASE64` | Base64-encoded service account JSON |
 
 ### Push Campaign API
 
-| Variable                   | Description                      |
-| -------------------------- | -------------------------------- |
-| `PUSH_TOKEN_ADMIN_SECRET`  | Bearer token for push campaigns  |
+| Variable                  | Description                     |
+| ------------------------- | ------------------------------- |
+| `PUSH_TOKEN_ADMIN_SECRET` | Bearer token for push campaigns |
 
 ## Notes
 
@@ -120,6 +122,7 @@ description: "Configure your backend environment"
   cause runtime errors, so prefer setting envs before boot.
 - If you don’t need a feature, you can leave its env vars unset and disable the
   corresponding mobile feature flag.
+- `DATABASE_ORM=drizzle` expects a Postgres-compatible database (Neon works well).
 
 ## Troubleshooting
 
@@ -131,4 +134,3 @@ description: "Configure your backend environment"
 
 - [Backend Overview](/backend/index)
 - [Authentication Setup](/authentication/backend-setup)
-

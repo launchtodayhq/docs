@@ -15,8 +15,9 @@ the app.
 ## Steps
 
 1. Configure env vars: [Environment Variables](/backend/environment-variables)
-2. Run migrations in `apps/api`
-3. Start the server with `pnpm dev`
+2. Choose ORM: [Database ORM](/backend/database-orm)
+3. Run migrations in `apps/api`
+4. Start the server with `pnpm dev`
 
 ## Tech Stack
 
@@ -24,8 +25,8 @@ the app.
   <Card title="Koa" icon="server">
     Minimal Node.js server framework. Easy to understand and customize.
   </Card>
-  <Card title="Prisma" icon="database">
-    Type-safe database client and migrations for PostgreSQL.
+  <Card title="Prisma + Drizzle" icon="database">
+    Switchable ORM adapters for PostgreSQL (Prisma default, Drizzle optional).
   </Card>
   <Card title="PostgreSQL" icon="elephant">
     Reliable, production-ready relational database.
@@ -40,7 +41,7 @@ the app.
 - **Authentication API** - Session management with Better Auth
 - **User Management** - Profile storage and updates
 - **Payment Webhooks** - Stripe webhook handlers
-- **Database Migrations** - Prisma schema + migrations
+- **Database Migrations** - Prisma schema + migrations (or Drizzle tooling)
 - **Type Safety** - Shared `AppRouter` types for mobile + web
 
 ## File Structure
@@ -51,7 +52,7 @@ apps/api/
 │   ├── routers/           # tRPC routers (chat, stripe, upload, user)
 │   ├── routes/            # REST endpoints (auth, webhooks, ai streaming)
 │   ├── services/          # Business logic (auth, AI, payments)
-│   ├── lib/               # Prisma, S3, Stripe clients
+│   ├── lib/               # ORM adapters, S3, Stripe clients
 │   ├── config/            # Env/config
 │   ├── app.ts             # Koa app wiring
 │   └── index.ts           # Server entry point

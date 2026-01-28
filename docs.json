@@ -15,10 +15,7 @@
         "groups": [
           {
             "group": "Intro",
-            "pages": [
-              "index",
-              "intro/why-launch"
-            ]
+            "pages": ["index", "intro/why-launch"]
           },
           {
             "group": "Feature Registry",
@@ -50,10 +47,7 @@
           },
           {
             "group": "Onboarding",
-            "pages": [
-              "mobile/onboarding",
-              "mobile/one-signal"
-            ]
+            "pages": ["mobile/onboarding", "mobile/one-signal"]
           },
           {
             "group": "Payments",
@@ -125,7 +119,8 @@
             "group": "Backend",
             "pages": [
               "backend/index",
-              "backend/environment-variables"
+              "backend/environment-variables",
+              "backend/database-orm"
             ]
           },
           {

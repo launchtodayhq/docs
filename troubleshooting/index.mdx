@@ -84,12 +84,6 @@ pnpm prisma migrate dev
     Ensure Sign In with Apple is enabled in Apple Developer Console
   </Accordion>
 
-  <Accordion title="'CORS error'">
-    **Cause**: Origin not allowed by API **Fix**: Add your origin to
-    TRUSTED_ORIGINS in .env: ```bash
-    TRUSTED_ORIGINS="http://localhost:3000,exp://192.168.1.100:8081" ```
-  </Accordion>
-
   <Accordion title="'state mismatch' (Google sign-in on Android)">
     **Cause**: OAuth started on one origin but the callback returned to another (common when mixing LAN URLs with ngrok).
 

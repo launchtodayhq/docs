@@ -10,8 +10,8 @@ dependencies across apps. A monorepo keeps related code in one place so you can
 share types, reuse utilities, and ship features across the API and mobile app
 without cross-repo overhead.
 
-At the top level, `apps/` holds the product apps, `docs/` contains the documentation,
-and the root config files (`package.json`, `pnpm-workspace.yaml`, `turbo.json`) manage
+At the top level, `apps/` holds the product apps (mobile, api, and web — work in progress).
+The root config files (`package.json`, `pnpm-workspace.yaml`, `turbo.json`) manage
 dependencies and task orchestration across the workspace.
 
 `pnpm-workspace.yaml` defines the workspace packages and `turbo.json` runs tasks
@@ -104,7 +104,11 @@ migrations.
   <Card title="Start the Backend" icon="server" href="/quickstart">
     Run the API and database locally.
   </Card>
-  <Card title="Start the Mobile App" icon="mobile" href="/getting-started/run-mobile">
+  <Card
+    title="Start the Mobile App"
+    icon="mobile"
+    href="/getting-started/run-mobile"
+  >
     Launch Expo and open the app.
   </Card>
 </Columns>

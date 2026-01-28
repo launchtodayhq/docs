@@ -129,6 +129,7 @@
             "pages": [
               "essentials/error-handling-observability",
               "essentials/incident-debugging",
+              "essentials/pre-release-checklist",
               "essentials/type-safety"
             ]
           },

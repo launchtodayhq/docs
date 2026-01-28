@@ -1,0 +1,55 @@
+---
+title: "Pre-Release Checklist"
+description: "Finalize branding, links, and placeholders before shipping"
+---
+
+Use this checklist before you ship your app or hand the template to customers.
+
+## Rename Launch placeholders
+
+Search for “Launch” and “launch” in these files and replace them with your app
+name, bundle IDs, and deep link scheme.
+
+### Mobile app branding
+
+- `apps/mobile/app.config.ts`
+  - `name`, `slug`, and `scheme`
+  - iOS `bundleIdentifier` and Android `package`
+  - `CFBundleURLSchemes` (deep link scheme)
+  - Stripe `merchantIdentifier`
+  - Sentry `project` and `organization`
+
+### Stripe checkout URLs
+
+- `apps/mobile/app/payments/stripe.tsx`
+  - `successUrl` and `cancelUrl`
+  - Stripe `merchantIdentifier`
+
+### File uploads (keys + storage)
+
+- `apps/mobile/app/file-uploads/s3.tsx`
+  - Storage keys and upload queue keys (e.g., `@launch/...`)
+  - Update to match your app namespace
+
+### Backend docs + Docker database name
+
+- `apps/api/README.md`
+  - App name references (“Launch API”)
+  - Example env var values
+- `apps/api/docker-compose.yml`
+  - `POSTGRES_DB`, container name, and healthcheck DB name
+
+## Verify deep links
+
+- Ensure all `launch://` URLs are updated to your scheme
+- Update `MOBILE_APP_URL` in `apps/api/.env` to match
+
+## Payments & legal links
+
+- Replace Terms/Privacy links in `apps/mobile/app/payments/stripe.tsx`
+- Confirm merchant identifiers and payment provider keys
+
+## Final pass
+
+- Run a global search for “launch”, “launchhq”, and “launchtoday”
+- Update any remaining branding or example values

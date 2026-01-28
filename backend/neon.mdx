@@ -1,0 +1,40 @@
+---
+title: "Neon Database"
+description: "Provision and connect a Neon Postgres database"
+---
+
+Use Neon when you want a managed Postgres database for Launch.
+
+## Create a Neon database
+
+1. Create a project in Neon.
+2. Copy the **connection string** from the Neon dashboard.
+3. Set it as `DATABASE_URL` in `apps/api/.env`:
+
+```bash
+DATABASE_URL=postgresql://user:pass@host.neon.tech/db
+```
+
+## Apply migrations
+
+After setting `DATABASE_URL`, run the same migration commands you use locally:
+
+```bash
+pnpm --filter api db:generate
+pnpm --filter api db:migrate
+pnpm --filter api db:push
+```
+
+## Run migrations safely
+
+Be careful running migrations against production from your laptop.
+
+Recommended safety practices:
+
+- Run migrations from CI (GitHub Actions) instead of local machines.
+- Apply migrations only after a successful deploy.
+- Use a dedicated “migration” step with environment‑scoped credentials.
+- Test migrations on a staging database first.
+
+If you need more control, move to a CI workflow that runs migrations with
+explicit approvals and environment protection rules.

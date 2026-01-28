@@ -120,7 +120,8 @@
             "pages": [
               "backend/index",
               "backend/environment-variables",
-              "backend/database-orm"
+              "backend/database-orm",
+              "backend/neon"
             ]
           },
           {

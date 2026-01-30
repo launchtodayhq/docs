@@ -29,7 +29,7 @@
             "group": "Getting Started",
             "pages": [
               "getting-started/prerequisites",
-              "project-structure",
+              "project-structure/index",
               "getting-started/setup",
               "quickstart",
               "getting-started/run-mobile"

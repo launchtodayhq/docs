@@ -129,6 +129,7 @@
             "pages": [
               "essentials/error-handling-observability",
               "essentials/incident-debugging",
+              "essentials/logging-best-practices",
               "essentials/pre-release-checklist",
               "essentials/type-safety"
             ]
@@ -145,6 +146,7 @@
             "group": "Security",
             "pages": [
               "security/index",
+              "security/jailbroken-devices",
               "security/mobile-security",
               "security/checklist"
             ]
@@ -163,19 +165,19 @@
     "global": {
       "anchors": [
         {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
+          "anchor": "Launch",
+          "href": "https://launchtoday.dev/",
+          "icon": "home"
         },
         {
-          "anchor": "Community",
-          "href": "https://mintlify.com/community",
-          "icon": "slack"
+          "anchor": "Discord",
+          "href": "https://discord.gg/sFcdkzY2HZ",
+          "icon": "discord"
         },
         {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
+          "anchor": "X",
+          "href": "https://x.com/hqlaunch_",
+          "icon": "twitter"
         }
       ]
     }

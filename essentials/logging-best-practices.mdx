@@ -1,0 +1,108 @@
+---
+title: "Logging Best Practices"
+description: "Guidelines for reliable, privacy-safe logging in Launch"
+---
+
+## Why this matters
+
+The goal is to make debugging in production easy without exposing sensitive
+information. Logging should help you answer:
+
+- What went wrong?
+- Where did it happen?
+- How often does it happen?
+
+While ensuring you never log secrets, tokens, or personal data.
+
+## What we do in Launch
+
+Launch standardizes logging so that:
+
+- Local development logs stay in the console.
+- Production logs are sent to Sentry **only when enabled**.
+- Errors are captured with context, not raw secrets.
+- User‑initiated cancellations (e.g. auth cancel) are **not** logged.
+
+## Recommended logging patterns
+
+### 1) Use the logging helpers
+
+Prefer the utilities in `apps/mobile/lib/utils/logging.ts`:
+
+- `logInfo(message, error?)`
+- `logWarn(message, error?)`
+- `logError(message, error?)`
+
+These route to Sentry only when the Sentry feature is enabled and a DSN is set.
+
+### 2) Log failures, not normal flows
+
+Log when something **fails**, not when it succeeds. Example:
+
+- ✅ Log: “Apple Sign‑In failed”
+- ❌ Don’t log: “Apple Sign‑In cancelled by user”
+
+### 3) Keep messages short and consistent
+
+Use short, stable messages so issues group cleanly in Sentry:
+
+- `Failed to save onboarding name`
+- `Google Sign‑In failed`
+- `Stripe products API failed`
+
+### 4) Never log secrets
+
+Don’t log:
+
+- API keys
+- tokens
+- passwords
+- raw request/response bodies
+
+If you need to check presence, log booleans instead:
+
+- `stripeKey: set`
+- `sentryDsn: missing`
+
+### 5) Prefer context over payloads
+
+Log the **where** and **why**, not the entire payload:
+
+✅ `Failed to update profile image`  
+❌ `Failed to update profile image: { full user object }`
+
+## Suggested places to log
+
+High‑signal areas where production logs are most useful:
+
+- Auth failures (Apple/Google/OTP errors)
+- Payments and subscription errors
+- File upload failures
+- Account deletion failures
+- Onboarding save failures (profile setup)
+- AI chat failures (share, stream, and provider errors)
+- File upload failures (S3 flow, native uploads, multipart errors)
+
+## How to extend safely
+
+When adding a new feature:
+
+1. Use `logError` for failures.
+2. Use `logWarn` for recoverable issues.
+3. Avoid logging cancellations or expected user behaviour.
+4. If you must log sensitive flows, log **presence**, never values.
+
+## Related files
+
+- `apps/mobile/lib/utils/logging.ts`
+- `apps/mobile/app/auth/login.tsx`
+- `apps/mobile/app/onboarding/welcome.tsx`
+- `apps/mobile/app/auth/verify-email-otp.tsx`
+- `apps/mobile/app/onboarding/verify-otp.tsx`
+- `apps/mobile/app/onboarding/push-notifications.tsx`
+- `apps/mobile/app/ai-chat.tsx`
+- `apps/api/src/routes/ai-stream.ts`
+- `apps/mobile/app/payments/revenuecat.tsx`
+- `apps/mobile/app/payments/superwall.tsx`
+- `apps/mobile/app/file-uploads/s3.tsx`
+- `apps/mobile/app/delete-account.tsx`

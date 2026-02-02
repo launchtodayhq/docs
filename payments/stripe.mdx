@@ -57,6 +57,16 @@ supports:
 - **Haptic feedback** - Native feel with tactile responses
 - **Reusable SelectCard component** - Consistent design across your app
 
+## Setup Requirements
+
+The Stripe paywall only shows the “setup required” state when:
+
+- The Stripe env vars are missing, **or**
+- The Stripe product list loads successfully but contains zero products.
+
+If the API request fails, the screen will display a separate error message so
+you can distinguish missing config from backend/API issues.
+
 ## Quick Start
 
 <Steps>

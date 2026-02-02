@@ -1,0 +1,82 @@
+---
+title: "Jailbroken Devices"
+description: "Why we detect compromised devices and how to use the guard safely"
+---
+
+## Overview
+
+Jailbroken (iOS) or rooted (Android) devices bypass platform security
+protections. This makes it easier for malware or tampering tools to intercept
+requests, read local data, or manipulate app behavior. Launch includes optional
+device integrity checks to help you protect sensitive workflows without blocking
+legitimate users from signing in.
+
+## What “jailbroken” means
+
+On a jailbroken or rooted device, users (or malware) can:
+
+- Inject code into running apps.
+- Read or modify local storage that should be private.
+- Bypass app sandboxing and OS restrictions.
+- Intercept network traffic or tamper with requests.
+
+That doesn’t mean every jailbroken device is malicious, but it does raise the
+risk profile for sensitive operations.
+
+## What Launch uses for detection
+
+Launch uses the `jail-monkey` library to detect compromised devices and runtime
+tampering. We expose two guards:
+
+- `DeviceIntegrityGuard` (root/jailbreak detection)
+- `RuntimeIntegrityGuard` (debug/hook detection)
+
+These are deliberately opt-in so you can decide where to enforce them.
+
+## Why we have it
+
+Most apps don’t need to block everything on a compromised device. The common
+pattern is to **allow login** but **protect sensitive actions** like payments,
+subscription changes, or account deletion.
+
+This approach keeps support accessible for legitimate users while still
+protecting high-risk workflows.
+
+## Recommended usage in production
+
+Apply guards to screens that:
+
+- Modify billing or entitlements (payments, subscriptions).
+- Perform irreversible actions (delete account).
+- Access or upload sensitive data (file uploads, KYC, documents).
+- Expose private user data (settings, profile, chat history).
+
+Avoid guarding low-risk screens such as onboarding, login, or general feature
+discovery. If a device is compromised, it is better to let the user sign in and
+reach support than to block the entire app.
+
+## Example placement
+
+- Guarded: payments, subscription, delete account, file uploads, settings.
+- Not guarded: auth, notifications, general feature list.
+
+## Tips for extending safely
+
+- Start with the defaults, then expand as you add sensitive workflows.
+- If you build identity verification or compliance flows, add guards there.
+- Consider using a “soft block” (show a warning) instead of a hard block for
+  some screens.
+- Always log guard triggers so you can support false positives.
+
+## FAQs
+
+**Does this block TestFlight users?**  
+It shouldn’t, but build and debug checks can produce false positives if used
+incorrectly. In Launch, the runtime check is async-safe and doesn’t treat a
+Promise as a boolean.
+
+**Is this required to ship?**  
+No. It’s optional and intended as a security layer you can enable where needed.
+
+**Can I turn it off for development?**  
+Yes. The guards allow dev bypass by default to avoid blocking local testing.
